@@ -1,0 +1,6 @@
+node_modules
+*error.log
+dist/
+.env
+logs/
+msal-cache/

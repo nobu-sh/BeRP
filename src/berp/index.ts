@@ -1,0 +1,5 @@
+class BeRP {
+
+}
+
+export = BeRP

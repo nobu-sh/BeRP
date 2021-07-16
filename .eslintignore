@@ -1,0 +1,6 @@
+.eslintrc.js
+node_modules/
+dist/
+tsconfig.json
+esm/
+docs/
