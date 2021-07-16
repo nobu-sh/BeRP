@@ -1,40 +1,69 @@
 import {
-  PublicClientApplication, Configuration, 
+  PublicClientApplication, Configuration, DeviceCodeRequest, AuthenticationResult, TokenCache, SilentFlowRequest,
 } from '@azure/msal-node'
 import cachePlugin from './cachePlugin'
 import { resolve } from 'path'
 import fs from 'fs'
+import { AuthHandlerOptions } from 'src/berp'
 
-const msalCacheDir = resolve(process.cwd(), 'msal-cache')
-
-fs.mkdirSync(msalCacheDir, { recursive: true })
-
-const clientConfig: Configuration = {
-  auth: {
-    clientId: "d4e8e17a-f8ae-47b8-a392-8b76fcdb10d2",
-    authority: "https://login.microsoftonline.com/consumers",
-  },
-  cache: {
-    cachePlugin: cachePlugin(resolve(msalCacheDir, 'cache.json')),
-  },
+class AuthHandler {
+  private _options: AuthHandlerOptions
+  private _msalApp: PublicClientApplication
+  constructor(options: AuthHandlerOptions) {
+    if (!options) throw new Error("Invalid AuthHandler Options")
+    this._options = options
+    
+    fs.mkdirSync(options.cacheDir, { recursive: true })
+  }
+  public createConfig(): Configuration {
+    return {
+      auth: {
+        clientId: this._options.clientId,
+        authority: this._options.authority,
+      },
+      cache: {
+        cachePlugin: cachePlugin(resolve(this._options.cacheDir, "cache.json")),
+      },
+    }
+  }
+  public createApp(config: Configuration): void {
+    this._msalApp = new PublicClientApplication(config)
+  }
+  /**
+   * Creates Auth Link For User To Auth With
+   * @returns {Promise<AuthenticationResult>} Authenticated User Info 
+   */
+  public createDeviceOauthGrant(request: DeviceCodeRequest): Promise<AuthenticationResult> {
+    return this._msalApp.acquireTokenByDeviceCode(request)
+  }
+  /**
+   * Auths a user via username and password. As far as I know this is not multi-factor compatible
+   * @param username Username For Account
+   * @param password Password For Account
+   * @param scopes Access Scopes
+   * @returns {Promise<AuthenticationResult>} Authenticated User Info 
+   */
+  public authByUsernameAndPass(username: string, password: string, scopes: string[]): Promise<AuthenticationResult> {
+    return this._msalApp.acquireTokenByUsernamePassword({
+      username,
+      password,
+      scopes,
+    })
+  }
+  /**
+   * Gets User Cache
+   */
+  public getCache(): TokenCache {
+    return this._msalApp.getTokenCache()
+  }
+  /**
+   * Attempts to get token from cache
+   * 
+   * Handles refreshing automatically
+   */
+  public aquireTokenFromCache(request: SilentFlowRequest): Promise<AuthenticationResult> {
+    return this._msalApp.acquireTokenSilent(request)
+  }
 }
 
-const msalApp = new PublicClientApplication(clientConfig)
-
-
-msalApp.acquireTokenByDeviceCode({
-  scopes: ["Xboxlive.signin", "Xboxlive.offline_access"],
-  timeout: 200000,
-  
-  deviceCodeCallback(response) {
-    console.log("DEVICE CODE CALLBACK")
-    console.log(response)
-  },
-}).then((res) => {
-  console.log(res.accessToken)
-})
-  .catch((err) => {
-    throw err
-  })
-
-export = "please work"
+export = AuthHandler

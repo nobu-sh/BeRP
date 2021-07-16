@@ -30,27 +30,27 @@ export const overrideProcessConsole = (dir: string): void => {
 
   console.log = function(): void {
     process.stdout.write(format.apply(this, arguments) + '\n')
-    write(Array.from(arguments).join(" ")
+    write((format.apply(this, arguments))
       .replace(/\u001b\[.*?m/g, "") + "\n")
   }
   console.info = function(): void {
     process.stdout.write(format.apply(this, arguments) + '\n')
-    write(Array.from(arguments).join(" ")
+    write((format.apply(this, arguments))
       .replace(/\u001b\[.*?m/g, "") + "\n")
   }
   console.warn = function(): void {
     process.stdout.write(format.apply(this, arguments) + '\n')
-    write(Array.from(arguments).join(" ")
+    write((format.apply(this, arguments))
       .replace(/\u001b\[.*?m/g, "") + "\n")
   }
   console.debug = function(): void {
     process.stdout.write(format.apply(this, arguments) + '\n')
-    write(Array.from(arguments).join(" ")
+    write((format.apply(this, arguments))
       .replace(/\u001b\[.*?m/g, "") + "\n")
   }
   console.error = function(): void {
     process.stderr.write(format.apply(this, arguments) + '\n')
-    write(Array.from(arguments).join(" ")
+    write((format.apply(this, arguments))
       .replace(/\u001b\[.*?m/g, "") + "\n")
   }
 
