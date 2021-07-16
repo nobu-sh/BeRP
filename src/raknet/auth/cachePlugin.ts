@@ -23,7 +23,7 @@ export = function (location: string): CachePlugin {
           if (err) {
             reject()
           }
-          // resolve() // If Needed Unknown
+          resolve() // Is needed lol
         })
       }
     })
