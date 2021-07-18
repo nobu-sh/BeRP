@@ -1,65 +1,50 @@
-import { overrideProcessConsole } from './utils'
+import {
+  overrideProcessConsole,
+  createXBLToken,
+} from './utils'
 import { resolve } from 'path'
+import * as C from './Constants'
+import Axios from 'axios'
 
 // Overrides Console Methods To Add Log History
 overrideProcessConsole(resolve(process.cwd(), 'logs'))
 
-
-import AuthHandler from './raknet/auth'
-
-const scopes = ["Xboxlive.signin", "Xboxlive.offline_access"]
+import AuthHandler from './auth'
 const auth = new AuthHandler({
-  clientId: "d4e8e17a-f8ae-47b8-a392-8b76fcdb10d2",
-  authority: "https://login.microsoftonline.com/consumers",
+  clientId: C.AzureClientID,
+  authority: C.AuthEndpoints.MSALAuthority,
   cacheDir: resolve(process.cwd(), 'msal-cache'),
 })
 
 auth.createApp(auth.createConfig())
 
-// Attempt to get user from cache
-auth.getCache().getAllAccounts()
-  .then((res) => {
-    // No cached users
-    if (!res || res.length < 1) {
-      console.log("Could Not Find Any Cached Accounts, Please Sign In!")
+import crypto from 'crypto'
+const SALT = '🧂'
+const curve = 'secp384r1'
 
-      // Create oauth device grant
-      auth.createDeviceOauthGrant({
-        scopes,
-        deviceCodeCallback(device) {
-          console.log(device.message)
-        },
+const ecdhKeyPair = crypto.generateKeyPairSync('ec', { namedCurve: curve })
+const publicKeyDER = ecdhKeyPair.publicKey.export({
+  format: 'der',
+  type: 'spki',
+})
+const privateKeyPEM = ecdhKeyPair.privateKey.export({
+  format: 'pem',
+  type: 'sec1',
+})
+const clientX509 = publicKeyDER.toString('base64')
+
+auth.selectUser()
+  .then(async res => {
+    const result = await auth.ezXSTSForRealmRak(res)
+    Axios({
+      method: 'post',
+      url: C.AuthEndpoints.MinecraftAuth,
+      headers: C.MinecraftAuthHeaders(createXBLToken(result)),
+      data: {
+        identityPublicKey: clientX509,
+      },
+    })
+      .then(({ data }) => {
+        console.log(data.chain)
       })
-        .then((user) => {
-          if (!user) {
-            throw new Error("There Was An Error Authenticating")
-          } else {
-            // Successful login
-            console.log("Logged In As User", user.account.name)
-          }
-        })
-        .catch((err) => { throw err })
-
-    } else {
-      // Found cached accounts
-      console.log("Found Account(s)", res.map(a => a.name))
-      
-      // Implement way to choose what account
-      // For time being it just selects first
-
-      auth.aquireTokenFromCache({
-        scopes,
-        account: res[0], 
-      })
-        .then((user) => {
-          if (!user) {
-            throw new Error("There Was An Error Authenticating")
-          } else {
-            // Successful cache fetch
-            console.log("Logged In As User", user.account.name)
-          }
-        })
-        .catch((err) => { throw err })
-    }
   })
-  .catch((err) => { throw err })

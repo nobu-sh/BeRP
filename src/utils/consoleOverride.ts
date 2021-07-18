@@ -4,7 +4,7 @@ import { resolve } from 'path'
 import { format } from 'util'
 
 /**
- * Overrides all console methods except for table
+ * Overrides basic console methods
  * @param dir Directory To Store Log History In
  */
 export const overrideProcessConsole = (dir: string): void => {
@@ -27,7 +27,6 @@ export const overrideProcessConsole = (dir: string): void => {
   process.once('beforeExit', () => {
     closeStreams()
   })
-
   console.log = function(): void {
     process.stdout.write(format.apply(this, arguments) + '\n')
     write((format.apply(this, arguments))

@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "cross-env NODE_ENV=production node dist/index.js",
-    "dev": "nodemon --config nodemon.json src/index.ts",
+    "dev": "cross-env NODE_ENV=development ts-node src/index.ts",
     "lint": "eslint src/**"
   },
   "repository": {
@@ -42,6 +42,10 @@
   },
   "dependencies": {
     "@azure/msal-node": "^1.2.0",
-    "@xboxreplay/xboxlive-auth": "^3.3.3"
+    "@xboxreplay/xboxlive-auth": "^3.3.3",
+    "axios": "^0.21.1",
+    "chalk": "^4.1.1",
+    "cli-select": "^1.1.2",
+    "moment": "^2.29.1"
   }
 }

@@ -1,5 +1,0 @@
-class BeRP {
-
-}
-
-export = BeRP
