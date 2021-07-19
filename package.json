@@ -30,7 +30,10 @@
   },
   "homepage": "https://github.com/NobUwU/BeRP#readme",
   "devDependencies": {
+    "@types/jsonwebtoken": "^8.5.4",
     "@types/node": "^16.3.2",
+    "@types/readable-stream": "^2.3.11",
+    "@types/uuid-1345": "^0.99.22",
     "@typescript-eslint/eslint-plugin": "^4.28.3",
     "@typescript-eslint/parser": "^4.28.3",
     "babel-eslint": "^10.1.0",
@@ -46,6 +49,12 @@
     "axios": "^0.21.1",
     "chalk": "^4.1.1",
     "cli-select": "^1.1.2",
-    "moment": "^2.29.1"
+    "jsonwebtoken": "^8.5.1",
+    "moment": "^2.29.1",
+    "prismarine-nbt": "^1.6.0",
+    "protodef": "^1.14.0",
+    "protodef-yaml": "^1.2.2",
+    "raknet-native": "^1.0.6",
+    "uuid-1345": "^1.0.2"
   }
 }

@@ -49,3 +49,13 @@ export const MinecraftAuthHeaders = (token: string): MCHeaders => {
     "User-Agent": "BeRP [Bedrock Edition Realm Protocol](https://github.com/nobuwu/berp)",
   }
 }
+
+export const MIN_VERSION = '1.16.201'
+export const CUR_VERSION = '1.17.10'
+export const Versions = {
+  '1.17.10': 448,
+  '1.17.0': 440,
+  '1.16.220': 431,
+  '1.16.210': 428,
+  '1.16.201': 422,
+}

@@ -4,3 +4,6 @@ dist/
 .env
 logs/
 msal-cache/
+read.js
+write.js
+size.js

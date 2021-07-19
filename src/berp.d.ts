@@ -35,7 +35,7 @@ export type LoggerColors = (
   "grey" 
 )
 
-interface MCHeaders {
+export interface MCHeaders {
   "cache-control": string
   Accept: string
   "Accept-Encoding": string
@@ -48,3 +48,10 @@ interface MCHeaders {
   Host: string
   "User-Agent": string
 }
+
+export type DataProviderKnownFiles = (
+  "protocol.json" |
+  "steve.json" |
+  "steveGeometry.json" |
+  "steveSkin.bin"
+)
