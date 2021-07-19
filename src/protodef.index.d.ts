@@ -133,7 +133,11 @@ declare module "protodef" {
     ProtoDefCompiler: typeof ProtodefCompiler
     CompiledProtodef: typeof CompiledProtodef
   }
-  const types: unknown
+  const types: {
+    varint: [
+      (buf: unknown, offset: unknown) => unknown
+    ]
+  }
   const utils: {
     getField (countField: unknown, context: unknown): unknown
     getFieldInfo (fieldInfo: unknown): unknown

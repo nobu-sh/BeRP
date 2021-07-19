@@ -8,6 +8,7 @@ import { resolve } from 'path'
 import * as C from './Constants'
 import Axios from 'axios'
 import JWT from 'jsonwebtoken'
+import zlib from 'zlib'
 
 import {
   Client,
@@ -51,6 +52,9 @@ const clientX509 = publicKeyDER.toString('base64')
 
 const dataProvider = new DataProvider(C.Versions[C.CUR_VERSION])
 
+import { types } from 'protodef'
+const [readVarInt] = types.varint
+
 auth.selectUser()
   .then(async res => {
     const result = await auth.ezXSTSForRealmRak(res)
@@ -71,11 +75,11 @@ auth.selectUser()
           algorithm: 'ES384',
           header: {
             x5u: clientX509,
-            typ: undefined,
+            // typ: undefined,
             alg: 'ES384',
           }, 
         })
-
+        // console.log(clientIdentityChain)
         const userData: string = data.chain[1]
         const payld = userData.split(".").map(d => Buffer.from(d, 'base64'))[1]
         const xboxProfile: { extraData: { displayName: string } } = JSON.parse(String(payld))
@@ -83,6 +87,11 @@ auth.selectUser()
         // console.log(xboxProfile)
         const skinData = JSON.parse(dataProvider.getVersionMap().getData('steve.json')
           .toString('utf-8'))
+
+        const skd = dataProvider.getVersionMap().getData('steveSkin.bin')
+          .toString('base64')
+        const geo = dataProvider.getVersionMap().getData('steveGeometry.json')
+          .toString('base64')
         const payload = {
           ...skinData,
 
@@ -90,21 +99,19 @@ auth.selectUser()
           CurrentInputMode: 1,
           DefaultInputMode: 1,
           DeviceId: nextUUID(),
-          DeviceModel: 'BeRP',
+          DeviceModel: 'PrismarineJS',
           DeviceOS: 7,
           GameVersion: C.CUR_VERSION,
           GuiScale: -1,
-          LanguageCode: 'en_US',
+          LanguageCode: 'en_GB',
           PlatformOfflineId: '',
           PlatformOnlineId: '',
           PlayFabId: nextUUID().replace(/-/g, "")
             .slice(0, 16),
           SelfSignedId: nextUUID(),
           ServerAddress: `${host}:${port}`,
-          SkinData: dataProvider.getVersionMap().getData('steveSkin.bin')
-            .toString('base64'),
-          SkinGeometryData: dataProvider.getVersionMap().getData('steveGeometry.json')
-            .toString('base64'),
+          SkinData: skd,
+          SkinGeometryData: geo,
           
           ThirdPartyName: xboxProfile.extraData.displayName,
           ThirdPartyNameOnly: false,
@@ -115,7 +122,7 @@ auth.selectUser()
           algorithm: 'ES384',
           header: {
             x5u: clientX509,
-            typ: undefined,
+            // typ: undefined,
             alg: 'ES384',
           },
           noTimestamp: true,
@@ -125,6 +132,7 @@ auth.selectUser()
           clientIdentityChain,
           ...data.chain,
         ]
+        // console.log(chain)
 
         const encodedChain = JSON.stringify({ chain })
 
@@ -140,23 +148,49 @@ auth.selectUser()
         }
 
         const raknet = new Client(host, port, { protocolVersion: 10 })
-        raknet.connect()
-
         raknet.on('connect', (d) => {
           console.log("Raknet Connected With Data", d)
-          // raknet.send(serializer.createPacketBuffer({
-          //   name: 'login',
-          //   params: loginPayload, 
-          // }) as Buffer, PacketPriority.HIGH_PRIORITY, PacketReliability.RELIABLE, null)
+          const spak = serializer.createPacketBuffer({
+            name: 'login',
+            params: loginPayload, 
+          })
+          const defpak = zlib.deflateRawSync(spak as Buffer, { level: 7 })
+          const ret = Buffer.concat([Buffer.from([0xfe]), defpak])
+          console.log(ret)
+          raknet.send(ret, PacketPriority.HIGH_PRIORITY, PacketReliability.RELIABLE_ORDERED, 0)
         })
 
-        raknet.on('encapsulated', (...args) => {
-          console.log("Raknet Encapsulated", args)
+        raknet.on('encapsulated', (arg) => {
+          // console.log(arg.buffer)
+          const buf = Buffer.from(arg.buffer)
+          console.log(buf)
+          if (buf[0] !== 0xfe) throw Error('bad batch packet header ' + buf[0])
+          const buffer = buf.slice(1)
+          const inf = zlib.inflateRawSync(buffer, { chunkSize: 1024 * 1024 * 2 })
+          const packets = []
+          let offset = 0
+          while (offset < inf.byteLength) {
+            const { value, size } = readVarInt(inf, offset) as { value: number, size: number }
+            const dec = Buffer.allocUnsafe(value)
+            offset += size
+            offset += inf.copy(dec, 0, offset, offset + value)
+            packets.push(dec)
+          }
+          for (const packet of packets) {
+            const des: { data: { name: unknown, params: unknown } } = deserializer.parsePacketBuffer(packet) as { data: { name: unknown, params: unknown } }
+            const pakData = {
+              name: des.data.name,
+              params: des.data.params, 
+            }
+            console.log(pakData)
+          }
         })
 
         raknet.on('pong', (...args) => {
           console.log('Raknet Pong', args)
         })
+
+        raknet.connect()
 
       })
   })
