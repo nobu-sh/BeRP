@@ -135,7 +135,9 @@ declare module "protodef" {
   }
   const types: {
     varint: [
-      (buf: unknown, offset: unknown) => unknown
+      (buf: Buffer, offset: number) => { value: number, size: number },
+      (length: number, buffer: Buffer, num: number) => void,
+      (chunk: number) => number
     ]
   }
   const utils: {

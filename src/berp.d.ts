@@ -14,6 +14,35 @@ export interface AuthHandlerXSTSResponse {
   expires: string
 }
 
+export interface LoginPayload {
+  protocol_version: number
+  tokens: {
+    identity: string
+    client: string
+  }
+}
+export interface XboxProfile {
+  nbf: number
+  extraData: {
+    XUID: string
+    identity: string
+    displayName: string
+    titleId: number
+  }
+  randomNonce: number
+  iss: string
+  exp: number
+  iat: number
+  identityPublicKey: string
+}
+export type Versions = (
+  '1.17.10' |
+  '1.17.0' |
+  '1.16.220' |
+  '1.16.210' |
+  '1.16.201' 
+)
+
 export type LoggerColors = (
   "black" |
   "blackBright" |

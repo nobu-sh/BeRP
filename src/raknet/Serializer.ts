@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-var-requires */
 import {
   Compiler,
@@ -10,7 +12,7 @@ const {
 } = Compiler
 import { resolve } from 'path'
 
-class Parser extends FullPacketParser {
+export class Parser extends FullPacketParser {
   constructor(option1: unknown, option2: unknown) {
     super(option1, option2)
   }
@@ -22,7 +24,7 @@ class Parser extends FullPacketParser {
       throw e
     }
   }
-  public verify (deserialized, serializer) {
+  public verify (deserialized: any, serializer: any): void {
     const { name, params } = deserialized.data
     const oldBuffer = deserialized.fullBuffer
     const newBuffer = serializer.createPacketBuffer({
