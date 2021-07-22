@@ -63,13 +63,13 @@ export class Raknet extends EventEmitter {
     this.emit('pong')
   }
   private _onEncapsulated(arg: { buffer: Buffer, address: string, guid: string }) {
-    this.emit('raw', arg.buffer, arg.address, arg.guid)
+    this.emit('raw', Buffer.from(arg.buffer), arg.address, arg.guid)
   }
   private _onClose() {
     this.emit('closed')
   }
   public writeRaw(packet: Buffer, priority?: PacketPriority, reliability?: PacketReliability, orderingChannel?: number): void {
-    this.connection.send(packet, priority || PacketPriority.MEDIUM_PRIORITY, reliability || PacketReliability.RELIABLE_ORDERED, orderingChannel || 0)
+    this.connection.send(packet, priority || PacketPriority.IMMEDIATE_PRIORITY, reliability || PacketReliability.RELIABLE_ORDERED, orderingChannel || 0)
   }
   public connect(): void {
     if (!this.connected) {

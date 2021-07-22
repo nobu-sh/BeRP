@@ -17,6 +17,10 @@ const Versions = {
 }
 const { join } = require('path')
 
+// for (const [key] of Object.entries(Versions)) {
+//   fs.mkdirSync(join(__dirname, '../data', key), { recursive: true })
+// }
+
 function getJSON (path) {
   return JSON.parse(fs.readFileSync(path, 'utf-8'))
 }

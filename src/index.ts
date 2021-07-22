@@ -2,14 +2,20 @@ import { overrideProcessConsole } from './utils'
 import { resolve } from 'path'
 import * as C from './Constants'
 import { NetworkManager } from './raknet/Manager'
-
-const host = "20.81.70.242"
-const port = 30192
+import { nextUUID } from './utils'
+const host = "52.226.192.102"
+const port = 30550
 
 // Overrides Console Methods To Add Log History
 overrideProcessConsole(resolve(process.cwd(), 'logs'))
 
 import AuthHandler from './auth'
+import {
+  player_list,
+  start_game,
+  text,
+} from './packets'
+
 const auth = new AuthHandler({
   clientId: C.AzureClientID,
   authority: C.AuthEndpoints.MSALAuthority,
@@ -23,9 +29,121 @@ auth.selectUser()
     const result = await auth.ezXSTSForRealmRak(res)
     const net = new NetworkManager(host, port, C.CUR_VERSION)
     await net.authMc(result)
-    
-    net.getRaknet().on('connected', () => {
-      const login = net.getPacketHandler().createUnencryptedPacket('login', net.createLoginPayload())
+    let gameInfo: start_game
+
+    const KEEPALIVEINT = 10
+    let keepalive
+    net.on('disconnect', () => {
+      console.log('disconnectS')
+      clearInterval(keepalive)
+    })
+
+    net.on('command_output', (pak) => {
+      console.log(JSON.stringify(pak, undefined, 2))
+    })
+
+    // net.on('player_list', async (pak: player_list) => {
+    //   const color: Array<string> = ["§0", "§1", "§2", "§3", "§4", "§5", "§6", "§7", "§8", "§9"]
+    //   let currentColor = 0
+    //   setInterval(async () => {
+    //     if (currentColor > 8) {
+    //       currentColor = 0
+    //     } else {
+    //       currentColor++
+    //     }
+    //     const packet = await net.getPacketHandler().createPacket('command_request', {
+    //       command: `me ${color[currentColor]} Eat My Beans`,
+    //       origin: {
+    //         type: 'player',
+    //         uuid: nextUUID(),
+    //         request_id: nextUUID(),
+    //         player_entity_id: 0,
+    //       },
+    //       interval: false,
+    //     })
+    //     net.getRaknet().writeRaw(packet)
+    //   },0)
+    // for (const record of records) {
+    //   const text = await net.getPacketHandler().createPacket('text', {
+    //     type: 'chat',
+    //     needs_translation: false,
+    //     source_name: net.xboxProfile.extraData.displayName,
+    //     xuid: '',
+    //     platform_chat_id: '',
+    //     message: `Found User §c${record.username} | §r UUID: ${record.uuid} | xuid: ${record.xbox_user_id} | ip: ***.***.***.***`,
+    //   })
+    //   net.getRaknet().writeRaw(text)
+    // }
+    // })
+
+    net.on('text', async (packet: text) => {
+      console.log(`[${packet.source_name}] -> ${packet.message}`)
+    })
+
+    net.once('start_game', async (pak: start_game) => {
+      gameInfo = pak
+      const packet = await net.getPacketHandler().createPacket('set_local_player_as_initialized', {
+        runtime_entity_id: gameInfo.runtime_entity_id,
+      })
+      net.getRaknet().writeRaw(packet)
+      const tickSync = await net.getPacketHandler().createPacket('tick_sync', {
+        request_time: BigInt(Date.now()),
+        response_time: 0n,
+      })
+      let tick = 0n
+      net.getRaknet().writeRaw(tickSync)
+      keepalive = setInterval(async () => {
+        const tickSync = await net.getPacketHandler().createPacket('tick_sync', {
+          request_time: tick,
+          response_time: 0n,
+        })
+        net.getRaknet().writeRaw(tickSync)
+      }, 50 * KEEPALIVEINT)
+      net.on('tick_sync', async packet => {
+        tick = packet.response_time
+      })
+    })
+
+    net.once('resource_packs_info', async () => {
+      const packet = await net.getPacketHandler().createPacket('resource_pack_client_response', {
+        response_status: 'completed',
+        resourcepackids: [],
+      })
+      net.getRaknet().writeRaw(packet)
+      const cache = await net.getPacketHandler().createPacket('client_cache_status', {
+        enabled: false,
+      })
+      net.getRaknet().writeRaw(cache)
+      const chunk = await net.getPacketHandler().createPacket('request_chunk_radius', {
+        chunk_radius: 1,
+      })
+      net.getRaknet().writeRaw(chunk)
+      const text = await net.getPacketHandler().createPacket('text', {
+        type: 'chat',
+        needs_translation: false,
+        source_name: net.xboxProfile.extraData.displayName,
+        xuid: '',
+        platform_chat_id: '',
+        message: "Bot User Initialized...",
+      })
+      net.getRaknet().writeRaw(text)
+    })
+    net.once('resource_packs_stack', async () => {
+      const packet = await net.getPacketHandler().createPacket('resource_pack_client_response', {
+        response_status: 'completed',
+        resourcepackids: [],
+      })
+      net.getRaknet().writeRaw(packet)
+    })
+    net.on("server_to_client_handshake", () => {
+      setTimeout(async () => {
+        const packet = await net.getPacketHandler().createPacket('client_to_server_handshake', {})
+        net.getRaknet().writeRaw(packet)
+      }, 0)
+    })
+
+    net.getRaknet().on('connected', async () => {
+      const login = await net.getPacketHandler().createPacket('login', net.createLoginPayload())
       net.getRaknet().writeRaw(login)
     })
     

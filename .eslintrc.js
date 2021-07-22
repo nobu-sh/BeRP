@@ -83,5 +83,6 @@ module.exports = {
         requireLast: false,
       },
     }],
+    '@typescript-eslint/no-explicit-any': 0,
   }
 }

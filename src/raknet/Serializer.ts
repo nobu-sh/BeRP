@@ -20,8 +20,9 @@ export class Parser extends FullPacketParser {
     try {
       return super.parsePacketBuffer(buffer)
     } catch (e) {
-      console.error('While decoding', buffer.toString('hex'))
-      throw e
+      // Ignore For Time Being
+      // console.error('Error While Decoding')
+      // throw e
     }
   }
   public verify (deserialized: any, serializer: any): void {

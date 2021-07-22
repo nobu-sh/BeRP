@@ -2,6 +2,11 @@
 import {
   KeyPairKeyObjectResult,
   generateKeyPairSync,
+  KeyObject,
+  createPublicKey,
+  diffieHellman,
+  createHash,
+  Hash,
 } from 'crypto'
 import {
   createXBLToken,
@@ -56,6 +61,14 @@ export class NetworkManager extends EventEmitter {
   public xboxProfile: XboxProfile
   private packetHandler: PacketHandler
   private _raknet: Raknet
+  private encryptionStarted = false
+  private serverBoundEncryptionToken: string
+  private encryptionPubKeyDer: KeyObject
+  private encryptionSharedSecret: Buffer
+  private encryptionSalt: Buffer
+  private encryptionSecretHash: Hash
+  private encryptionSecretKeyBytes: Buffer
+  private encryptionIV: Buffer
   public readonly version: Versions
   public readonly dataProvider: DataProvider
   public readonly X509: string
@@ -92,9 +105,13 @@ export class NetworkManager extends EventEmitter {
   public getPacketHandler(): PacketHandler { return this.packetHandler }
 
   private _handlePackets(): void {
-    this._raknet.on('raw', (packet) => {
-      for (const pak of this.packetHandler.readPacket(packet)) {
-        console.log(pak)
+    this._raknet.on('raw', async (packet) => {
+      for (const pak of await this.packetHandler.readPacket(packet)) {
+        this.emit("raw", {
+          name: pak.name,
+          params: pak.params, 
+        })
+        this.emit(pak.name, pak.params)
       }
     })
   }
@@ -105,7 +122,38 @@ export class NetworkManager extends EventEmitter {
     this.updateXboxUserData()
     this.generateClientIdentityChain()
 
+    this.on('server_to_client_handshake', (data) => {
+      this.serverBoundEncryptionToken = data.token
+      this.startServerboundEncryption()
+    })
+
     this._raknet.connect()
+  }
+  public startServerboundEncryption(): void {
+    const [header, payload] = this.serverBoundEncryptionToken.split(".").map(k => Buffer.from(k, 'base64'))
+    const head = JSON.parse(String(header))
+    const body = JSON.parse(String(payload))
+
+    this.encryptionPubKeyDer = createPublicKey({
+      key: Buffer.from(head.x5u, 'base64'),
+      format: 'der',
+      type: 'spki', 
+    })
+
+    this.encryptionSharedSecret = diffieHellman({
+      privateKey: this.edchKeyPair.privateKey,
+      publicKey: this.encryptionPubKeyDer, 
+    })
+
+    this.encryptionSalt = Buffer.from(body.salt, 'base64')
+    this.encryptionSecretHash = createHash('sha256')
+    this.encryptionSecretHash.update(this.encryptionSalt)
+    this.encryptionSecretHash.update(this.encryptionSharedSecret)
+
+    this.encryptionSecretKeyBytes = this.encryptionSecretHash.digest()
+    this.encryptionIV = this.encryptionSecretKeyBytes.slice(0, 16)
+
+    this.packetHandler.startEncryption(this.encryptionIV, this.encryptionSecretKeyBytes)
   }
   public async authMc(xstsResponse: AuthHandlerXSTSResponse): Promise<boolean> {
     return new Promise((r,j) => {
