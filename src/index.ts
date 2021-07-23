@@ -2,19 +2,18 @@ import { overrideProcessConsole } from './utils'
 import { resolve } from 'path'
 import * as C from './Constants'
 import { NetworkManager } from './raknet/Manager'
-import { nextUUID } from './utils'
-const host = "52.226.192.102"
-const port = 30550
+// import { nextUUID } from './utils'
+const host = "20.75.224.55"
+const port = 30023
 
 // Overrides Console Methods To Add Log History
 overrideProcessConsole(resolve(process.cwd(), 'logs'))
 
 import AuthHandler from './auth'
 import {
-  player_list,
-  start_game,
-  text,
-} from './packets'
+  packet_disconnect,
+  packet_start_game,
+} from './types/packets'
 
 const auth = new AuthHandler({
   clientId: C.AzureClientID,
@@ -24,17 +23,50 @@ const auth = new AuthHandler({
 
 auth.createApp(auth.createConfig())
 
+/**
+ * Order
+ * 
+ * 1. Get MSAL Certif
+ * 2. Convert To User Token
+ * 3. Convert To XSTS Identity
+ * 4. Hit Minecraft Auth Endpoint
+ * 5. Generate JWT For Client And User ID Chains
+ * 6. Connect Raknet To Server IP
+ * 
+ * C = Client
+ * S = Server
+ * 
+ * C -> S: Login Payload
+ * S -> C: Server To Client Handshake
+ * C: Get Salt From Token
+ * C: Start Encryption
+ * C -> S: Client To Server Handshake
+ * S -> C: Resource Packs Info
+ * C -> S: Resource Pack Client Response
+ * S -> C: Resource Packs Stack
+ * C -> S: Resource Pack Client Response
+ * S -> C: Start Game
+ * S -> C: Creative Content
+ * S -> C: Biome Definition List
+ * S -> C: Chunks
+ * S -> C: Play Status
+ * C -> S: Client Cache Status
+ * C -> S: Request Chunk Radius
+ * 
+ * Client Should Spawn And It Should State So In Chat
+ */
+
 auth.selectUser()
   .then(async res => {
     const result = await auth.ezXSTSForRealmRak(res)
     const net = new NetworkManager(host, port, C.CUR_VERSION)
     await net.authMc(result)
-    let gameInfo: start_game
+    let gameInfo: packet_start_game
 
     const KEEPALIVEINT = 10
     let keepalive
-    net.on('disconnect', () => {
-      console.log('disconnectS')
+    net.on('disconnect', (pak: packet_disconnect) => {
+      console.log('disconnected. R:', pak.message)
       clearInterval(keepalive)
     })
 
@@ -70,17 +102,21 @@ auth.selectUser()
     //     source_name: net.xboxProfile.extraData.displayName,
     //     xuid: '',
     //     platform_chat_id: '',
-    //     message: `Found User §c${record.username} | §r UUID: ${record.uuid} | xuid: ${record.xbox_user_id} | ip: ***.***.***.***`,
+    //     message: `Found User §c${record.username} | §r UUID: ${record.uuid} | xuid: ${record.xbox_user_id}`,
     //   })
     //   net.getRaknet().writeRaw(text)
     // }
     // })
 
-    net.on('text', async (packet: text) => {
-      console.log(`[${packet.source_name}] -> ${packet.message}`)
+    // net.on('text', async (packet: text) => {
+    //   console.log(`[${packet.source_name}] -> ${packet.message}`)
+    // })
+
+    net.once('available_commands', (pak) => {
+      console.log(pak)
     })
 
-    net.once('start_game', async (pak: start_game) => {
+    net.once('start_game', async (pak: packet_start_game) => {
       gameInfo = pak
       const packet = await net.getPacketHandler().createPacket('set_local_player_as_initialized', {
         runtime_entity_id: gameInfo.runtime_entity_id,
