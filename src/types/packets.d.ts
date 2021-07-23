@@ -121,6 +121,759 @@ import {
 } from "./packetTypes"
 
 /**
+ * All Packets Combined
+ * 
+ * `Warn`: Some of the bindings may be incorrect/outdated
+ */
+export enum Packets {
+  /**
+   * `Bound To Server`
+   * ___
+   * Sent by the client when the client initially tries to join the server.
+   * 
+   * It is the first packet sent and contains a chain of tokens with data specific to the player.
+   */
+  Login = "login",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server after the login packet is sent.
+   * It will contain a status stating either the login was successful or what went wrong.
+   */
+  PlayStatus = "play_status",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server asking for a handshake with a token containing the needed "salt" to start packet encryption.
+   */
+  ServerToClientHandshake = "server_to_client_handshake",
+  /**
+   * `Bound To Server`
+   * ___
+   * Sent by the client once the client has successfully started encryption.
+   * 
+   * This packet should be the first encrypted packet sent to the server and all following packets should be encrypted aswell.
+   */
+  ClientToServerHandshake = "client_to_server_handshake",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server when the client is disconnected containing information about the disconnection.
+   */
+  Disconnect = "disconnect",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server containing info of all resource packs applied. 
+   * 
+   * This packet can be used to download the packs on the server.
+   * 
+   * If you are just trying to join the server however just send a `ResourcePackClientResponse` with a status of `completed` and ignore the info on this packet completly.
+   */
+  ResourcePacksInfo = "resource_packs_info",
+  /**
+   * `Bound To Client`
+   * ___
+   * Similar to `ResourcePacksInfo`
+   * 
+   * Send `ResourcePackClientResponse` with a status of `completed` to continue past this packet.
+   */
+  ResourcePacksStack = "resource_pack_stack",
+  /**
+   * `Bound To Server`
+   * ___
+   * Sent by the client stating its response to the packets `ResourcePacksInfo` and or `ResourcePacksStack`
+   */
+  ResourcePackClientResponse = "resource_pack_client_response",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the client to send chat messages.
+   * 
+   * Sent by the server to forward messages, popups, tips, json, etc. 
+   */
+  Text = "text",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to update the current time client-side. The client actually advances time
+   * client-side by itself, so this packet does not need to be sent each tick. It is merely a means
+   * of synchronizing time between server and client.
+   */
+  SetTime = "set_time",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to send information about the world the player will be spawned in.
+   */
+  StartGame = "start_game",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to add a new client for an individual client. It is one of the few entities that cannot be added via the `AddEntity` packet.
+   */
+  AddPlayer = "add_player",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to add a client-sided entity. It is used for every entity except other players, paintings and items,
+   * for which the `AddPlayer`, `AddPainting`, and `AddItemEntity` packets are used.
+   */
+  AddEntity = "add_entity",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to remove an entity that currently exists in the world from the client-side.
+   * 
+   * Sending this packet if the client cannot already see this entity will have no effect
+   */
+  RemoveEntity = "remove_entity",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to add a dropped item client-side. It is one of the few entities that cannot be added via the `AddEntity` packet.
+   */
+  AddItemEntity = "add_item_entity",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the serer when a player picks up an item to remove it from the client-side.
+   * 
+   * It will remove the item entity then play the pickup animation.
+   */
+  TakeItemEntity = "take_item_entity",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the server to move an entity to an absolute position.
+   * 
+   * This packet is typically used for movements where high accuracy is not needed, such as long range teleporting.
+   * 
+   * Sent by the client when riding a mountable.
+   */
+  MoveEntity = "move_entity",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by client to send their movement to the server.
+   * 
+   * Sent by the server to update the movement for other clients
+   * ___
+   * `Developers Notes`
+   * 
+   * The client can use this for a teleporting cheat unless the server has some form of movement correction enabled.
+   */
+  MovePlayer = "move_player",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the client when it jumps while riding an entity that has the WASDControlled entity flag set, for example when riding a horse.
+   * 
+   * According to MiNET this can also be sent from the server to the client, but details on this are unknown.
+   */
+  RiderJump = "rider_jump",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to update a block client-side without resending the entire chunk that the block is located in. It is particularly useful for small modifications like block breaking/placing.
+   */
+  UpdateBlock = "update_block",
+  /**
+   * `Bound To Client`
+   * ___
+   * Similar to `AddEntity` except its for adding a painting.
+   * 
+   * ¯\\\_(ツ)\_/¯
+   */
+  AddPainting = "add_painting",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the client and the server to maintain a synchronized server-authoritative tick between the client and the server. The client sends this packet first, and the server should reply with another one of these packets including the response time. This send/response loop should be set at an interval to maintain synchronization.
+   */
+  TickSync = "tick_sync",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Client communicates to server it made a sound server does same back.
+   */
+  LevelSoundEventOld = "level_sound_event_old",
+  /**
+   * `Bound To Client`
+   * ___
+   * Instead of player sending it made a sound to the server like `LevelSoundEventOld`. The server controls all sounds now.
+   */
+  LevelEvent = "level_event",
+  /**
+   * `Bound To Client`
+   * ___
+   * Has something to do with block state change and/or blocks the cause a sound event.
+   */
+  BlockEvent = "block_event",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Something to do with triggering an entities events. EG: when two mobs make a baby it emits an event that causes heart particles.
+   */
+  EntityEvent = "entity_event",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by server to tell client-side to start emitting a paricle effect from an entity.
+   */
+  MobEffect = "mob_effect",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by server to update the clients arributes. I assume this has to do with potion effects.
+   */
+  UpdateAttributes = "update_attributes",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * InventoryTransaction is a packet sent by the client. It essentially exists out of multiple sub-packets,
+   * each of which have something to do with the inventory in one way or another. Some of these sub-packets
+   * directly relate to the inventory, others relate to interaction with the world that could potentially
+   * result in a change in the inventory.
+   * 
+   * It is sent by the server to assumably sync the players inventory with what the server believes is your inventory,
+   * however this could be wrong and it is only used so the server can add/remove/update items in the clients inventory.
+   * ___
+   * `Developers Notes`
+   * 
+   * This could be heavily exploited for things such as duplicating items, giving items, updating items nbt, enchanting items, editing item attributes, etc.
+   */
+  InventoryTransaction = "inventory_transaction",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Used to update a mobs equipment. EG: Zombie has sword.
+   */
+  MobEquipment = "mob_equipment",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Used to update a armor. EG: Zombie with helmet.
+   */
+  MobArmorEquipment = "mob_armor_equipment",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Interact is sent by the client when it interacts with another entity in some way. It used to be used for
+   * normal entity and block interaction, but this is no longer the case now.
+   */
+  Interact = "interact",
+  /**
+   * `Bound To Server`
+   * ___
+   * Used when client uses the pick block binding to switch to the picked block or request a transaction for the picked block.
+   */
+  BlockPickRequest = "block_pick_request",
+  /**
+   * `Bound To Server`
+   * ___
+   * Similar to `BlockPickRequest` except for an entity instead of a block.
+   */
+  EntityPickRequest = "entity_pick_request",
+  /**
+   * `Bound To Server`
+   * ___
+   * PlayerAction is sent by the client when it executes any action, for example starting to sprint, swim,
+   * starting the breaking of a block, dropping an item, etc.
+   */
+  PlayerAction = "player_action",
+  /**
+   * `Bound To Client`
+   * ___
+   * Presumably sent when armor is damaged to update its damage value.
+   */
+  HurtArmor = "hurt_armor",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Used to update an entities metadata.
+   */
+  SetEntityData = "set_entity_data",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the server to change the client-side velocity of an entity. It is usually used
+   * in combination with server-side movement calculation.
+   * 
+   * Apparently the client can send something in regards to this aswell. What it is used for it unknown.
+   */
+  SetEntityMotion = "set_entity_motion",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to initiate an entity link client-side, meaning one entity will start
+   * riding another.
+   */
+  SetEntityLink = "set_entity_link",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to set the health of the client.
+   * This packet should no longer be used. Instead, the health attribute should be used so that the health and maximum health may be changed directly.
+   */
+  SetHealth = "set_health",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by server when client spawn position is set.
+   */
+  SetSpawnPosition = "set_spawn_position",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the server to send a client animation from one client to all viewers of that client.
+   * Sent by the client to tell the server it has started an animation.
+   */
+  Animate = "animate",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent when a player needs to respawn. Exact usage for client & server is unclear.
+   */
+  Respawn = "respawn",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to open a container client-side. This container must be physically
+   * present in the world, for the packet to have any effect. Unlike Java Edition, Bedrock Edition requires that
+   * chests for example must be present and in range to open its inventory.
+   */
+  ContainerOpen = "container_open",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the server to close a container the player currently has opened, which was opened
+   * using the ContainerOpen packet, or by the client to tell the server it closed a particular container, such
+   * as the crafting grid.
+   */
+  ContainerClose = "container_close",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the server to the client. It used to be used to link hot bar slots of the player to
+   * actual slots in the inventory, but as of 1.2, this was changed and hot bar slots are no longer a free
+   * floating part of the inventory.
+   * Since 1.2, the packet has been re-purposed, but its new functionality is not clear.
+   */
+  PlayerHotbar = "player_hotbar",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the server to update the full content of a particular inventory. It is usually
+   * sent for the main inventory of the player, but also works for other inventories that are currently opened
+   * by the player.
+   */
+  InventoryContent = "inventory_content",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the server to update a single slot in one of the inventory windows that the client
+   * currently has opened. Usually this is the main inventory, but it may also be the off hand or, for example,
+   * a chest inventory.
+   */
+  InventorySlot = "inventory_slot",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to update specific data of a single container, meaning a block such
+   * as a furnace or a brewing stand. This data is usually used by the client to display certain features
+   * client-side.
+   */
+  ContainerSetData = "container_set_data",
+  /**
+   * `Bound To Client`
+   * ___
+   * Presumably sent by the server describing all recipes. Exact usage unknown.
+   */
+  CraftingData = "crafting_data",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the client when it crafts a particular item. Note that this packet may be fully
+   * ignored, as the InventoryTransaction packet provides all the information required.
+   * 
+   * Unknown when or why it is sent by server
+   */
+  CraftingEvent = "crafting_event",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to make the client 'select' a hot bar slot. It currently appears to
+   * be broken however, and does not actually set the selected slot to the hot bar slot set in the packet.
+   */
+  GUIDataPickItem = "gui_data_pick_item",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the server to update game-play related features, in particular permissions to
+   * access these features for the client. It includes allowing the player to fly, build and mine, and attack
+   * entities. Most of these flags should be checked server-side instead of using this packet only.
+   * The client may also send this packet to the server when it updates one of these settings through the
+   * in-game settings interface. The server should verify if the player actually has permission to update those
+   * settings.
+   */
+  AdventureSettings = "adventure_settings",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Presumably sent by the server & client to update a blocks nbt.
+   */
+  BlockEntityData = "block_entity_data",
+  /**
+   * `Bound To Server`
+   * ___
+   * Seems like an more precise version of `MovePlayer`. It appears to be a way to tell the server the current input.
+   * 
+   * EG: Moving 0.5x will continue moving you at 0.5x until another packet is sent saying client is now moving at 0x
+   */
+  PlayerInput = "player_input",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to provide the client with a chunk of a world data (16xYx16 blocks).
+   * Typically a certain amount of chunks is sent to the client before sending it the spawn PlayStatus packet,
+   * so that the client spawns in a loaded world.
+   */
+  LevelChunk = "level_chunk",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by server to tell client whether or not to render all commands client-side.
+   */
+  SetCommandsEnabled = "set_commands_enabled",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by server to tell client currently difficulty presumably.
+   */
+  SetDifficulty = "set_difficulty",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by server to tell client currently dimension presumably.
+   */
+  ChangeDimension = "change_dimension",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the server to update the game type (game mode) of the player.
+   * 
+   * Can also be sent by client to request a gamemode update. Server should verify client has the correct permissions to do so first.
+   */
+  SetPlayerGameType = "set_player_game_type",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by server containing an array of all the current players. Usually used by client to display all users in a playerlist in the pause menu.
+   */
+  PlayerList = "player_list",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to send an event. It is typically sent to the client for
+   * telemetry reasons.
+   */
+  SimpleEvent = "simple_event",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to send an event with additional data. It is typically sent to the client for
+   * telemetry reasons.
+   */
+  Event = "event",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to summon and render a exp orb client-side.
+   */
+  SpawnExperienceOrb = "spawn_experience_orb",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to the client to update the data of a map shown to the client.
+   * It is sent with a combination of flags that specify what data is updated.
+   * The `ClientBoundMapItemData` packet may be used to update specific parts of the map only. It is not required
+   * to send the entire map each time when updating one part.
+   */
+  ClientboundMapItemData = "clientbound_map_item_data",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Used to request the data of a map.
+   */
+  MapInfoRequest = "map_info_request",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the client to the server to update the server on the chunk view radius that
+   * it has set in the settings. The server may respond with a `ChunkRadiusUpdated` packet with either the chunk
+   * radius requested, or a different chunk radius if the server chooses so.
+   */
+  RequestChunkRadius = "request_chunk_radius",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server in response to a `RequestChunkRadius` packet. It defines the chunk
+   * radius that the server allows the client to have. This may be lower than the chunk radius requested by the
+   * client in the RequestChunkRadius packet.
+   */
+  ChunkRadiusUpdate = "chunk_radius_update",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent when an item in an item frame is dropped presumably.
+   */
+  ItemFrameDropItem = "item_frame_drop_item",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by server to update game rules client side.
+   */
+  GameRulesChanged = "game_rules_changed",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to use an Education Edition camera on a player. It produces an image client-side.
+   */
+  Camera = "camera",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Used to set boss event data.
+   * Sent by the server to presumably update the client and vice-versa.
+   */
+  BossEvent = "boss_event",
+  /**
+   * `Bound To Client`
+   * ___
+   * Send by server to show the client the credits screen.
+   */
+  ShowCredits = "show_credits",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sends a list of commands to the client. Commands can have
+   * arguments, and some of those arguments can have 'enum' values, which are a list of possible
+   * values for the argument. The serialization is rather complex and involves palettes like chunks.
+   */
+  AvailableCommands = "available_commands",
+  /**
+   * `Bound To Server`
+   * ___
+   * Sent by the client to request the execution of a server-side command. Although some
+   * servers support sending commands using the Text packet, this packet is guaranteed to have the correct
+   * result.
+   */
+  CommandRequest = "command_request",
+  /**
+   * `Bound To Server`
+   * ___
+   * Sent by the client to update a command block at a specific position. The command
+   * block may be either a physical block or an entity.
+   */
+  CommandBlockUpdate = "command_block_update",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server containing the results of a command executed. 
+   * It is assumed this includes all commands executed even if not by the client listening for outputs,
+   * however, this is unknown.
+   */
+  CommandOutput = "command_output",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to update the trades offered by a villager to a player. It is sent at the
+   * moment that a player interacts with a villager.
+   */
+  UpdateTrade = "update_trade",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to the client upon opening a horse inventory. It is used to set the
+   * content of the inventory and specify additional properties, such as the items that are allowed to be put
+   * in slots of the inventory.
+   */
+  UpdateEquipment = "update_equipment",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to the client to inform the client about the data contained in
+   * one of the resource packs that are about to be sent.
+   */
+  ResourcePackDataInfo = "resource_pack_data_info",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent to the client so that the client can download the resource pack. Each packet
+   * holds a chunk of the compressed resource pack, of which the size is defined in the `ResourcePackDataInfo`
+   * packet sent before.
+   */
+  ResourcePackChunkData = "resource_pack_chunk_data",
+  /**
+   * `Bound To Server`
+   * ___
+   * Sent by the client to request a chunk of data from a particular resource pack,
+   * that it has obtained information about in a `ResourcePackDataInfo` packet.
+   */
+  ResourcePackChunkRequest = "resource_pack_chunk_request",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by server to transfer client to another server.
+   */
+  Transfer = "transfer",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by server to start playing a sound client-side.
+   */
+  PlaySound = "play_sound",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by server to stop playing a sound client-side.
+   */
+  StopSound = "stop_sound",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to make a title, subtitle or action bar shown to a player. It has several
+   * fields that allow setting the duration of the titles.
+   */
+  SetTitle = "set_title",
+  /**
+   * `Bound To Client`
+   * ___
+   * Packet usage is unknown.
+   */
+  AddBehaviorTree = "add_behavior_tree",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the client when it updates a structure block using the in-game UI. The
+   * data it contains depends on the type of structure block that it is. In Minecraft Bedrock Edition v1.11,
+   * there is only the Export structure block type, but in v1.13 the ones present in Java Edition will,
+   * according to the wiki, be added too.
+   */
+  StructureBlockUpdate = "structure_block_update",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to show a Marketplace store offer to a player. It opens a window
+   * client-side that displays the item.
+   * The `ShowStoreOffer` packet only works on the partnered servers: Servers that are not partnered will not have
+   * store buttons show up in the in-game pause menu and will, as a result, not be able to open store offers
+   * a store buttons show up in the in-game pause menu and will, as a result, not be able to open store offers
+   * with the domain of one of the partnered servers.
+   */
+  ShowStoreOffer = "show_store_offer",
+  /**
+   * `Bound To Server`
+   * ___
+   * Sent by the client to the server to notify the server it purchased an item from the
+   * Marketplace store that was offered by the server. The packet is only used for partnered servers.
+   */
+  PurchaseReceipt = "purchase_receipt",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Presumably sent by both sides to update a clients skin.
+   */
+  PlayerSkin = "player_skin",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent when a sub-client joins the server while another client is already connected to it.
+   * The packet is sent as a result of split-screen game play, and allows up to four players to play using the
+   * same network connection. After an initial Login packet from the 'main' client, each sub-client that
+   * connects sends a `SubClientLogin` to request their own login.
+   */
+  SubClientLogin = "sub_client_login",
+  /**
+   * `Bound To Client`
+   * ___
+   * Is used to make the client connect to a custom websocket server. Websockets have the ability to execute commands on behalf of the client
+   * along with listening to a handful of events that get fired on the client side.
+   */
+  InitiateWebSocketConnection = "initiate_web_socket_connection",
+  SetLastHurtBy = "set_last_hurt_by",
+  BookEdit = "book_edit",
+  NPCRequest = "npc_request",
+  PhotoTransfer = "photo_transfer",
+  ModalFormRequest = "modal_form_request",
+  ModalFormResponse = "modal_form_response",
+  ServerSettingsRequest = "server_settings_request",
+  ServerSettingsResponse = "server_settings_response",
+  ShowProfile = "show_profile",
+  SetDefaultGameType = "set_default_game_type",
+  RemoveObjective = "remove_objective",
+  SetDisplayObjective = "set_display_objective",
+  SetScore = "set_score",
+  LabTable = "lab_table",
+  UpdateBlockSynced = "update_block_synced",
+  MoveEntityDelta = "move_entity_delta",
+  SetScoreboardIdentity = "set_scoreboard_identity",
+  SetLocalPlayerAsInitialized = "set_local_player_as_initialized",
+  UpdateSoftEnum = "update_soft_enum",
+  NetworkStackLatency = "network_stack_latency",
+  ScriptCustomEvent = "script_custom_event",
+  SpawnParticleEffect = "spawn_particle_effect",
+  AvailableEntityIdentifiers = "available_entity_identifiers",
+  LevelSoundEventV2 = "level_sound_event_v2",
+  NetworkChunkPublisherUpdate = "network_chunk_publisher_update",
+  BiomeDefinitionList = "biome_definition_list",
+  LevelSoundEvent = "level_sound_event",
+  LevelEventGeneric = "level_event_generic",
+  LecternUpdate = "lectern_update",
+  VideoStreamConnect = "video_stream_connect",
+  AddEcsEntity = "add_ecs_entity",
+  RemoveEcsEntity = "remove_ecs_entity",
+  ClientCacheStatus = "client_cache_status",
+  OnScreenTextureAnimation = "on_screen_texture_animation",
+  MapCreateLockedCopy = "map_create_locked_copy",
+  StructureTemplateDataExportRequest = "structure_template_data_export_request",
+  StructureTemplateDataExportResponse = "structure_template_data_export_response",
+  UpdateBlockProperties = "update_block_properties",
+  ClientCacheBlobStatus = "client_cache_blob_status",
+  ClientCacheMissResponse = "client_cache_miss_response",
+  EducationSettings = "education_settings",
+  MultiplayerSettings = "multiplayer_settings",
+  SettingsCommand = "settings_command",
+  AnvilDamage = "anvil_damage",
+  CompletedUsingItem = "completed_using_item",
+  NetworkSettings = "network_settings",
+  PlayerAuthInput = "player_auth_input",
+  CreativeContent = "creative_content",
+  PlayerEnchantOptions = "player_enchant_options",
+  ItemStackRequest = "item_stack_request",
+  ItemStackResponse = "item_stack_response",
+  PlayerArmorDamage = "player_armor_damage",
+  UpdatePlayerGameType = "update_player_game_type",
+  PositionTrackingDBRequest = "position_tracking_db_request",
+  PositionTrackingDBBroadcast = "position_tracking_db_broadcast",
+  PacketViolationWarning = "packet_violation_warning",
+  MotionPredictionHints = "motion_prediction_hints",
+  AnimateEntity = "animate_entity",
+  CameraShake = "camera_shake",
+  PlayerFog = "player_fog",
+  CorrectPlayerMovePrediction = "correct_player_move_prediction",
+  ItemComponent = "item_component",
+  FilterTextPacket = "filter_text_packet",
+  DebugRenderer = "debug_renderer",
+  SyncEntityProperty = "sync_entity_property",
+  AddVolumeEntity = "add_volume_entity",
+  RemoveVolumeEntity = "remove_volume_entity",
+  SimulationType = "simulation_type",
+  NPC_Dialogue = "npc_dialogue",
+}
+
+/**
  * !id: 0x01
  * !bound: server
  */
@@ -1083,7 +1836,7 @@ export interface packet_set_last_hurt_by {
 }
 /**
  * !id: 0x61
- * !bound: client
+ * !bound: server
  */
 export interface packet_book_edit {
   type: BookEditType
@@ -1627,7 +2380,7 @@ export interface packet_item_component {
 }
 /**
  * !id: 0xa3
- * !bound: client
+ * !bound: both
  */
 export interface packet_filter_text_packet {
   text: string

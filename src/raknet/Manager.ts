@@ -76,6 +76,7 @@ export class NetworkManager extends EventEmitter {
   public readonly CURVE = "secp384r1"
   public readonly ALGORITHM = "ES384"
   public readonly PUBLIC_KEY_ONLINE = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V"
+  private connected = false
   constructor(host: string, port: number, version?: Versions) {
     super()
 
@@ -100,14 +101,19 @@ export class NetworkManager extends EventEmitter {
     this._raknet = new Raknet(host, port, 10)
     this._handlePackets()
   }
+  // Issue #1 No Reason To Expose Raw Packets
+  // Causes Confusion
+  // public getRaknet(): Raknet { return this._raknet }
 
-  public getRaknet(): Raknet { return this._raknet }
-  public getPacketHandler(): PacketHandler { return this.packetHandler }
+  // Issue #2 No Reason To Expose Packet Handler
+  // Causes Confusion
+  // Instead Expose A Simplified API Through Manager
+  // public getPacketHandler(): PacketHandler { return this.packetHandler }
 
   private _handlePackets(): void {
     this._raknet.on('raw', async (packet) => {
       for (const pak of await this.packetHandler.readPacket(packet)) {
-        this.emit("raw", {
+        this.emit("all", {
           name: pak.name,
           params: pak.params, 
         })
@@ -117,17 +123,20 @@ export class NetworkManager extends EventEmitter {
   }
 
   public async connect(): Promise<void> {
-    if (!this.mcAuthChains.length) throw new Error("Auth Mc First")
+    if (!this.connected) {
+      this.connected = true
+      if (!this.mcAuthChains.length) throw new Error("Auth Mc First")
 
-    this.updateXboxUserData()
-    this.generateClientIdentityChain()
+      this.updateXboxUserData()
+      this.generateClientIdentityChain()
 
-    this.on('server_to_client_handshake', (data) => {
-      this.serverBoundEncryptionToken = data.token
-      this.startServerboundEncryption()
-    })
+      this.on('server_to_client_handshake', (data) => {
+        this.serverBoundEncryptionToken = data.token
+        this.startServerboundEncryption()
+      })
 
-    this._raknet.connect()
+      this._raknet.connect()
+    }
   }
   public startServerboundEncryption(): void {
     const [header, payload] = this.serverBoundEncryptionToken.split(".").map(k => Buffer.from(k, 'base64'))
@@ -257,6 +266,7 @@ export class NetworkManager extends EventEmitter {
       },
     }
   }
+  // public sendPacket(name)
   public makeRestRequest(method: Method, url: string, headers?: { [k: string]: any }, data?: { [k: string]: any }): Promise<any> {
     return new Promise((r,j) => {
       Axios({

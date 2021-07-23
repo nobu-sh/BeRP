@@ -3,8 +3,8 @@ import { resolve } from 'path'
 import * as C from './Constants'
 import { NetworkManager } from './raknet/Manager'
 // import { nextUUID } from './utils'
-const host = "20.75.224.55"
-const port = 30023
+const host = "20.80.227.38"
+const port = 31275
 
 // Overrides Console Methods To Add Log History
 overrideProcessConsole(resolve(process.cwd(), 'logs'))
@@ -13,6 +13,7 @@ import AuthHandler from './auth'
 import {
   packet_disconnect,
   packet_start_game,
+  packet_text,
 } from './types/packets'
 
 const auth = new AuthHandler({
@@ -70,9 +71,9 @@ auth.selectUser()
       clearInterval(keepalive)
     })
 
-    net.on('command_output', (pak) => {
-      console.log(JSON.stringify(pak, undefined, 2))
-    })
+    // net.on('command_output', (pak) => {
+    //   console.log(JSON.stringify(pak, undefined, 2))
+    // })
 
     // net.on('player_list', async (pak: player_list) => {
     //   const color: Array<string> = ["§0", "§1", "§2", "§3", "§4", "§5", "§6", "§7", "§8", "§9"]
@@ -108,13 +109,13 @@ auth.selectUser()
     // }
     // })
 
-    // net.on('text', async (packet: text) => {
-    //   console.log(`[${packet.source_name}] -> ${packet.message}`)
-    // })
-
-    net.once('available_commands', (pak) => {
-      console.log(pak)
+    net.on('text', async (packet: packet_text) => {
+      console.log(`[${packet.source_name}] -> ${packet.message}`)
     })
+
+    // net.once('available_commands', (pak) => {
+    //   console.log(pak)
+    // })
 
     net.once('start_game', async (pak: packet_start_game) => {
       gameInfo = pak
