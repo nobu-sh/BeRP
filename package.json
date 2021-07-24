@@ -55,7 +55,6 @@
     "moment": "^2.29.1",
     "prismarine-nbt": "^1.6.0",
     "protodef": "^1.14.0",
-    "protodef-yaml": "^1.2.2",
     "raknet-native": "^1.0.6",
     "uuid-1345": "^1.0.2"
   }
