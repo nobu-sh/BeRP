@@ -802,74 +802,541 @@ export enum Packets {
    * along with listening to a handful of events that get fired on the client side.
    */
   InitiateWebSocketConnection = "initiate_web_socket_connection",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to let the client know what entity type it was last hurt by. At this
+   * moment, the packet is useless and should not be used. There is no behaviour that depends on if this
+   * packet is sent or not.
+   */
   SetLastHurtBy = "set_last_hurt_by",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the client when it edits a book. It is sent each time a modification was made and the
+   * player stops its typing 'session', rather than simply after closing the book.
+   */
   BookEdit = "book_edit",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the client when it interacts with an NPC.
+   * The packet is specifically made for Education Edition, where NPCs are available to use.
+   * As of recent update NPCs are now available in the production build of mcbe.
+   */
   NPCRequest = "npc_request",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to transfer a photo (image) file to the client. It is typically used
+   * to transfer photos so that the client can display it in a portfolio in Education Edition.
+   * While previously usable in the default Bedrock Edition, the displaying of photos in books was disabled and
+   * the packet now has little use anymore.
+   */
   PhotoTransfer = "photo_transfer",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to make the client open a form. This form may be either a modal form
+   * which has two options, a menu form for a selection of options and a custom form for properties.
+   */
   ModalFormRequest = "modal_form_request",
+  /**
+   * `Bound To Server`
+   * ___
+   * Sent by the client in response to a `ModalFormRequest`, after the player has submitted
+   * the form sent. It contains the options/properties selected by the player, or a JSON encoded 'null' if
+   * the form was closed by clicking the X at the top right corner of the form.
+   */
   ModalFormResponse = "modal_form_response",
+  /**
+   * `Bound To Server`
+   * ___
+   * Sent by the client to request the settings specific to the server. These settings
+   * are shown in a separate tab client-side, and have the same structure as a custom form.
+   * `ServerSettingsRequest` has no fields.
+   */
   ServerSettingsRequest = "server_settings_request",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server in response to a `ServerSettingsRequest` from the
+   * client. It is structured the same as a `ModalFormRequest` packet, and if filled out correctly, will show
+   * a specific tab for the server in the settings of the client. A `ModalFormResponse` packet is sent by the
+   * client in response to a ServerSettingsResponse, when the client fills out the settings and closes the
+   * settings again.
+   */
   ServerSettingsResponse = "server_settings_response",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to show the XBOX Live profile of one player to another.
+   */
   ShowProfile = "show_profile",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the client when it toggles the default game type in the settings UI, and is
+   * sent by the server when it actually changes the default game type, resulting in the toggle being changed
+   * in the settings UI.
+   */
   SetDefaultGameType = "set_default_game_type",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to remove a scoreboard objective. It is used to stop showing a
+   * scoreboard to a player.
+   */
   RemoveObjective = "remove_objective",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to display an object as a scoreboard to the player. Once sent,
+   * it should be followed up by a `SetScore` packet to set the lines of the packet.
+   */
   SetDisplayObjective = "set_display_objective",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to send the contents of a scoreboard to the player. It may be used to either
+   * add, remove or edit entries on the scoreboard.
+   */
   SetScore = "set_score",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the client to let the server know it started a chemical reaction in Education Edition,
+   * and is sent by the server to other clients to show the effects.
+   * The packet is only functional if Education features are enabled.
+   */
   LabTable = "lab_table",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to synchronise the falling of a falling block entity with the
+   * transitioning back and forth from and to a solid block. It is used to prevent the entity from flickering,
+   * and is used in places such as the pushing of blocks with pistons.
+   */
   UpdateBlockSynced = "update_block_synced",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to move an entity. The packet is specifically optimised to save as
+   * much space as possible, by only writing non-zero fields.
+   * As of 1.16.100, this packet no longer actually contains any deltas.
+   */
   MoveEntityDelta = "move_entity_delta",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to change the identity type of one of the entries on a
+   * scoreboard. This is used to change, for example, an entry pointing to a player, to a fake player when it
+   * leaves the server, and to change it back to a real player when it joins again.
+   * In non-vanilla situations, the packet is quite useless.
+   */
   SetScoreboardIdentity = "set_scoreboard_identity",
+  /**
+   * `Bound To Server`
+   * ___
+   * Sent by the client in response to a PlayStatus packet with the status set
+   * to spawn. The packet marks the moment at which the client is fully initialised and can receive any packet
+   * without discarding it.
+   */
   SetLocalPlayerAsInitialized = "set_local_player_as_initialized",
+  /**
+   * `Bound To Client`
+   * ___
+   * Packet usage is unknown.
+   */
   UpdateSoftEnum = "update_soft_enum",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the server (and the client, on development builds) to measure the latency
+   * over the entire Minecraft stack, rather than the RakNet latency. It has other usages too, such as the
+   * ability to be used as some kind of acknowledgement packet, to know when the client has received a certain
+   * other packet.
+   */
   NetworkStackLatency = "network_stack_latency",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by both the client and the server. It is a way to let scripts communicate with
+   * the server, so that the client can let the server know it triggered an event, or the other way around.
+   * It is essentially an RPC kind of system.
+   */
   ScriptCustomEvent = "script_custom_event",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to spawn a particle effect client-side. Unlike other packets that
+   * result in the appearing of particles, this packet can show particles that are not hardcoded in the client.
+   * They can be added and changed through behaviour packs to implement custom particles.
+   */
   SpawnParticleEffect = "spawn_particle_effect",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server at the start of the game to let the client know all
+   * entities that are available on the server.
+   */
   AvailableEntityIdentifiers = "available_entity_identifiers",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Not used. Use `LevelSoundEvent`
+   */
   LevelSoundEventV2 = "level_sound_event_v2",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to change the point around which chunks are and remain
+   * loaded. This is useful for mini-game servers, where only one area is ever loaded, in which case the
+   * `NetworkChunkPublisherUpdate` packet can be sent in the middle of it, so that no chunks ever need to be
+   * additionally sent during the course of the game.
+   * In reality, the packet is not extraordinarily useful, and most servers just send it constantly at the
+   * position of the player.
+   * If the packet is not sent at all, no chunks will be shown to the player, regardless of where they are sent.
+   */
   NetworkChunkPublisherUpdate = "network_chunk_publisher_update",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to let the client know all biomes that are available and
+   * implemented on the server side. It is much like the `AvailableActorIdentifiers` packet, but instead
+   * functions for biomes.
+   */
   BiomeDefinitionList = "biome_definition_list",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the server to make any kind of built-in sound heard to a player. It is sent to,
+   * for example, play a stepping sound or a shear sound. The packet is also sent by the client, in which case
+   * it could be forwarded by the server to the other players online. If possible, the packets from the client
+   * should be ignored however, and the server should play them on its own accord.
+   */
   LevelSoundEvent = "level_sound_event",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to send a 'generic' level event to the client. This packet sends an
+   * NBT serialised object and may for that reason be used for any event holding additional data.
+   */
   LevelEventGeneric = "level_event_generic",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the client to update the server on which page was opened in a book on a lectern,
+   * or if the book should be removed from it.
+   */
   LecternUpdate = "lectern_update",
+  /**
+   * `Bound To Client`
+   * ___
+   * This packet was removed when mixer died presumably.
+   */
   VideoStreamConnect = "video_stream_connect",
+  /**
+   * `Bound To Client`
+   * ___
+   * This is NOT a Minecraft entity, but an entity in the Entity Component System (ECS)
+   * for the game engine Minecrat Bedrock uses. Internally, all 'Minecraft entities' are
+   * known as Actors including in packet names and fields. However, these are irrelevant
+   * internal details so we don't do the renames in these protocol definitions, for simplicity we just use Entity.
+   * ___
+   * Sent by the server to the client. Its function is not entirely clear: It does not add an
+   * entity in the sense of an in-game entity, but has to do with the ECS that Minecraft uses.
+   */
   AddEcsEntity = "add_ecs_entity",
+  /**
+   * `Bound To Client`
+   * ___
+   * sent by the server to the client. Its function is not entirely clear: It does not remove an
+   * entity in the sense of an in-game entity, but has to do with the ECS that Minecraft uses.
+   */
   RemoveEcsEntity = "remove_ecs_entity",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the client to the server at the start of the game. It is sent to let the
+   * server know if it supports the client-side blob cache. Clients such as Nintendo Switch do not support the
+   * cache, and attempting to use it anyway will fail.
+   */
   ClientCacheStatus = "client_cache_status",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to show a certain animation on the screen of the player.
+   * The packet is used, as an example, for when a raid is triggered and when a raid is defeated.
+   */
   OnScreenTextureAnimation = "on_screen_texture_animation",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to create a locked copy of one map into another map. In vanilla,
+   * it is used in the cartography table to create a map that is locked and cannot be modified.
+   */
   MapCreateLockedCopy = "map_create_locked_copy",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the client to request data of a structure.
+   */
   StructureTemplateDataExportRequest = "structure_template_data_export_request",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to send data of a structure to the client in response
+   * to a `StructureTemplateDataRequest` packet.
+   */
   StructureTemplateDataExportResponse = "structure_template_data_export_response",
+  /**
+   * `Bound To Client`
+   * ___
+   * No longer used.
+   */
   UpdateBlockProperties = "update_block_properties",
+  /**
+   * `Bound To Server`
+   * ___
+   * Part of the blob cache protocol. It is sent by the client to let the server know
+   * what blobs it needs and which blobs it already has, in an ACK type system.
+   */
   ClientCacheBlobStatus = "client_cache_blob_status",
+  /**
+   * `Bound To Client`
+   * ___
+   * Part of the blob cache protocol. It is sent by the server in response to a
+   * `ClientCacheBlobStatus` packet and contains the blob data of all blobs that the client acknowledged not to
+   * have yet.
+   */
   ClientCacheMissResponse = "client_cache_miss_response",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to update Minecraft: Education Edition related settings.
+   * It is unused by the normal base game as far as we know.
+   */
   EducationSettings = "education_settings",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the client to update multi-player related settings server-side and sent back
+   * to online players by the server.
+   * The `MultiPlayerSettings` packet is a Minecraft: Education Edition packet. It has no functionality for the
+   * base game.
+   */
   MultiplayerSettings = "multiplayer_settings",
+  /**
+   * `Bound To Server`
+   * ___
+   * Sent by the client when it changes a setting in the settings that results in the issuing
+   * of a command to the server, such as when Show Coordinates is enabled.
+   */
   SettingsCommand = "settings_command",
+  /**
+   * `Bound To Server`
+   * ___
+   * Sent by the client to request the dealing damage to an anvil. This packet is completely
+   * pointless and the server should never listen to it.
+   */
   AnvilDamage = "anvil_damage",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to tell the client that it should be done using the item it is
+   * currently using.
+   */
   CompletedUsingItem = "completed_using_item",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the server to update a variety of network settings. These settings modify the
+   * way packets are sent over the network stack.
+   */
   NetworkSettings = "network_settings",
+  /**
+   * `Bound To Server`
+   * ___
+   * Sent by the client to allow for server authoritative movement. It is used to synchronise
+   * the player input with the position server-side.
+   * The client sends this packet when the `ServerAuthoritativeMovementMode` field in the `StartGame` packet is set
+   * to true, instead of the `MovePlayer` packet. The client will send this packet once every tick.
+   */
   PlayerAuthInput = "player_auth_input",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to set the creative inventory's content for a player
+   * Introduced in 1.16, this packet replaces the previous method - sending an `InventoryContent` packet with
+   * creative inventory window ID.
+   * As of v1.16.100, this packet must be sent during the login sequence. Not sending it will stop the client
+   * from joining the server.
+   */
   CreativeContent = "creative_content",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to update the enchantment options displayed when the user opens
+   * the enchantment table and puts an item in. This packet was added in 1.16 and allows the server to decide on
+   * the enchantments that can be selected by the player.
+   * The `PlayerEnchantOptions` packet should be sent once for every slot update of the enchantment table. The
+   * vanilla server sends an empty `PlayerEnchantOptions` packet when the player opens the enchantment table
+   * (air is present in the enchantment table slot) and sends the packet with actual enchantments in it when
+   * items are put in that can have enchantments.
+   */
   PlayerEnchantOptions = "player_enchant_options",
+  /**
+   * `Bound To Server`
+   * ___
+   * Sent by the client to change item stacks in an inventory. It is essentially a
+   * replacement of the `InventoryTransaction` packet added in 1.16 for inventory specific actions, such as moving
+   * items around or crafting. The `InventoryTransaction` packet is still used for actions such as placing blocks
+   * and interacting with entities.
+   */
   ItemStackRequest = "item_stack_request",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server in response to an `ItemStackRequest` packet from the client. This
+   * packet is used to either approve or reject ItemStackRequests from the client. If a request is approved, the
+   * client will simply continue as normal. If rejected, the client will undo the actions so that the inventory
+   * should be in sync with the server again.
+   */
   ItemStackResponse = "item_stack_response",
+  /** 
+   * `Bound To Client`
+   * ___
+   * Sent by the server to damage the armour of a player. It is a very efficient packet,
+   * but generally it's much easier to just send a slot update for the damaged armour.
+   */
   PlayerArmorDamage = "player_armor_damage",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to change the game mode of a player. It is functionally
+   * identical to the `SetPlayerGameType` packet.
+   */
   UpdatePlayerGameType = "update_player_game_type",
+  /**
+   * `Bound To Server`
+   * ___
+   * Sent by the client to request the position and dimension of a
+   * 'tracking ID'. These IDs are tracked in a database by the server. In 1.16, this is used for lodestones.
+   * The client will send this request to find the position a lodestone compass needs to point to. If found, it
+   * will point to the lodestone. If not, it will start spinning around.
+   * A `PositionTrackingDBServerBroadcast` packet should be sent in response to this packet.
+   */
   PositionTrackingDBRequest = "position_tracking_db_request",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server in response to the
+   * `PositionTrackingDBClientRequest` packet. This packet is, as of 1.16, currently only used for lodestones. The
+   * server maintains a database with tracking IDs and their position and dimension. The client will request
+   * these tracking IDs, (NBT tag set on the lodestone compass with the tracking ID?) and the server will
+   * respond with the status of those tracking IDs.
+   * What is actually done with the data sent depends on what the client chooses to do with it. For the
+   * lodestone compass, it is used to make the compass point towards lodestones and to make it spin if the
+   * lodestone at a position is no longer there.
+   */
   PositionTrackingDBBroadcast = "position_tracking_db_broadcast",
+  /**
+   * `Bound To Server`
+   * ___
+   * Sent by the client when it receives an invalid packet from the server. It holds
+   * some information on the error that occurred.
+   */
   PacketViolationWarning = "packet_violation_warning",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to the client. There is a predictive movement component for
+   * entities. This packet fills the "history" of that component and entity movement is computed based on the
+   * points. Vanilla sends this packet instead of the `SetActorMotion` packet when 'spatial optimisations' are
+   * enabled.
+   */
   MotionPredictionHints = "motion_prediction_hints",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to animate an entity client-side. It may be used to play a single
+   * animation, or to activate a controller which can start a sequence of animations based on different
+   * conditions specified in an animation controller.
+   * Much of the documentation of this packet can be found at
+   * https://minecraft.gamepedia.com/Bedrock_Edition_beta_animation_documentation.
+   */
   AnimateEntity = "animate_entity",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to make the camera shake client-side. This feature was added for map-making partners.
+   */
   CameraShake = "camera_shake",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to render the different fogs in the Stack. The types of fog are controlled
+   * by resource packs to change how they are rendered, and the ability to create custom fog.
+   */
   PlayerFog = "player_fog",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server if and only if `StartGame.ServerAuthoritativeMovementMode`
+   * is set to `AuthoritativeMovementModeServerWithRewind`. The packet is used to correct movement at a specific
+   * point in time.
+   */
   CorrectPlayerMovePrediction = "correct_player_move_prediction",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to attach client-side components to a custom item.
+   */
   ItemComponent = "item_component",
+  /**
+   * `Bound To Server & Client`
+   * ___
+   * Sent by the both the client and the server. The client sends the packet to the server to
+   * allow the server to filter the text server-side. The server then responds with the same packet and the
+   * safer version of the text.
+   */
   FilterTextPacket = "filter_text_packet",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to spawn an outlined cube on client-side.
+   */
   DebugRenderer = "debug_renderer",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to synchronize/update entity properties as NBT, an alternative to Set Entity Data.
+   */
   SyncEntityProperty = "sync_entity_property",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sends a volume entity's definition and components from server to client.
+   */
   AddVolumeEntity = "add_volume_entity",
+  /**
+   * `Bound To Client`
+   * ___
+   * Indicates a volume entity to be removed from server to client.
+   */
   RemoveVolumeEntity = "remove_volume_entity",
+  /**
+   * `Bound Unknown`
+   * ___
+   * In-progress packet. We currently do not know the use case.
+   */
   SimulationType = "simulation_type",
+  /**
+   * `Bound Unknown`
+   * ___
+   * Packet that allows the client to display dialog boxes for interacting with NPCs.
+   */
   NPC_Dialogue = "npc_dialogue",
 }
 
