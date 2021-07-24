@@ -70,19 +70,18 @@ export class NetworkManager extends EventEmitter {
   private encryptionSecretKeyBytes: Buffer
   private encryptionIV: Buffer
   public readonly version: Versions
-  public readonly dataProvider: DataProvider
   public readonly X509: string
   public readonly SALT = "🧂"
   public readonly CURVE = "secp384r1"
   public readonly ALGORITHM = "ES384"
   public readonly PUBLIC_KEY_ONLINE = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V"
   private connected = false
-  constructor(host: string, port: number, version?: Versions) {
+  constructor(host: string, port: number) {
     super()
 
     this.host = host
     this.port = port
-    this.version = version || C.CUR_VERSION
+    this.version =  C.CUR_VERSION
 
     this.packetHandler = new PacketHandler(this.version)
 
@@ -96,19 +95,18 @@ export class NetworkManager extends EventEmitter {
       type: 'sec1',
     })
     this.X509 = this.publicKeyDER.toString('base64')
-    this.dataProvider = new DataProvider(C.Versions[this.version])
     
     this._raknet = new Raknet(host, port, 10)
     this._handlePackets()
   }
   // Issue #1 No Reason To Expose Raw Packets
   // Causes Confusion
-  // public getRaknet(): Raknet { return this._raknet }
+  public getRaknet(): Raknet { return this._raknet }
 
   // Issue #2 No Reason To Expose Packet Handler
   // Causes Confusion
   // Instead Expose A Simplified API Through Manager
-  // public getPacketHandler(): PacketHandler { return this.packetHandler }
+  public getPacketHandler(): PacketHandler { return this.packetHandler }
 
   private _handlePackets(): void {
     this._raknet.on('raw', async (packet) => {
@@ -210,17 +208,17 @@ export class NetworkManager extends EventEmitter {
   }
   public createLoginPayload(): LoginPayload {
     const skinData = JSON.parse(
-      this.dataProvider
-        .getVersionMap()
-        .getData('steve.json')
+      DataProvider
+        .getDataMap()
+        .getFile('steve.json')
         .toString('utf-8'))
-    const skinBin = this.dataProvider
-      .getVersionMap()
-      .getData('steveSkin.bin')
+    const skinBin = DataProvider
+      .getDataMap()
+      .getFile('steveSkin.bin')
       .toString('base64')
-    const skinGeometry = this.dataProvider
-      .getVersionMap()
-      .getData('steveGeometry.json')
+    const skinGeometry = DataProvider
+      .getDataMap()
+      .getFile('steveGeometry.json')
       .toString('base64')
 
     const payload: RawLoginPayload = {
@@ -259,7 +257,7 @@ export class NetworkManager extends EventEmitter {
     const encodedChain = JSON.stringify({ chain })
     
     return {
-      protocol_version: C.Versions[this.version],
+      protocol_version: C.CUR_VERSION_PROTOCOL,
       tokens: {
         identity: encodedChain,
         client: this.clientUserChain,

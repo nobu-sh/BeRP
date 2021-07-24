@@ -1,53 +1,34 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  resolve,
-} from 'path'
+  CUR_VERSION,
+  ProtoDataPath,
+} from '../Constants'
+import { resolve } from 'path'
 import { DataProviderKnownFiles } from 'src/berp'
 import { getFiles } from '.'
-import { Versions } from '../Constants'
 import fs from 'fs'
 
 export class DataProvider {
-  private protocolVersion: number
-  public fileMap: { [file: string]: any[][] } = {}
-  constructor(pv: number) {
-    this.protocolVersion = pv
-  }
-  public loadVersionsToFileMap(): void {
-    for (const version in Versions) {
-      let files: string[] = []
-      try {
-        files = getFiles(resolve(process.cwd(), 'data', version))
-      } catch {}
+  public static getDataMap(): { getFile(file: DataProviderKnownFiles): Buffer | undefined } {
+    const dataMap = new Map<string, string>()
+    const path = resolve(ProtoDataPath, CUR_VERSION)
+    try {
+      const files = getFiles(path)
       for (const file of files) {
-        const sfile = file.split(/(\/|\\)/)
-        const rfile = sfile[sfile.length - 1]
-        this.fileMap[rfile] = this.fileMap[rfile] ?? []
-        this.fileMap[rfile].push([Versions[version], file])
-        this.fileMap[rfile].sort().reverse()
+        const splitFilePath = file.split(/(\/|\\)/)
+        const fileName = splitFilePath[splitFilePath.length - 1]
+        dataMap.set(fileName, file)
       }
-    }
-  }
-  public getVersionMap(): { getData(file: DataProviderKnownFiles): Buffer | undefined } {
-    this.fileMap = {}
-    this.loadVersionsToFileMap()
-    
+    } catch {}
+
     return {
-      getData: (file: DataProviderKnownFiles): Buffer | undefined => {
-        if (!this.fileMap[file]) {
+      getFile(file: DataProviderKnownFiles): Buffer | undefined {
+        const path = dataMap.get(file)
+        if (path) {
+          return fs.readFileSync(path)
+        } else {
           return undefined
         }
-        for (const [pver, path] of this.fileMap[file]) {
-          if (pver <= this.protocolVersion) {
-            try {
-              return fs.readFileSync(path)
-            } catch {
-              return undefined
-            }
-          }
-        }
-
-        return undefined
       },
     }
   }

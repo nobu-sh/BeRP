@@ -1,4 +1,9 @@
 import { MCHeaders } from "./berp"
+import { resolve } from 'path'
+
+export const ProtoDataPath = resolve(process.cwd(), 'data')
+export const CUR_VERSION = '1.17.10'
+export const CUR_VERSION_PROTOCOL = 448
 
 export const AuthEndpoints = {
   RealmAPI: "https://pocket.realms.minecraft.net/",
@@ -27,7 +32,7 @@ export const RealmAPIHeaders = (token: string): MCHeaders => {
     "Accept-Language": "en-US,en;q=0.5",
     "content-type": "application/json",
     "charset": "utf-8",
-    "client-version": "1.17.10",
+    "client-version": CUR_VERSION,
     "authorization": token,
     "Connection": "Keep-Alive",
     "Host": "pocket.realms.minecraft.net",
@@ -42,20 +47,10 @@ export const MinecraftAuthHeaders = (token: string): MCHeaders => {
     "Accept-Language": "en-US,en;q=0.5",
     "content-type": "application/json",
     "charset": "utf-8",
-    "client-version": "1.17.10",
+    "client-version": CUR_VERSION,
     "authorization": token,
     "Connection": "Keep-Alive",
     "Host": "multiplayer.minecraft.net",
     "User-Agent": "BeRP [Bedrock Edition Realm Protocol](https://github.com/nobuwu/berp)",
   }
-}
-
-export const MIN_VERSION = '1.16.201'
-export const CUR_VERSION = '1.17.10'
-export const Versions = {
-  '1.17.10': 448,
-  '1.17.0': 440,
-  '1.16.220': 431,
-  '1.16.210': 428,
-  '1.16.201': 422,
 }

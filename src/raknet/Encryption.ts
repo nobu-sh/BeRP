@@ -10,7 +10,6 @@ import {
   createHash,
 } from 'crypto'
 import { Versions } from 'src/berp'
-import * as C from '../Constants'
 import zlib from 'zlib'
 
 export class Encryption {
@@ -26,13 +25,9 @@ export class Encryption {
     this.iv = iv
     this.secretKeyBytes = secretKeyBytes
 
-    if (this.versionLessThan('1.16.220')) {
-      this.cipher = this.createCipher(this.secretKeyBytes, iv, 'aes-256-cfb8' as CipherGCMTypes)
-      this.decipher = this.createDecipher(this.secretKeyBytes, iv, 'aes-256-cfb8' as CipherGCMTypes)
-    } else {
-      this.cipher = this.createCipher(this.secretKeyBytes, iv.slice(0, 12), 'aes-256-gcm')
-      this.decipher = this.createDecipher(this.secretKeyBytes, iv.slice(0, 12), 'aes-256-gcm')
-    }
+    this.cipher = this.createCipher(this.secretKeyBytes, iv.slice(0, 12), 'aes-256-gcm')
+    this.decipher = this.createDecipher(this.secretKeyBytes, iv.slice(0, 12), 'aes-256-gcm')
+
     this.sendCounter =  0n
     this.recieveCounter = 0n
   }
@@ -40,12 +35,6 @@ export class Encryption {
   public getCipher(): CipherGCM { return this.cipher }
   public getDecipher(): DecipherGCM { return this.decipher }
 
-  public versionLessThan(version: Versions): boolean {
-    return C.Versions[this.currentVersion] < (typeof version === 'string' ? C.Versions[version] : version)
-  }
-  public versionGreaterThan(version: Versions): boolean {
-    return C.Versions[this.currentVersion] > (typeof version === 'string' ? C.Versions[version] : version)
-  }
   public createCipher(secret: CipherKey, iv: BinaryLike, alg: CipherGCMTypes): CipherGCM {
     if (getCiphers().includes(alg)) {
       return createCipheriv(alg, secret, iv)

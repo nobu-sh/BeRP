@@ -1,20 +1,24 @@
-import { overrideProcessConsole } from './utils'
+import {
+  overrideProcessConsole,
+  AttemptProtocolCompiler,
+} from './utils'
 import { resolve } from 'path'
 import * as C from './Constants'
 import { NetworkManager } from './raknet/Manager'
-// import { nextUUID } from './utils'
-const host = "20.80.227.38"
-const port = 31275
-
-// Overrides Console Methods To Add Log History
-overrideProcessConsole(resolve(process.cwd(), 'logs'))
-
 import AuthHandler from './auth'
 import {
   packet_disconnect,
   packet_start_game,
   packet_text,
 } from './types/packets'
+const host = "20.80.227.38"
+const port = 31275
+
+// Overrides Console Methods To Add Log History
+overrideProcessConsole(resolve(process.cwd(), 'logs'))
+
+// Attempts To Compile Protocols If Needed
+AttemptProtocolCompiler()
 
 const auth = new AuthHandler({
   clientId: C.AzureClientID,
@@ -60,7 +64,7 @@ auth.createApp(auth.createConfig())
 auth.selectUser()
   .then(async res => {
     const result = await auth.ezXSTSForRealmRak(res)
-    const net = new NetworkManager(host, port, C.CUR_VERSION)
+    const net = new NetworkManager(host, port)
     await net.authMc(result)
     let gameInfo: packet_start_game
 

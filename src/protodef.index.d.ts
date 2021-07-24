@@ -26,7 +26,7 @@ declare class ProtodefBasecompiler {
   public addProtocol (protocolData: unknown, path: unknown): void
   public indent(code: string, indent: string): string
   public getField (name: string): unknown
-  public generate(): unknown
+  public generate(): string
   public compile (code: unknown): unknown
 }
 
@@ -37,14 +37,14 @@ declare class ProtodefReadCompiler extends ProtodefBasecompiler {
   public callType (type: unknown, offsetExpr: string, args: unknown[]): unknown
 }
 
-declare class ProtodefWriteCompiler {
+declare class ProtodefWriteCompiler extends ProtodefBasecompiler {
   constructor()
   public compileType (type: unknown): unknown
   public wrapCode (code: unknown, args: unknown[]): unknown
   public callType (type: unknown, offsetExpr: string, args: unknown[]): unknown
 }
 
-declare class ProtodefSizeOfCompiler {
+declare class ProtodefSizeOfCompiler extends ProtodefBasecompiler {
   constructor()
   public addNativeType (type: unknown, fn: unknown): void
   public compileType (type: unknown): unknown

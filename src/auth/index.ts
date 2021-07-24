@@ -23,7 +23,7 @@ import {
 class AuthHandler {
   private _options: AuthHandlerOptions
   private _msalApp: PublicClientApplication
-  private _logger = new Logger("AuthHandler", 'green')
+  private _logger = new Logger("Auth Handler", 'green')
   constructor(options: AuthHandlerOptions) {
     if (!options) throw new Error("Invalid AuthHandler Options")
     this._options = options

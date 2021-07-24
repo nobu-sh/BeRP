@@ -1,3 +1,5 @@
+// https://github.com/PrismarineJS/bedrock-protocol/blob/master/src/transforms/serializer.js
+
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-var-requires */

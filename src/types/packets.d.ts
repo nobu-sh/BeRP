@@ -1340,6 +1340,13 @@ export enum Packets {
   NPC_Dialogue = "npc_dialogue",
 }
 
+export interface ClientBoundPackets {
+
+}
+export interface ServerBoundPackets {
+  
+}
+
 /**
  * !id: 0x01
  * !bound: server

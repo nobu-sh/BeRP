@@ -1,4 +1,9 @@
 export * from './types/packets'
+
+export type Versions = (
+  '1.17.10' 
+)
+
 export interface AuthHandlerOptions {
   clientId: string
   authority: string
@@ -33,13 +38,6 @@ export interface XboxProfile {
   iat: number
   identityPublicKey: string
 }
-export type Versions = (
-  '1.17.10' |
-  '1.17.0' |
-  '1.16.220' |
-  '1.16.210' |
-  '1.16.201' 
-)
 
 export type LoggerColors = (
   "black" |
