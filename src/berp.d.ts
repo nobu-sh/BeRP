@@ -1,4 +1,4 @@
-export * from './types/packets'
+export * from './types/packets.i'
 
 export type Versions = (
   '1.17.10' 

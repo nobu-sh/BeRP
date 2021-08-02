@@ -1,4 +1,4 @@
-export const McCompiler = eval(`
+export const McCompiler = `
 /* eslint-disable */
 const UUID = require('uuid-1345')
 const nbt = require('prismarine-nbt')
@@ -444,4 +444,4 @@ function str (fn) {
 }
 
 module.exports = { Read, Write, SizeOf }
-`)
+`

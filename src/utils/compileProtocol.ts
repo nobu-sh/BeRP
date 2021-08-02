@@ -15,7 +15,7 @@ import {
   ProtoDefYAMLParse,
   ProtoDefYAMLCompile,
 } from './'
-import { Logger } from 'src/console'
+import { Logger } from '../console'
 
 const latest = resolve(ProtoDataPath, 'latest')
 
@@ -68,7 +68,7 @@ function createProtocol(ver: string): void {
   const path = resolve(ProtoDataPath, ver)
 
   const protocol = getJSON(resolve(path, 'protocol.json')).types
-  compiler.addTypes(McCompiler)
+  compiler.addTypes(eval(McCompiler))
   compiler.addTypes(require('prismarine-nbt/compiler-zigzag'))
   compiler.addTypesToCompile(protocol)
 

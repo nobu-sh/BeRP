@@ -19,6 +19,11 @@ import {
   Versions,
   XboxProfile,
 } from 'src/berp'
+import {
+  ClientBoundPackets,
+  packet_login,
+  ServerBoundPackets,
+} from '../types/packets.i'
 import { PacketHandler } from './PacketHandler'
 import { Raknet } from './UDP'
 import { EventEmitter } from 'events'
@@ -26,30 +31,24 @@ import Axios, { Method } from 'axios'
 import * as C from '../Constants'
 import JWT from 'jsonwebtoken'
 
-interface RawLoginPayload {
-  ClientRandomId: number
-  CurrentInputMode: number
-  DefaultInputMode: number
-  DeviceId: string
-  DeviceModel: 'BeRP'
-  DeviceOS: 7
-  GameVersion: string
-  GuiScale: number
-  LanguageCode: string
-  PlatformOfflineId: string
-  PlatformOnlineId: string
-  PlayFabId: string
-  SelfSignedId: string
-  ServerAddress: string
-  SkinData: string
-  SkinGeometryData: string
-  ThirdPartyName: string
-  ThirdPartyNameOnly: boolean
-  UIProfile: number
-  [k: string]: any
+export interface RakManager {
+  on<K extends keyof ClientBoundPackets>(event: K, listener: (...args: ClientBoundPackets[K]) => void): this
+  on<S extends string | symbol>(
+    event: Exclude<S, keyof ClientBoundPackets>,
+    listener: (...args: any[]) => void, 
+  ): this
+  once<K extends keyof ClientBoundPackets>(event: K, listener: (...args: ClientBoundPackets[K]) => void): this
+  once<S extends string | symbol>(
+    event: Exclude<S, keyof ClientBoundPackets>,
+    listener: (...args: any[]) => void, 
+  ): this
+  emit<K extends keyof ClientBoundPackets>(event: K, ...args: ClientBoundPackets[K]): boolean
+  emit<S extends string | symbol>(
+    event: Exclude<S, keyof ClientBoundPackets>,
+    ...args: any[]
+  ): boolean
 }
-
-export class NetworkManager extends EventEmitter {
+export class RakManager extends EventEmitter {
   public readonly host: string
   public readonly port: number
   private edchKeyPair: KeyPairKeyObjectResult
@@ -99,23 +98,24 @@ export class NetworkManager extends EventEmitter {
     this._raknet = new Raknet(host, port, 10)
     this._handlePackets()
   }
-  // Issue #1 No Reason To Expose Raw Packets
-  // Causes Confusion
-  public getRaknet(): Raknet { return this._raknet }
-
-  // Issue #2 No Reason To Expose Packet Handler
-  // Causes Confusion
-  // Instead Expose A Simplified API Through Manager
-  public getPacketHandler(): PacketHandler { return this.packetHandler }
 
   private _handlePackets(): void {
+    this._raknet.on('connected', () => {
+      this.emit('rak_connected')
+    })
+    this._raknet.on('closed', () => {
+      this.emit('rak_closed')
+    })
+    this._raknet.on('pong', () => {
+      this.emit('rak_pong')
+    })
     this._raknet.on('raw', async (packet) => {
       for (const pak of await this.packetHandler.readPacket(packet)) {
         this.emit("all", {
           name: pak.name,
           params: pak.params, 
         })
-        this.emit(pak.name, pak.params)
+        this.emit(pak.name, pak.params as any)
       }
     })
   }
@@ -136,6 +136,13 @@ export class NetworkManager extends EventEmitter {
       this._raknet.connect()
     }
   }
+
+  public close(): void {
+    this.emit('rak_closed')
+    this._raknet.killConnection()
+    this.removeAllListeners()
+  }
+
   public startServerboundEncryption(): void {
     const [header, payload] = this.serverBoundEncryptionToken.split(".").map(k => Buffer.from(k, 'base64'))
     const head = JSON.parse(String(header))
@@ -195,7 +202,7 @@ export class NetworkManager extends EventEmitter {
       },
     })
   }
-  private generateClientUserChain(payload: RawLoginPayload): void {
+  private generateClientUserChain(payload: packet_login): void {
     const privateKey = this.edchKeyPair.privateKey
     this.clientUserChain = JWT.sign(payload, privateKey as unknown as JWT.Secret, {
       algorithm: this.ALGORITHM,
@@ -221,7 +228,7 @@ export class NetworkManager extends EventEmitter {
       .getFile('steveGeometry.json')
       .toString('base64')
 
-    const payload: RawLoginPayload = {
+    const payload: packet_login = {
       ...skinData,
 
       ClientRandomId: Date.now(),
@@ -264,7 +271,15 @@ export class NetworkManager extends EventEmitter {
       },
     }
   }
-  // public sendPacket(name)
+  public async sendPacket<K extends keyof ServerBoundPackets>(name: K, params: ServerBoundPackets[K][0]): Promise<{ name: K, params: ServerBoundPackets[K][0] }> {
+    const newPacket = await this.packetHandler.createPacket(name, params)
+    this._raknet.writeRaw(newPacket)
+
+    return {
+      name,
+      params,
+    }
+  }
   public makeRestRequest(method: Method, url: string, headers?: { [k: string]: any }, data?: { [k: string]: any }): Promise<any> {
     return new Promise((r,j) => {
       Axios({

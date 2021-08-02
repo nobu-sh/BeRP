@@ -7,3 +7,5 @@ msal-cache/
 read.js
 write.js
 size.js
+# Ignore All Protcol Version Except Latest
+*.*.*/

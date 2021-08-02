@@ -13,6 +13,7 @@ const {
   CompiledProtodef,
 } = Compiler
 import { resolve } from 'path'
+import { McCompiler } from '../utils'
 
 export class Parser extends FullPacketParser {
   constructor(option1: unknown, option2: unknown) {
@@ -48,7 +49,7 @@ export function createProtocol (version: unknown): unknown {
   const protocol = require(resolve(process.cwd(), `data/${version}/protocol.json`)).types
   const compiler = new ProtoDefCompiler()
   compiler.addTypesToCompile(protocol)
-  compiler.addTypes(require(resolve(process.cwd(), 'datatypes/compiler-minecraft')))
+  compiler.addTypes(eval(McCompiler))
   compiler.addTypes(require('prismarine-nbt/compiler-zigzag'))
 
   const compiledProto = compiler.compileProtoDefSync()
@@ -59,7 +60,7 @@ export function createProtocol (version: unknown): unknown {
 // Loads already generated read/write/sizeof code
 function getProtocol (version) {
   const compiler = new ProtoDefCompiler()
-  compiler.addTypes(require(resolve(process.cwd(), 'datatypes/compiler-minecraft')))
+  compiler.addTypes(eval(McCompiler))
   compiler.addTypes(require('prismarine-nbt/compiler-zigzag'))
 
   global.PartialReadError = require('protodef/src/utils').PartialReadError
