@@ -34,6 +34,7 @@ export class BeRP {
     this._commandHandler = new CommandHandler(this)
   }
   public getConsole(): BerpConsole { return this._console }
+  public getLogger(): Logger { return this._logger }
   public getCommandHandler(): CommandHandler { return this._commandHandler }
   public getNetworkManager(): NetworkManager { return this._networkManager }
   public getAuthProvider(): AuthHandler { return this._authProvider }

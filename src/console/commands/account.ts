@@ -1,7 +1,9 @@
 import { BaseCommand } from "./base/BaseCommand"
 import { BeRP } from "../../berp"
 import chalk from "chalk"
-
+import * as Constants from '../../Constants'
+import readline from 'readline'
+import { DeviceCodeRequest } from "@azure/msal-node"
 export class Account extends BaseCommand {
   private _berp: BeRP
   public name = "account"
@@ -20,38 +22,78 @@ export class Account extends BaseCommand {
     }
     switch(args[0].toLowerCase()) {
     case "list":
-      const accounts = await this._berp
-        .getAuthProvider()
-        .getCache()
-        .getAllAccounts()
-        
-      if (accounts.length) {
-        console.log(`${chalk.blueBright('Active BeRP Session - accounts - list:')}\n${accounts.map(i => `${chalk.gray(`  -  ${i.name} (${i.username})`)}`).join('\n')}`)
-      } else {
-        console.log(`${chalk.blueBright('Active BeRP Session - accounts - list:')}\n  ${chalk.red("No current account sessions. Try adding an account with \"account add\"")}`)
-      }
+      this._listAccounts()
       break
     case "add":
-      this._berp.getConsole().startSelectPrompt(chalk.blueBright("Please Select A Login Method"), ["Device OAuth Grant", "Username & Password"])
-        .then((res) => {
-          if (res) {
-            switch(res.toLowerCase()) {
-            case "device oauth grant":
-            
-              break
-            case "username & password":
-              this._berp.getConsole().sendAuth()
-                .then(res => {
-                  console.log(res)
-                })
-              break
-            }
-          }
-        })
-        .catch((err)=>{ console.log(err) })
+      this._addAccount()
       break
     case "remove":
+      this._removeAccount()
       break
     }
+  }
+  private async _listAccounts(): Promise<void> {
+    const accounts = await this._berp
+      .getAuthProvider()
+      .getCache()
+      .getAllAccounts()
+      
+    if (accounts.length) {
+      console.log(`${chalk.blueBright('Active BeRP Session - accounts - list:')}\n${accounts.map(i => `${chalk.gray(`  -  ${i.name} (${i.username})`)}`).join('\n')}`)
+    } else {
+      console.log(`${chalk.blueBright('Active BeRP Session - accounts - list:')}\n  ${chalk.red("No current account sessions. Try adding an account with \"account add\"")}`)
+    }
+  }
+  private _addAccount(): void {
+    this._berp.getConsole().stop()
+
+    const deviceCodeRequest: DeviceCodeRequest = {
+      scopes: Constants.Scopes,
+      deviceCodeCallback: (device) => {
+        console.log(chalk.blueBright(`BeRP Microsoft Account Link:\n${chalk.grey(`-  Navigate to ${chalk.cyan(device.verificationUri)}.`)}\n${chalk.grey(`-  Use the code ${chalk.cyan(device.userCode)} to link your account.`)}`))
+      },
+    }
+
+    let tempConsole = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+      prompt: "",
+    })
+    const disposeTempConsole = (): void => {
+      if (tempConsole) {
+        // tempConsole.removeAllListeners()
+        tempConsole.close()
+        tempConsole = undefined
+        this._berp.getConsole().start()
+      }
+    }
+    tempConsole.on('line', (l) => {
+      if (l.toLowerCase() === 'cancel') {
+        this._berp.getCommandHandler().error("Canceled BeRP Microsoft Account Link")
+        disposeTempConsole()
+        deviceCodeRequest.cancel = true
+      }
+    })
+
+    this._berp.getLogger().info("Attempting oauth device grant please follow all instructions given below or type \"cancel\" to quit!")
+    this._berp.getAuthProvider()
+      .createDeviceOauthGrant(deviceCodeRequest)
+      .then(res => {
+        disposeTempConsole()
+        this._berp.getAuthProvider()
+          .getLogger()
+          .success("Successfully added new account", `${res.account.name} (${res.account.username})`)
+      })
+      .catch(err => {
+        if (!deviceCodeRequest.cancel) {
+          disposeTempConsole()
+          this._berp.getAuthProvider()
+            .getLogger()
+            .error("Failed to add new account...\n", err)
+        }
+      })
+  }
+  private _removeAccount(): void {
+    //
   }
 }

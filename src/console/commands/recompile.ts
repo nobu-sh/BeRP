@@ -24,7 +24,7 @@ export class Recompile extends BaseCommand {
     this._berp.getCommandHandler()
       .getLogger()
       .warn("Attempting protodef recompile. Process could cause temporary errors in console.")
-    fs.rmdirSync(path.resolve(ProtoDataPath, CUR_VERSION), {
+    fs.rmSync(path.resolve(ProtoDataPath, CUR_VERSION), {
       recursive: true,
     })
     AttemptProtocolCompiler()

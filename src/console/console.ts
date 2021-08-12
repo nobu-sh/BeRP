@@ -48,23 +48,33 @@ class BerpConsole extends EventEmitter {
       this.emit("input", s)
     })
   }
-  private _createNewInput(): void {
-    this._console = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-      prompt: "",
-    })
-    this._registerInputListener()
+  /**
+   * Start new readline console instance
+   */
+  public start(): void {
+    if (!this._console) {
+      this._console = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+        prompt: "",
+      })
+      this._registerInputListener()
+    }
   }
 
-  public destroy(): void {
-    this._console.close()
-    this._console = undefined
+  /**
+   * Stop current readline console instance
+   */
+  public stop(): void {
+    if (this._console) {
+      this._console.close()
+      this._console = undefined
+    }
   }
 
   public startSelectPrompt(message: string, args: string[]): Promise<string> {
     return new Promise((r) => {
-      this.destroy()
+      this.stop()
       new Select({
         name: "selectprompt",
         message: `${message} ${chalk.gray('( Nav: ↑ ↓, Select: ↩, Exit: esc )')}`,
@@ -73,17 +83,17 @@ class BerpConsole extends EventEmitter {
         .run()
         .then(res => {
           r(stripFormat(res))
-          this._createNewInput()
+          this.start()
         })
         .catch(() => {
           r(undefined)
-          this._createNewInput()
+          this.start()
         })
     })
   }
   public sendAuth(): Promise<{ email: string, pass: string }> {
     return new Promise((r) => {
-      this.destroy()
+      this.stop()
       console.log(chalk.yellow("Accounts with Two-Factor Authentication enabled will not work with this login method!"))
       new Form({
         message: chalk.blueBright("Please login with your xbox live credentials: ") + chalk.gray("( Nav: tab, Submit: ↩, Exit: esc )"),
@@ -101,11 +111,11 @@ class BerpConsole extends EventEmitter {
         .run()
         .then((res: any) => {
           r(res)
-          this._createNewInput()
+          this.start()
         })
         .catch(() => {
           r(undefined)
-          this._createNewInput()
+          this.start()
         })
     })
   }
