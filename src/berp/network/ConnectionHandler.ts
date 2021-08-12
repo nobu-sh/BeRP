@@ -2,9 +2,9 @@ import {
   Packets,
   packet_disconnect,
   packet_start_game,
-} from "../types/packets.i"
-import { RakManager } from "../raknet/Manager"
-import { Logger } from '../console'
+} from "../../types/packets.i"
+import { RakManager } from "../raknet"
+import { Logger } from '../../console'
 // TODO: Client/plugins can control connection/diconnection of rak
 
 export class ConnectionManager extends RakManager {
@@ -14,38 +14,29 @@ export class ConnectionManager extends RakManager {
   private _gameInfo: packet_start_game
   private _tickSync = 0n
   private _tickSyncKeepAlive: NodeJS.Timer
-  private _logger = new Logger("Connection Manager")
+  private _log = new Logger("Connection Handler", 'cyanBright')
   constructor(host: string, port: number) {
     super(host, port)
     this.host = host
     this.port = port
 
-    this._logger.changeColor('cyanBright')
-
-    this._handleLogin = this._handleLogin.bind(this)
-    this._handleHandshake = this._handleHandshake.bind(this)
-    this._handleAcceptPacks = this._handleAcceptPacks.bind(this)
-    this._cachedChunks = this._cachedChunks.bind(this)
-    this._handleGameStart = this._handleGameStart.bind(this)
-    this._handleDisconnect = this._handleDisconnect.bind(this)
-
-    this.once('rak_connected', this._handleLogin)
-    this.once(Packets.ServerToClientHandshake, this._handleHandshake)
+    this.once('rak_connected', this._handleLogin.bind(this))
+    this.once(Packets.ServerToClientHandshake, this._handleHandshake.bind(this))
     this.once(Packets.ResourcePacksInfo, async () => {
       await this._handleAcceptPacks()
       await this._cachedChunks()
     })
-    this.once(Packets.ResourcePacksStack, this._handleAcceptPacks)
-    this.once(Packets.StartGame, this._handleGameStart)
-    this.once(Packets.Disconnect, this._handleDisconnect)
-    this.once('rak_closed', this._handleDisconnect)
+    this.once(Packets.ResourcePacksStack, this._handleAcceptPacks.bind(this))
+    this.once(Packets.StartGame, this._handleGameStart.bind(this))
+    this.once(Packets.Disconnect, this._handleDisconnect.bind(this))
+    this.once('rak_closed', this._handleDisconnect.bind(this))
 
     this.on(Packets.TickSync, (pak) => {
       this._tickSync = pak.response_time
     })
   }
   public getGameInfo(): packet_start_game { return this._gameInfo }
-  public getLogger(): Logger { return this._logger }
+  public getLogger(): Logger { return this._log }
   public getTick(): bigint { return this._tickSync }
 
   private async _handleDisconnect(pak?: packet_disconnect): Promise<void> {
@@ -57,7 +48,9 @@ export class ConnectionManager extends RakManager {
     clearInterval(this._tickSyncKeepAlive)
     this.close()
     this.emit("remove_from_connections")
-    this._logger.warn("Disonnection on", this.host, `"${reason}"`)
+    this.removeAllListeners()
+
+    this._log.warn("Disconnection on", this.host, `"${reason}"`)
   }
   private async _handleLogin(): Promise<void> {
     await this.sendPacket(Packets.Login, this.createLoginPayload())

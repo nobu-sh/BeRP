@@ -1,4 +1,4 @@
-import { MCHeaders } from "./berp"
+import { MCHeaders } from "./types/berp"
 import { resolve } from 'path'
 
 export const ProtoDataPath = resolve(process.cwd(), 'data')

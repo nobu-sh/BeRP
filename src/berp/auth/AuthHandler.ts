@@ -6,19 +6,18 @@ import {
   TokenCache,
   SilentFlowRequest,
 } from '@azure/msal-node'
-import cachePlugin from './cachePlugin'
-import { resolve } from 'path'
-import fs from 'fs'
 import {
   AuthHandlerOptions,
   AuthHandlerXSTSResponse, 
-} from 'src/berp'
-import * as XBLAuth from '@xboxreplay/xboxlive-auth'
-import * as Constants from '../Constants'
+} from '../../types/berp'
+import { CachePlugin } from './CachePlugin'
+import { resolve } from 'path'
 import {
   Logger,
-  createSelector,
-} from '../console'
+} from '../../console'
+import fs from 'fs'
+import * as XBLAuth from '@xboxreplay/xboxlive-auth'
+import * as Constants from '../../Constants'
 
 class AuthHandler {
   private _options: AuthHandlerOptions
@@ -29,6 +28,7 @@ class AuthHandler {
     this._options = options
     
     fs.mkdirSync(options.cacheDir, { recursive: true })
+    this._logger.success("Auth Provider Prepared")
   }
   public getLogger(): Logger { return this._logger }
 
@@ -39,12 +39,13 @@ class AuthHandler {
         authority: this._options.authority,
       },
       cache: {
-        cachePlugin: cachePlugin(resolve(this._options.cacheDir, "cache.json")),
+        cachePlugin: CachePlugin(resolve(this._options.cacheDir, "cache.json")),
       },
     }
   }
   public createApp(config: Configuration): void {
     this._msalApp = new PublicClientApplication(config)
+    this._logger.success("Auth Provider App Created")
   }
   /**
    * Creates Auth Link For User To Auth With
@@ -91,56 +92,16 @@ class AuthHandler {
 
     return XBLAuth.exchangeRpsTicketForUserToken((authTitle ? 'd=' : 't=') + rps)
   }
+  /**
+   * Excahnge User Token for XSTS
+   * @param token User Token
+   * @param relyingParty URL Enpoint in which this token will be used
+   */
   public exchangeUserTokenForXSTS(token: string, relyingParty: string): Promise<XBLAuth.AuthenticateResponse> {
     return XBLAuth.exchangeUserTokenForXSTSIdentity(token, {
       raw: false,
       XSTSRelyingParty: relyingParty, 
     }) as Promise<XBLAuth.AuthenticateResponse>
-  }
-  public async selectUser(): Promise<AuthenticationResult> {
-    const cachedAccounts = await this.getCache().getAllAccounts()
-    if (!cachedAccounts || !cachedAccounts.length) {
-      this.getLogger().warn("No Microsoft accounts were found in cache. Please Login!")
-      const user = await this.createDeviceOauthGrant({
-        scopes: Constants.Scopes,
-        deviceCodeCallback: (device) => {
-          this.getLogger().info(device.message)
-        },
-      })
-
-      return user
-    } else {
-      const returnFirstCachedAccount = async (): Promise<AuthenticationResult> => {
-        this.getLogger().info(`Found account "${cachedAccounts[0].name}"`)
-
-        return await this.aquireTokenFromCache({
-          scopes: Constants.Scopes,
-          account: cachedAccounts[0],
-        })
-      }
-      if (cachedAccounts.length > 1) {
-        const result = await createSelector(cachedAccounts.map(a => a.name))
-        if (!result) {
-          this.getLogger().error(`Failed to select account, defaulting to first cached account`)
-
-          return returnFirstCachedAccount()
-        } else {
-          const account = cachedAccounts.find(a => a.name === result)
-          if (!account) {
-            this.getLogger().error(`Failed to select account, defaulting to first cached account`)
-
-            return returnFirstCachedAccount()
-          } else {
-            return await this.aquireTokenFromCache({
-              scopes: Constants.Scopes,
-              account,
-            })
-          }
-        }
-      } else {
-        return returnFirstCachedAccount()
-      }
-    }
   }
   /**
    * Gets XSTS Credentials To Use Realm API
@@ -171,5 +132,4 @@ class AuthHandler {
     }
   }
 }
-
-export = AuthHandler
+export { AuthHandler }

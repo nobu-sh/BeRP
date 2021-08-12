@@ -7,6 +7,7 @@
     "declaration": false,
     "removeComments": false,
     "esModuleInterop": true,
+    "experimentalDecorators": true,
     "baseUrl": "."
   },
   "include": [

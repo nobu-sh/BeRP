@@ -1,21 +1,19 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { Compiler } from 'protodef'
-import { resolve } from 'path'
-import fs from 'fs'
-import {
-  ProtoDataPath,
-  CUR_VERSION,
-} from '../Constants'
-const { ProtoDefCompiler } = Compiler
-import {
-  getFiles,
-  McCompiler, 
-} from '../utils'
 import {
   ProtoDefYAMLParse,
   ProtoDefYAMLCompile,
+  getFiles,
+  McCompiler, 
 } from './'
-import { Logger } from '../console'
+import {
+  ProtoDataPath,
+  CUR_VERSION,
+} from '../../Constants'
+import { Compiler } from 'protodef'
+const { ProtoDefCompiler } = Compiler
+import { resolve } from 'path'
+import fs from 'fs'
+import { Logger } from '../../console'
 
 const latest = resolve(ProtoDataPath, 'latest')
 
@@ -103,6 +101,7 @@ function genData(): string {
   return version
 }
 
+const protoLogger = new Logger('Protocol Compiler', 'red')
 export function AttemptProtocolCompiler(): void {
   if (!fs.existsSync(resolve(ProtoDataPath, CUR_VERSION))
   || !fs.existsSync(resolve(ProtoDataPath, CUR_VERSION, 'protocol.json'))
@@ -112,10 +111,10 @@ export function AttemptProtocolCompiler(): void {
   || !fs.existsSync(resolve(ProtoDataPath, CUR_VERSION, 'steve.json'))
   || !fs.existsSync(resolve(ProtoDataPath, CUR_VERSION, 'steveGeometry.json'))
   || !fs.existsSync(resolve(ProtoDataPath, CUR_VERSION, 'steveSkin.bin'))) {
-    const protoLogger = new Logger('Protocol Compiler')
-    protoLogger.changeColor('red')
-    protoLogger.info("Data Missing, Starting Data Gen")
+    protoLogger.info("Proto data missing, starting data gen...")
     const version = genData()
-    protoLogger.success("Generated", version, "Protocol Data")
+    protoLogger.success("Generated", version, "protocol data")
+  } else {
+    protoLogger.info("Proto data detected, skipping compiler. Use \"recompile\" to recompile the proto def's!")
   }
 }

@@ -10,14 +10,15 @@
  * the official release!
  */ 
 
+// Handles compiling proto yamls into valid json to then pass to protodef
+
 /* eslint-disable */
 import fs from 'fs'
 import Path from 'path'
 import yaml from 'js-yaml'
-import { Logger } from '../console'
-const logger = new Logger('Protodef YAML Compiler')
-logger.changeColor('yellow')
 
+import { Logger } from '../../console'
+const logger = new Logger('Protodef YAML Compiler','yellow')
 
 const log = (...idk) => { }
 

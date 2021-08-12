@@ -1,5 +1,11 @@
+// Minecraft compiler is javascript logic fed to proto-def so we can read, write, and size packets
+// Due to the way proto-def is built it cannot accept typescript
+// So to avoid having to keep it in a static file outside the project
+// We eval the code as a string then feed to to proto-def
+
+// TODO: Write custom protobuf, current method is iffy
+
 export const McCompiler = `
-/* eslint-disable */
 const UUID = require('uuid-1345')
 const nbt = require('prismarine-nbt')
 

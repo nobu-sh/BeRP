@@ -6,7 +6,7 @@ interface CachePlugin {
   afterCacheAccess(cacheContext: TokenCacheContext): Promise<void>
 }
 
-export = function (location: string): CachePlugin {
+export function CachePlugin(location: string): CachePlugin {
   const beforeCacheAccess = (cacheContext: TokenCacheContext): Promise<void> => {
     return new Promise((resolve, reject) => {
       if (fs.existsSync(location)) {

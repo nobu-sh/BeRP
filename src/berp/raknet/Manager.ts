@@ -15,20 +15,19 @@ import {
 } from '../utils'
 import {
   AuthHandlerXSTSResponse,
-  LoginPayload,
-  Versions,
   XboxProfile,
-} from 'src/berp'
+} from '../../types/berp'
 import {
   ClientBoundPackets,
   packet_login,
   ServerBoundPackets,
-} from '../types/packets.i'
+} from '../../types/packets.i'
 import { PacketHandler } from './PacketHandler'
 import { Raknet } from './UDP'
 import { EventEmitter } from 'events'
+import { Logger } from '../../console'
 import Axios, { Method } from 'axios'
-import * as C from '../Constants'
+import * as C from '../../Constants'
 import JWT from 'jsonwebtoken'
 
 export interface RakManager {
@@ -51,6 +50,7 @@ export interface RakManager {
 export class RakManager extends EventEmitter {
   public readonly host: string
   public readonly port: number
+  private _logger = new Logger("Raknet", 'yellow')
   private edchKeyPair: KeyPairKeyObjectResult
   private publicKeyDER: string | Buffer
   private privateKeyPEM: string | Buffer
@@ -68,7 +68,7 @@ export class RakManager extends EventEmitter {
   private encryptionSecretHash: Hash
   private encryptionSecretKeyBytes: Buffer
   private encryptionIV: Buffer
-  public readonly version: Versions
+  public readonly version = C.CUR_VERSION
   public readonly X509: string
   public readonly SALT = "🧂"
   public readonly CURVE = "secp384r1"
@@ -80,9 +80,8 @@ export class RakManager extends EventEmitter {
 
     this.host = host
     this.port = port
-    this.version =  C.CUR_VERSION
 
-    this.packetHandler = new PacketHandler(this.version)
+    this.packetHandler = new PacketHandler()
 
     this.edchKeyPair = generateKeyPairSync('ec', { namedCurve: this.CURVE })
     this.publicKeyDER = this.edchKeyPair.publicKey.export({
@@ -110,12 +109,17 @@ export class RakManager extends EventEmitter {
       this.emit('rak_pong')
     })
     this._raknet.on('raw', async (packet) => {
-      for (const pak of await this.packetHandler.readPacket(packet)) {
-        this.emit("all", {
-          name: pak.name,
-          params: pak.params, 
-        })
-        this.emit(pak.name, pak.params as any)
+      try {
+        for (const pak of await this.packetHandler.readPacket(packet)) {
+          this.emit("all", {
+            name: pak.name,
+            params: pak.params, 
+          })
+          this.emit(pak.name, pak.params as any)
+        }
+      } catch (error) {
+        this._logger.error("Failed to read imbound packet:", error)
+        throw error
       }
     })
   }
@@ -213,7 +217,7 @@ export class RakManager extends EventEmitter {
       noTimestamp: true,
     })
   }
-  public createLoginPayload(): LoginPayload {
+  public createLoginPayload(): packet_login {
     const skinData = JSON.parse(
       DataProvider
         .getDataMap()
@@ -272,12 +276,17 @@ export class RakManager extends EventEmitter {
     }
   }
   public async sendPacket<K extends keyof ServerBoundPackets>(name: K, params: ServerBoundPackets[K][0]): Promise<{ name: K, params: ServerBoundPackets[K][0] }> {
-    const newPacket = await this.packetHandler.createPacket(name, params)
-    this._raknet.writeRaw(newPacket)
+    try {
+      const newPacket = await this.packetHandler.createPacket(name, params)
+      this._raknet.writeRaw(newPacket)
 
-    return {
-      name,
-      params,
+      return {
+        name,
+        params,
+      }
+    } catch (error) {
+      this._logger.error("Failed to create outbound packet:", error)
+      throw error
     }
   }
   public makeRestRequest(method: Method, url: string, headers?: { [k: string]: any }, data?: { [k: string]: any }): Promise<any> {

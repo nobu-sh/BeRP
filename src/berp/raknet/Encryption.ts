@@ -9,19 +9,16 @@ import {
   createDecipheriv,
   createHash,
 } from 'crypto'
-import { Versions } from 'src/berp'
 import zlib from 'zlib'
 
 export class Encryption {
-  private currentVersion: Versions
   private cipher: CipherGCM
   private decipher: DecipherGCM
   private sendCounter: bigint
   private recieveCounter: bigint
   private iv: Buffer
   private secretKeyBytes: Buffer
-  constructor(v: Versions, iv: Buffer, secretKeyBytes: Buffer) {
-    this.currentVersion = v
+  constructor(iv: Buffer, secretKeyBytes: Buffer) {
     this.iv = iv
     this.secretKeyBytes = secretKeyBytes
 
@@ -72,7 +69,7 @@ export class Encryption {
   }
   public createDecryptor(): { read(blob: Buffer): Promise<Buffer> } {
     const read = (chunk: Buffer): Promise<Buffer> => {
-      return new Promise((r) => {
+      return new Promise((r, j) => {
         this.decipher.once('data', (buf: Buffer) => {
           const packet = buf.slice(0, buf.length - 8)
           const checksum = buf.slice(buf.length - 8, buf.length)
@@ -80,7 +77,7 @@ export class Encryption {
           this.recieveCounter++
 
           if (Buffer.compare(checksum, computedCheckSum) !== 0) {
-            throw Error(`Checksum mismatch ${checksum.toString('hex')} != ${computedCheckSum.toString('hex')}`)
+            j(`Checksum mismatch ${checksum.toString('hex')} != ${computedCheckSum.toString('hex')}`)
           }
 
           const inf = zlib.inflateRawSync(buf, { chunkSize: 1024 * 1024 * 2 })

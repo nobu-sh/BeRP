@@ -2,9 +2,9 @@
 import {
   CUR_VERSION,
   ProtoDataPath,
-} from '../Constants'
+} from '../../Constants'
 import { resolve } from 'path'
-import { DataProviderKnownFiles } from 'src/berp'
+import { DataProviderKnownFiles } from '../../types/berp'
 import { getFiles } from '.'
 import fs from 'fs'
 
