@@ -1,7 +1,4 @@
-import {
-  Form,
-  Select,
-} from 'enquirer'
+import { Select } from 'enquirer'
 import { stripFormat } from '../utils'
 import { EventEmitter } from 'events'
 import { Logger } from './'
@@ -72,7 +69,7 @@ class BerpConsole extends EventEmitter {
     }
   }
 
-  public startSelectPrompt(message: string, args: string[]): Promise<string> {
+  public sendSelectPrompt(message: string, args: string[]): Promise<string> {
     return new Promise((r) => {
       this.stop()
       new Select({
@@ -83,34 +80,6 @@ class BerpConsole extends EventEmitter {
         .run()
         .then(res => {
           r(stripFormat(res))
-          this.start()
-        })
-        .catch(() => {
-          r(undefined)
-          this.start()
-        })
-    })
-  }
-  public sendAuth(): Promise<{ email: string, pass: string }> {
-    return new Promise((r) => {
-      this.stop()
-      console.log(chalk.yellow("Accounts with Two-Factor Authentication enabled will not work with this login method!"))
-      new Form({
-        message: chalk.blueBright("Please login with your xbox live credentials: ") + chalk.gray("( Nav: tab, Submit: ↩, Exit: esc )"),
-        choices: [
-          {
-            name: "email",
-            message: chalk.grey("Email"),
-          },
-          {
-            name: "pass",
-            message: chalk.grey("Password"),
-          },
-        ],
-      })
-        .run()
-        .then((res: any) => {
-          r(res)
           this.start()
         })
         .catch(() => {
