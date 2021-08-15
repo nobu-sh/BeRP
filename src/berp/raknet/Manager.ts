@@ -175,7 +175,7 @@ export class RakManager extends EventEmitter {
   }
   public async authMc(xstsResponse: AuthHandlerXSTSResponse): Promise<boolean> {
     return new Promise((r,j) => {
-      this.makeRestRequest('post', C.AuthEndpoints.MinecraftAuth, C.MinecraftAuthHeaders(createXBLToken(xstsResponse)), { identityPublicKey: this.X509 })
+      this.makeRestRequest('post', C.Endpoints.Misc.MinecraftAuth, C.MinecraftAuthHeaders(createXBLToken(xstsResponse)), { identityPublicKey: this.X509 })
         .then((res) => {
           this.mcAuthChains = res.chain
           r(true)

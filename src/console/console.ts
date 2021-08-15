@@ -2,7 +2,6 @@ import { Select } from 'enquirer'
 import { stripFormat } from '../utils'
 import { EventEmitter } from 'events'
 import { Logger } from './'
-import readline from 'readline'
 import chalk from 'chalk'
 
 interface BerpConsoleEvents {
@@ -28,44 +27,34 @@ interface BerpConsole extends EventEmitter {
 
 class BerpConsole extends EventEmitter {
   private _logger = new Logger("Console", 'gray')
-  private _console = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-    prompt: "",
-  })
+  private _isStopped = true
+  private _listenerBinded: (data: Buffer) => void
   constructor() {
     super()
-    this._registerInputListener()
+    this._listenerBinded = this._listener.bind(this)
+    this.start()
     this._logger.success("BeRP Enhanced Console Initialized")
   }
   public getLogger(): Logger { return this._logger }
 
-  private _registerInputListener(): void {
-    this._console.on('line', (s) => {
-      this.emit("input", s)
-    })
+  private _listener(data: Buffer): void {
+    const clean = data.toString().replace(/(\n|\r)/g, "")
+    this.emit('input', clean)
   }
-  /**
-   * Start new readline console instance
-   */
+
   public start(): void {
-    if (!this._console) {
-      this._console = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-        prompt: "",
-      })
-      this._registerInputListener()
+    if (this._isStopped) {
+      process.stdin.resume()
+      process.stdin.on('data', this._listenerBinded)
+      this._isStopped = false
     }
   }
 
-  /**
-   * Stop current readline console instance
-   */
   public stop(): void {
-    if (this._console) {
-      this._console.close()
-      this._console = undefined
+    if (!this._isStopped) {
+      process.stdin.pause()
+      process.stdin.removeListener('data', this._listenerBinded)
+      this._isStopped = true
     }
   }
 

@@ -61,7 +61,7 @@ export class Account extends BaseCommand {
     })
     const disposeTempConsole = (): void => {
       if (tempConsole) {
-        // tempConsole.removeAllListeners()
+        tempConsole.removeAllListeners('line')
         tempConsole.close()
         tempConsole = undefined
         this._berp.getConsole().start()
@@ -93,7 +93,35 @@ export class Account extends BaseCommand {
         }
       })
   }
-  private _removeAccount(): void {
-    //
+  private async _removeAccount(): Promise<void> {
+    const accounts = await this._berp.getAuthProvider()
+      .getCache()
+      .getAllAccounts()
+    
+    this._berp.getConsole()
+      .sendSelectPrompt("Select which account you would like to remove", accounts.map(a => `${a.name} (${a.username})`))
+      .then((r) => {
+        if (r) {
+          const username = /\(.*\)/.exec(r)[0].replace(/(\(|\))/g, "")
+          const account = accounts.find(a => a.username === username)
+          if (!account) return this._berp.getAuthProvider()
+            .getLogger()
+            .error(`Failed to remove account "${username}"`)
+          
+          this._berp.getAuthProvider()
+            .getCache()
+            .removeAccount(account)
+            .then(() => {
+              this._berp.getAuthProvider()
+                .getLogger()
+                .success(`Successfully removed account "${username}"`)
+            })
+            .catch((e) => {
+              this._berp.getAuthProvider()
+                .getLogger()
+                .error(`Failed to remove account "${username}"...\n`, e)
+            })
+        }
+      })
   }
 }

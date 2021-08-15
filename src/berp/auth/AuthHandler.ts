@@ -108,7 +108,7 @@ class AuthHandler {
    */
   public async ezXSTSForRealmAPI(user: AuthenticationResult): Promise<AuthHandlerXSTSResponse> {
     const userToken = await this.exchangeRpsForUserToken(user.accessToken)
-    const XSTSIdentity = await this.exchangeUserTokenForXSTS(userToken.Token, Constants.AuthEndpoints.RealmAPI)
+    const XSTSIdentity = await this.exchangeUserTokenForXSTS(userToken.Token, Constants.Endpoints.Authorities.RealmAPI)
 
     return {
       name: user.account.name,
@@ -122,7 +122,7 @@ class AuthHandler {
    */
   public async ezXSTSForRealmRak(user: AuthenticationResult): Promise<AuthHandlerXSTSResponse> {
     const userToken = await this.exchangeRpsForUserToken(user.accessToken)
-    const XSTSIdentity = await this.exchangeUserTokenForXSTS(userToken.Token, Constants.AuthEndpoints.Raknet)
+    const XSTSIdentity = await this.exchangeUserTokenForXSTS(userToken.Token, Constants.Endpoints.Authorities.MineRak)
 
     return {
       name: user.account.name,

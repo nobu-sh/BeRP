@@ -1,3 +1,6 @@
+import {
+  Method,
+} from 'axios'
 export type LoggerColors = (
   "black" |
   "blackBright" |
@@ -75,4 +78,16 @@ export interface XboxProfile {
   exp: number
   iat: number
   identityPublicKey: string
+}
+
+export interface RequestParams {
+  method: Method
+  url: string
+  headers?: Record<string, any>
+  body?: Record<string, any>
+}
+export interface RequestOptions {
+  attempts?: number
+  attemptTimeout?: number
+  requestTimeout?: number
 }
