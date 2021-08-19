@@ -16,7 +16,10 @@ export class Quit extends BaseCommand {
     this._berp = berp
   }
   public execute(): void {
-    this._berp.getSequentialBucket().pauseFlush()
     this._berp.getConsole().stop()
+    this._berp.getSequentialBucket().pauseFlush()
+    this._berp.getSequentialBucket().emptyBucket()
+    this._berp.getSequentialBucket().emptyFailedBucket()
+    this._berp.getNetworkManager().kill()
   }
 }

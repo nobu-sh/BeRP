@@ -91,3 +91,37 @@ export interface RequestOptions {
   attemptTimeout?: number
   requestTimeout?: number
 }
+
+export interface RealmAPIJoinInfo {
+  address: string
+  pendingUpdate: boolean
+}
+
+export interface RealmAPIWorldsRes {
+  servers: RealmAPIWorld[]
+}
+export interface RealmAPIWorld {
+  id: number
+  remoteSubscriptionId: string
+  owner: string
+  ownerUUID: string
+  name: string
+  motd: string
+  defaultPermission: string
+  state: string
+  daysLeft: number
+  expired: boolean
+  expiredTrial: boolean
+  gracePeriod: boolean
+  worldType: string
+  players: unknown
+  maxPlayers: number
+  minigameName: string
+  minigameId: unknown
+  minigameImage: unknown
+  activeSlot: number
+  slots: unknown
+  member: boolean
+  clubId: number
+  subscriptionRefreshStatus: unknown
+}

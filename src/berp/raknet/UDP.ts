@@ -69,7 +69,10 @@ export class Raknet extends EventEmitter {
     this.emit('closed')
   }
   public killConnection(): void {
-    this.connection.close()
+    this.removeAllListeners()
+    if (this.connection) {
+      this.connection.close()
+    }
   }
   public writeRaw(packet: Buffer, priority?: PacketPriority, reliability?: PacketReliability, orderingChannel?: number): void {
     this.connection.send(packet, priority || PacketPriority.IMMEDIATE_PRIORITY, reliability || PacketReliability.RELIABLE_ORDERED, orderingChannel || 0)

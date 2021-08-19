@@ -98,6 +98,8 @@ export class Account extends BaseCommand {
       .getCache()
       .getAllAccounts()
     
+    if (!accounts) return this._berp.getCommandHandler().error("There are no active accounts linked to BeRP!")
+
     this._berp.getConsole()
       .sendSelectPrompt("Select which account you would like to remove", accounts.map(a => `${a.name} (${a.username})`))
       .then((r) => {

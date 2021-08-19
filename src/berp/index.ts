@@ -28,7 +28,7 @@ export class BeRP {
 
     this._logger.info("Preparing Modules...")
     this._networkManager = new NetworkManager(this)
-    this._sequentialBucket = new SequentialBucket(5, new Logger("Sequential Bucket", "#8769ff"))
+    this._sequentialBucket = new SequentialBucket(5, new Logger("Sequential Bucket", "#8769ff"), true)
     this._authProvider = new AuthHandler({
       clientId: Constants.AzureClientID,
       authority: Constants.Endpoints.Authorities.MSAL,

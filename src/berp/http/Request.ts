@@ -57,8 +57,8 @@ export class Request<R = any> {
       const { data }: { data: R } = await axios({
         method: this._req.method,
         url: this._req.url,
-        headers: this._req.headers || {},
-        data: this._req.body || {},
+        headers: this._req.headers || undefined,
+        data: this._req.body || undefined,
         timeout: this._options.requestTimeout,
         timeoutErrorMessage: `Request failed to resolve after ${this._options.requestTimeout}ms. Failing request!`,
       })

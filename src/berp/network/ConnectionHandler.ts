@@ -5,20 +5,29 @@ import {
 } from "../../types/packets.i"
 import { RakManager } from "../raknet"
 import { Logger } from '../../console'
+import { ConnectionManager } from "./ConnectionManager"
+import { RealmAPIWorld } from "src/types/berp"
 // TODO: Client/plugins can control connection/diconnection of rak
 
-export class ConnectionManager extends RakManager {
+
+export class ConnectionHandler extends RakManager {
   public static readonly KEEPALIVEINT = 10
   public readonly host: string
   public readonly port: number
+  public readonly realm: RealmAPIWorld
   private _gameInfo: packet_start_game
   private _tickSync = 0n
   private _tickSyncKeepAlive: NodeJS.Timer
-  private _log = new Logger("Connection Handler", 'cyanBright')
-  constructor(host: string, port: number) {
-    super(host, port)
+  private _connectionManager: ConnectionManager
+  private _log: Logger
+  constructor(host: string, port: number, realm: RealmAPIWorld, cm: ConnectionManager) {
+    super(host, port, cm.getAccount().username, realm.id)
     this.host = host
     this.port = port
+    this.realm = realm
+    this._connectionManager = cm
+
+    this._log = new Logger(`Connection Handler (${cm.getAccount().username}:${realm.id})`, 'cyanBright')
 
     this.once('rak_connected', this._handleLogin.bind(this))
     this.once(Packets.ServerToClientHandshake, this._handleHandshake.bind(this))
@@ -34,10 +43,21 @@ export class ConnectionManager extends RakManager {
     this.on(Packets.TickSync, (pak) => {
       this._tickSync = pak.response_time
     })
+    // this.on(Packets.Text, (pak) => {
+    //   console.log(pak)
+    // })
+    this._log.success("Initialized")
   }
   public getGameInfo(): packet_start_game { return this._gameInfo }
   public getLogger(): Logger { return this._log }
   public getTick(): bigint { return this._tickSync }
+  public getConnectionManager(): ConnectionManager { return this._connectionManager }
+
+  public close(): void {
+    super.close()
+    this.removeAllListeners()
+    this._connectionManager.getConnections().delete(this.realm.id)
+  }
 
   private async _handleDisconnect(pak?: packet_disconnect): Promise<void> {
     let reason = "Rak Connection Terminated"
@@ -47,10 +67,9 @@ export class ConnectionManager extends RakManager {
 
     clearInterval(this._tickSyncKeepAlive)
     this.close()
-    this.emit("remove_from_connections")
-    this.removeAllListeners()
+    this._log.warn(`Terminating connection handler with connection "${this.host}:${this.port}"`)
 
-    this._log.warn("Disconnection on", this.host, `"${reason}"`)
+    this._log.warn("Disconnection on", `${this.host}:${this.port}`, `"${reason}"`)
   }
   private async _handleLogin(): Promise<void> {
     await this.sendPacket(Packets.Login, this.createLoginPayload())
@@ -89,6 +108,6 @@ export class ConnectionManager extends RakManager {
         request_time: this._tickSync,
         response_time: 0n,
       })
-    }, 50 * ConnectionManager.KEEPALIVEINT)
+    }, 50 * ConnectionHandler.KEEPALIVEINT)
   }
 }

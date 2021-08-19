@@ -1,40 +1,41 @@
-import { ConnectionManager } from './ConnectionHandler'
-import { AuthHandlerXSTSResponse } from '../../types/berp'
-import { BeRP } from '../'
-import { Logger } from '../../console'
+import { Logger } from "../../console"
+import { BeRP } from ".."
+import { ConnectionManager } from "./ConnectionManager"
+import { AccountInfo } from "@azure/msal-node"
+
 export class NetworkManager {
   private _berp: BeRP
-  private _logger = new Logger('Network Manager', "#ff9169")
-  private _connections = new Map<string, ConnectionManager>()
+  private _accounts = new Map<string, ConnectionManager>()
+  private _logger = new Logger("Network Manager")
   constructor(berp: BeRP) {
     this._berp = berp
-    this._logger.success("Network Manager Initialized")
+
+    this._logger.success("Initialized")
   }
-  public getConnections(): Map<string, ConnectionManager> { return this._connections }
+  public getAccounts(): Map<string, ConnectionManager> { return this._accounts }
   public getLogger(): Logger { return this._logger }
-  
-  public async createConnection(host: string, port: number, xsts: AuthHandlerXSTSResponse): Promise<ConnectionManager> {
-    // TODO: Declare what plugins will be used on this connection
-    return new Promise(async (r, rj) => {
-      const newConnection = new ConnectionManager(host, port)
-      await newConnection.authMc(xsts)
-      this._connections.set(host, newConnection)
 
-      newConnection.once("remove_from_connections", () => {
-        this._connections.delete(host)
-        rj("Connection error before ready")
-      })
-      newConnection.once('rak_ready', () => {
-        r(newConnection)
-      })
+  public create(accountInfo: AccountInfo): ConnectionManager {
+    if (!this._accounts.get(accountInfo.username)) {
+      const con = new ConnectionManager(accountInfo, this._berp)
+      this._accounts.set(accountInfo.username,con)
 
-      newConnection.connect()
-    })
-  }
-  public closeConnection(host: string): void {
-    const connection = this._connections.get(host)
-    if (connection) {
-      connection.close()
+      return con
     }
   }
+  public delete(username: string): void {
+    const account = this._accounts.get(username)
+    if (account) {
+      account.kill()
+      this._accounts.delete(username)
+    }
+  }
+
+  public kill(): void {
+    for (const [u, cm] of this._accounts) {
+      cm.kill()
+      this._accounts.delete(u)
+    }
+  }
+
 }

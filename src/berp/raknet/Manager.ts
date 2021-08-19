@@ -50,14 +50,15 @@ export interface RakManager {
 export class RakManager extends EventEmitter {
   public readonly host: string
   public readonly port: number
-  private _logger = new Logger("Raknet", 'yellow')
+  public readonly id: number
+  private _logger: Logger
   private edchKeyPair: KeyPairKeyObjectResult
   private publicKeyDER: string | Buffer
   private privateKeyPEM: string | Buffer
   private clientIdentityChain: string
   private clientUserChain: string
-  private mcAuthChains: string[]
-  public xboxProfile: XboxProfile
+  private mcAuthChains: string[] = []
+  private _xboxProfile: XboxProfile
   private packetHandler: PacketHandler
   private _raknet: Raknet
   private encryptionStarted = false
@@ -75,11 +76,13 @@ export class RakManager extends EventEmitter {
   public readonly ALGORITHM = "ES384"
   public readonly PUBLIC_KEY_ONLINE = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V"
   private connected = false
-  constructor(host: string, port: number) {
+  constructor(host: string, port: number, username: string, id: number) {
     super()
 
     this.host = host
     this.port = port
+    this.id = id
+    this._logger = new Logger(`Raknet (${username}:${id})`, 'yellow')
 
     this.packetHandler = new PacketHandler()
 
@@ -97,6 +100,8 @@ export class RakManager extends EventEmitter {
     this._raknet = new Raknet(host, port, 10)
     this._handlePackets()
   }
+  public getRakLogger(): Logger { return this._logger }
+  public getXboxProfile(): XboxProfile { return this._xboxProfile } 
 
   private _handlePackets(): void {
     this._raknet.on('connected', () => {
@@ -117,9 +122,9 @@ export class RakManager extends EventEmitter {
           })
           this.emit(pak.name, pak.params as any)
         }
-      } catch (error) {
-        this._logger.error("Failed to read imbound packet:", error)
-        throw error
+      } catch (err) {
+        const error = "Failed to read imbound packet:" + err
+        if (!error.includes("array size is abnormally large, not reading: 33816574")) this._logger.error("Failed to read imbound packet:", error)
       }
     })
   }
@@ -130,11 +135,11 @@ export class RakManager extends EventEmitter {
       if (!this.mcAuthChains.length) throw new Error("Auth Mc First")
 
       this.updateXboxUserData()
-      this.generateClientIdentityChain()
+      this._generateClientIdentityChain()
 
       this.on('server_to_client_handshake', (data) => {
         this.serverBoundEncryptionToken = data.token
-        this.startServerboundEncryption()
+        this._startServerboundEncryption()
       })
 
       this._raknet.connect()
@@ -147,7 +152,7 @@ export class RakManager extends EventEmitter {
     this.removeAllListeners()
   }
 
-  public startServerboundEncryption(): void {
+  private _startServerboundEncryption(): void {
     const [header, payload] = this.serverBoundEncryptionToken.split(".").map(k => Buffer.from(k, 'base64'))
     const head = JSON.parse(String(header))
     const body = JSON.parse(String(payload))
@@ -175,14 +180,18 @@ export class RakManager extends EventEmitter {
   }
   public async authMc(xstsResponse: AuthHandlerXSTSResponse): Promise<boolean> {
     return new Promise((r,j) => {
-      this.makeRestRequest('post', C.Endpoints.Misc.MinecraftAuth, C.MinecraftAuthHeaders(createXBLToken(xstsResponse)), { identityPublicKey: this.X509 })
-        .then((res) => {
-          this.mcAuthChains = res.chain
-          r(true)
-        })
-        .catch((err) => {
-          j(err)
-        })
+      if (!this.mcAuthChains.length) {
+        this.makeRestRequest('post', C.Endpoints.Misc.MinecraftAuth, C.MinecraftAuthHeaders(createXBLToken(xstsResponse)), { identityPublicKey: this.X509 })
+          .then((res) => {
+            this.mcAuthChains = res.chain
+            r(true)
+          })
+          .catch((err) => {
+            j(err)
+          })
+      } else {
+        r(true)
+      }
     })
 
   }
@@ -190,10 +199,10 @@ export class RakManager extends EventEmitter {
     if (this.mcAuthChains[1]) {
       const userData = this.mcAuthChains[1]
       const payload = userData.split(".").map(d => Buffer.from(d, 'base64'))[1]
-      this.xboxProfile = JSON.parse(String(payload))
+      this._xboxProfile = JSON.parse(String(payload))
     }
   }
-  public generateClientIdentityChain(): void {
+  private _generateClientIdentityChain(): void {
     const privateKey = this.edchKeyPair.privateKey
     this.clientIdentityChain = JWT.sign({
       identityPublicKey: this.PUBLIC_KEY_ONLINE,
@@ -206,7 +215,7 @@ export class RakManager extends EventEmitter {
       },
     })
   }
-  private generateClientUserChain(payload: packet_login): void {
+  private _generateClientUserChain(payload: Record<string, any>): void {
     const privateKey = this.edchKeyPair.privateKey
     this.clientUserChain = JWT.sign(payload, privateKey as unknown as JWT.Secret, {
       algorithm: this.ALGORITHM,
@@ -232,7 +241,7 @@ export class RakManager extends EventEmitter {
       .getFile('steveGeometry.json')
       .toString('base64')
 
-    const payload: packet_login = {
+    const payload = {
       ...skinData,
 
       ClientRandomId: Date.now(),
@@ -253,12 +262,12 @@ export class RakManager extends EventEmitter {
       ServerAddress: `${this.host}:${this.port}`,
       SkinData: skinBin,
       SkinGeometryData: skinGeometry,
-      ThirdPartyName: this.xboxProfile.extraData.displayName,
+      ThirdPartyName: this._xboxProfile.extraData.displayName,
       ThirdPartyNameOnly: false,
       UIProfile: 0,
     }
 
-    this.generateClientUserChain(payload)
+    this._generateClientUserChain(payload)
 
     const chain = [
       this.clientIdentityChain,

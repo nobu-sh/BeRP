@@ -31,6 +31,5 @@ export class Help extends BaseCommand {
 
       console.log(`${chalk.blueBright(`Active BeRP Session - Command - ${commandName}:`)}\n${chalk.gray("  name:")}           ${chalk.gray(command.name)}\n${chalk.gray("  usage:")}          ${command.usage ? `${chalk.gray(commandName)} ${chalk.gray(command.usage)}` : ""}\n${chalk.gray("  description:")}    ${chalk.gray(command.description)}\n${chalk.gray("  aliases:")}        ${chalk.gray(command.aliases?.join(chalk.gray(", ")))}\n`)
     }
-
   }
 }
