@@ -80,10 +80,9 @@ export class ConnectionManager {
         this._connections.set(realm.id, newConnection)
 
         newConnection.once('rak_ready', () => {
+          this._berp.getPluginManager().registerPlugins(newConnection)
           r(newConnection)
         })
-
-        this._berp.getPluginManager().registerPlugins(newConnection)
 
         newConnection.connect()
       } catch (error) {
