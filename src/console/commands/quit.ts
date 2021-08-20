@@ -21,5 +21,6 @@ export class Quit extends BaseCommand {
     this._berp.getSequentialBucket().emptyBucket()
     this._berp.getSequentialBucket().emptyFailedBucket()
     this._berp.getNetworkManager().kill()
+    this._berp.getPluginManager().kill()
   }
 }

@@ -6,7 +6,6 @@ import {
 import { RakManager } from "../raknet"
 import { Logger } from '../../console'
 import { ConnectionManager } from "./ConnectionManager"
-import { CommandManager } from './command/CommandManager'
 import { RealmAPIWorld } from "src/types/berp"
 // TODO: Client/plugins can control connection/diconnection of rak
 
@@ -20,7 +19,6 @@ export class ConnectionHandler extends RakManager {
   private _tickSync = 0n
   private _tickSyncKeepAlive: NodeJS.Timer
   private _connectionManager: ConnectionManager
-  private _commandManager: CommandManager
   private _log: Logger
   constructor(host: string, port: number, realm: RealmAPIWorld, cm: ConnectionManager) {
     super(host, port, cm.getAccount().username, realm.id)
@@ -45,18 +43,15 @@ export class ConnectionHandler extends RakManager {
     this.on(Packets.TickSync, (pak) => {
       this._tickSync = pak.response_time
     })
-    this._commandManager = new CommandManager(this)
     this._log.success("Initialized")
   }
   public getGameInfo(): packet_start_game { return this._gameInfo }
   public getLogger(): Logger { return this._log }
   public getTick(): bigint { return this._tickSync }
   public getConnectionManager(): ConnectionManager { return this._connectionManager }
-  public getCommandManager(): CommandManager { return this._commandManager }
 
   public close(): void {
     super.close()
-    this._commandManager.close()
     this.removeAllListeners()
     this._connectionManager.getConnections().delete(this.realm.id)
   }

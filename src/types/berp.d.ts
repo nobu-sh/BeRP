@@ -125,3 +125,33 @@ export interface RealmAPIWorld {
   clubId: number
   subscriptionRefreshStatus: unknown
 }
+
+export interface examplePlugin {
+  new (pluginApi: any)
+  onEnabled(): Promise<void>
+  onDisabled(): Promise<void>
+}
+
+export interface examplePluginConfig {
+  name: string
+  displayName: string
+  version: string
+  description: string
+  devMode: boolean
+  main: string
+  scripts: {
+    build: string
+    dev: string
+    start: string
+    [key: string]: string
+  }
+  author: string
+  license: string
+  dependencies: {
+    [key: string]: string
+  }
+  devDependencies: {
+    [key: string]: string
+  }
+  [key: string]: unknown
+}

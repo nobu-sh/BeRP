@@ -1,4 +1,4 @@
-import { ConnectionHandler } from '../ConnectionHandler'
+import { ConnectionHandler } from '../../../network/ConnectionHandler'
 import { v4 as uuidv4 } from 'uuid'
 import { packet_command_output } from 'src/types/packets.i'
 

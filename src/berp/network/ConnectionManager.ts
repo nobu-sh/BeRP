@@ -83,6 +83,8 @@ export class ConnectionManager {
           r(newConnection)
         })
 
+        this._berp.getPluginManager().registerPlugins(newConnection)
+
         newConnection.connect()
       } catch (error) {
         rj(error)
