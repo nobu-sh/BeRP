@@ -10,19 +10,22 @@ import { PluginApi } from './pluginapi/pluginApi'
 import { BeRP } from '../'
 import fs from 'fs'
 import { ConnectionHandler } from '../network'
+import { EventEmitter } from 'events'
 
-export class PluginManager {
+export class PluginManager extends EventEmitter{
   private _berp: BeRP
   private _knownPlugins = new Map<string, examplePluginConfig>()
   private _activePlugins = new Map<string, {config: examplePluginConfig, plugin: examplePlugin}>()
   private _pluginsPath = path.resolve(process.cwd(), './plugins')
   private _logger: Logger
   constructor(berp: BeRP) {
+    super()
     this._berp = berp
     this._logger = new Logger('Plugin Manager', '#6d17b3')
     this._loadAll()
   }
   public async kill(): Promise<void> {
+    this.emit('kill', undefined)
     for (const [path, { config, plugin }] of this._activePlugins.entries()) {
       try {
         plugin.onDisabled()

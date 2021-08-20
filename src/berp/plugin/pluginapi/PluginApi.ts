@@ -22,6 +22,9 @@ export class PluginApi {
     this._commandManager = new CommandManager(this._connection)
     this.path = path
     this._logger = new Logger(`${config.displayName} ${connection.realm.id}`, this.color)
+    this._berp.getPluginManager().on('kill', () => {
+      this._commandManager.kill()
+    })
   }
   public getLogger(): Logger { return this._logger }
   public getConnection(): ConnectionHandler { return this._connection }

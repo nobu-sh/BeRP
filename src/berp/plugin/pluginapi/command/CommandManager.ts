@@ -64,7 +64,7 @@ export class CommandManager {
       }
     }
   }
-  public close(): void {
+  public kill(): void {
     clearInterval(this._inv)
   }
 }
