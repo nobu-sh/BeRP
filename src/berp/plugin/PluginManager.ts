@@ -37,7 +37,7 @@ export class PluginManager extends EventEmitter{
   private async _loadAll(): Promise<void> {
     return new Promise(async (res) => {
       if (!fs.existsSync(this._pluginsPath)) {
-        this._logger.warn("Plugins folder does not exsist. Creating plugins folder:", `"${this._pluginsPath}"`)
+        this._logger.warn("Plugins folder does not exist. Creating plugins folder:", `"${this._pluginsPath}"`)
         fs.mkdirSync(this._pluginsPath, { recursive: true })
         
         return res()

@@ -7,6 +7,7 @@ import { Recompile } from './recompile'
 import { Account } from './account'
 import { Connect } from './connect'
 import { Connections } from './connections'
+import { Disconnect } from './disconnect'
 class ex {
   public name: string
   public description: string
@@ -24,6 +25,7 @@ const Commands: typeof ex[] = [
   Account,
   Connect,
   Connections,
+  Disconnect,
 ]
 
 export { Commands }
