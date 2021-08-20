@@ -29,12 +29,15 @@ export class CommandManager {
     })
   }
   private _findResponse(requestID: string): Promise<packet_command_output> {
+    this._connection.sendCommandFeedback(true)
+
     return new Promise((res) => {
       const inv = setInterval(() => {
         const cache = this._commandCache.get(requestID)
         if (!cache) return
         this._commandCache.delete(requestID)
         clearInterval(inv)
+        this._connection.sendCommandFeedback(false)
 
         return res(cache)
       })

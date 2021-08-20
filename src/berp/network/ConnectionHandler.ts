@@ -56,6 +56,18 @@ export class ConnectionHandler extends RakManager {
     this._connectionManager.getConnections().delete(this.realm.id)
   }
 
+  public sendCommandFeedback(option: boolean): void {
+    this.sendPacket('command_request', {
+      command: `gamerule sendcommandfeedback ${option}`,
+      interval: false,
+      origin: {
+        uuid: '',
+        request_id: '',
+        type: 'player',
+      },
+    })
+  }
+
   private async _handleDisconnect(pak?: packet_disconnect): Promise<void> {
     let reason = "Rak Connection Terminated"
     if (pak) {

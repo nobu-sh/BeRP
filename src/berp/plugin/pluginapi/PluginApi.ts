@@ -16,7 +16,7 @@ export class PluginApi {
   public path: string
   public color: LoggerColors = 'red'
   constructor (berp: BeRP, config: examplePluginConfig, path: string, connection: ConnectionHandler) {
-    this._berp = this._berp
+    this._berp = berp
     this._config = config
     this._connection = connection
     this._commandManager = new CommandManager(this._connection)
