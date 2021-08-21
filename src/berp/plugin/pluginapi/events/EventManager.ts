@@ -2,7 +2,10 @@ import { BeRP } from '../../../'
 import { EventEmitter } from 'events'
 import { ConnectionHandler } from 'src/berp/network'
 import {
-  PlayerJoined, PlayerLeft,
+  PlayerJoin,
+  PlayerLeft,
+  PlayerInitialized,
+  PlayerMessage,
 } from './events/index'
 import { PluginApi } from '../pluginApi'
 
@@ -19,10 +22,14 @@ export class EventManager extends EventEmitter {
     this._registerEvents()
   }
   private _registerEvents(): void {
-    const PlayerJoinedEvent = new PlayerJoined(this)
-    this._events.set('PlayerJoined', PlayerJoinedEvent)
+    const PlayerJoinEvent = new PlayerJoin(this)
+    this._events.set('PlayerJoined', PlayerJoinEvent)
     const PlayerLeftEvent = new PlayerLeft(this)
     this._events.set('PlayerLeft', PlayerLeftEvent)
+    const PlayerInitializedEvent = new PlayerInitialized(this)
+    this._events.set('PlayerInitialized', PlayerInitializedEvent)
+    const PlayerMessageEvent = new PlayerMessage(this)
+    this._events.set('PlayerMessage', PlayerMessageEvent)
   }
   public getBerp(): BeRP { return this._berp }
   public getConnection(): ConnectionHandler { return this._connection }

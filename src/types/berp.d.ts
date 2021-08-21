@@ -155,3 +155,11 @@ export interface examplePluginConfig {
   }
   [key: string]: unknown
 }
+
+export interface PlayerOptions {
+  name: string
+  uuid: string
+  entityID: bigint
+  runtimeID: bigint
+  device: number
+}
