@@ -114,8 +114,10 @@ export class RakManager extends EventEmitter {
       this.emit('rak_pong')
     })
     this._raknet.on('raw', async (packet) => {
+      // console.log(packet)
       try {
         for (const pak of await this.packetHandler.readPacket(packet)) {
+          // console.log(pak.name)
           this.emit("all", {
             name: pak.name,
             params: pak.params, 
@@ -123,8 +125,8 @@ export class RakManager extends EventEmitter {
           this.emit(pak.name, pak.params as any)
         }
       } catch (err) {
-        const error = "Failed to read imbound packet:" + err
-        if (!error.includes("array size is abnormally large, not reading: 33816574")) this._logger.error("Failed to read imbound packet:", error)
+        const error = "Failed to read imbound packet: " + err
+        this._logger.error(error)
       }
     })
   }
@@ -232,14 +234,14 @@ export class RakManager extends EventEmitter {
         .getDataMap()
         .getFile('steve.json')
         .toString('utf-8'))
-    const skinBin = DataProvider
-      .getDataMap()
-      .getFile('steveSkin.bin')
-      .toString('base64')
-    const skinGeometry = DataProvider
-      .getDataMap()
-      .getFile('steveGeometry.json')
-      .toString('base64')
+    // const skinBin = DataProvider
+    //   .getDataMap()
+    //   .getFile('steveSkin.bin')
+    //   .toString('base64')
+    // const skinGeometry = DataProvider
+    //   .getDataMap()
+    //   .getFile('steveGeometry.json')
+    //   .toString('base64')
 
     const payload = {
       ...skinData,
@@ -260,8 +262,8 @@ export class RakManager extends EventEmitter {
         .slice(0, 16),
       SelfSignedId: nextUUID(),
       ServerAddress: `${this.host}:${this.port}`,
-      SkinData: skinBin,
-      SkinGeometryData: skinGeometry,
+      // SkinData: skinBin,
+      // SkinGeometryData: skinGeometry,
       ThirdPartyName: this._xboxProfile.extraData.displayName,
       ThirdPartyNameOnly: false,
       UIProfile: 0,

@@ -76,6 +76,8 @@ export class Connect extends BaseCommand {
                           .error(`Failed to select realm`)
                       }
 
+                      // console.log(createXBLToken(xsts))
+
                       const req = new this._berp.Request({
                         method: "GET",
                         url: C.Endpoints.RealmAPI.GET.RealmJoinInfo(realm.id),
