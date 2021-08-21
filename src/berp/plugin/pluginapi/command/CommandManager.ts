@@ -43,27 +43,23 @@ export class CommandManager {
       })
     })
   }
-  public async executeCommand(command: string): Promise<packet_command_output>
-  public async executeCommand(command: string, callback: (err: any, res: packet_command_output) => void): Promise<void>
-  public async executeCommand(command: string, callback?: (err: any, res: packet_command_output) => void): Promise<packet_command_output | void> {
+  public async executeCommand(command: string, callback?: (err: any, res: packet_command_output) => void): Promise<void> {
+    if (command.startsWith('say' || 'tellraw' || 'me' || 'msg' || 'titleraw')) callback = undefined
     try {
       const requestID = uuidv4()
       this._requests.set(requestID, command)
-      const response = await this._findResponse(requestID)
       if (callback) {
+        const response = await this._findResponse(requestID)
+
         return callback(undefined, response)
       } else {
-        return new Promise((res) => {
-          res(response)
-        })
+        return
       }
     } catch (error) {
       if (callback) {
         return callback(error, undefined)
       } else {
-        return new Promise((res, rej) => {
-          rej(error)
-        })
+        console.log(error)
       }
     }
   }
