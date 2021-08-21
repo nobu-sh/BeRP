@@ -14,9 +14,14 @@ export class PlayerManager {
     this._pluginApi = pluginApi
   }
   public addPlayer(player: Player): void {
+    if (this._players.has(player.getName())) this.removePlayer(player)
     this._players.set(player.getName(), player)
+  }
+  public removePlayer(player: Player): void {
+    this._players.delete(player.getName())
   }
   public getPlayerByName(name: string): Player {
     return this._players.get(name)
   }
+  public getPlayerList(): Map<string, Player> { return this._players }
 }
