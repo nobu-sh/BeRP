@@ -28,4 +28,7 @@ export class Player {
   public getEntityID(): bigint { return this._entityID }
   public getRuntimeID(): bigint { return this._runtimeID }
   public getDevice(): number { return this._device }
+  public sendMessage(message: string): void {
+    this._pluginApi.getCommandManager().executeCommand(`tellraw "${this._name}" {"rawtext":[{"text":"${message}"}]}`)
+  }
 }
