@@ -95,7 +95,7 @@ export class ConnectionHandler extends RakManager {
     })
   }
   private async _handleGameStart(pak: packet_start_game): Promise<void> {
-    console.log("Start game handled")
+    // console.log("Start game handled")
     this._gameInfo = pak
     await this.sendPacket(Packets.SetLocalPlayerAsInitialized, {
       runtime_entity_id: pak.runtime_entity_id,
