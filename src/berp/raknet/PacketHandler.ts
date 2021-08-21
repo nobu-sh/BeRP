@@ -97,6 +97,7 @@ export class PacketHandler {
 
       return ret
     } catch (error) {
+      // console.log("UW OW EWWR")
       throw error
     }
   }
@@ -106,7 +107,14 @@ export class PacketHandler {
 
       const ret: { name: string, params: unknown }[] = []
       for (const packet of this.getPackets(dpacket)) {
-        const des: { data: { name: string, params: unknown } } = this.deserializer.parsePacketBuffer(packet) as { data: { name: string, params: unknown } }
+        // console.log(packet)
+        try {
+          var des: { data: { name: string, params: unknown } } = this.deserializer.parsePacketBuffer(packet) as { data: { name: string, params: unknown } } // eslint-disable-line
+        } catch (error) {
+          // Handles broken packets being mixed with okay packets.
+
+          continue
+        }
         if (!des) continue
         else {
           ret.push({
