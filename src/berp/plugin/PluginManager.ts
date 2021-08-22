@@ -11,6 +11,7 @@ import { BeRP } from '../'
 import fs from 'fs'
 import { ConnectionHandler } from '../network'
 import { EventEmitter } from 'events'
+import axios from 'axios'
 
 export class PluginManager extends EventEmitter{
   private _berp: BeRP
@@ -18,6 +19,11 @@ export class PluginManager extends EventEmitter{
   private _activePlugins = new Map<ConnectionHandler, {config: examplePluginConfig, plugin: examplePlugin, api: PluginApi}>()
   private _pluginsPath = path.resolve(process.cwd(), './plugins')
   private _logger: Logger
+  private _latestInterfaces = {
+    pluginApi: 'https://raw.githubusercontent.com/NobUwU/BeRP/main/src/types/pluginApi.i.ts',
+    packets: 'https://raw.githubusercontent.com/NobUwU/BeRP/main/src/types/packets.i.ts',
+    packetTypes: 'https://raw.githubusercontent.com/NobUwU/BeRP/main/src/types/packetTypes.i.ts',
+  }
   constructor(berp: BeRP) {
     super()
     this._berp = berp
@@ -58,6 +64,14 @@ export class PluginManager extends EventEmitter{
         }
         const config: examplePluginConfig = await import(confPath)
         if (!this._verifyConfig(pluginPath, config)) return res()
+
+        const pluginApiInterface = await axios.get(this._latestInterfaces.pluginApi)
+        const packetsInterface = await axios.get(this._latestInterfaces.packets)
+        const packetTypesInterface = await axios.get(this._latestInterfaces.packetTypes)
+        if (!fs.existsSync(path.resolve(pluginPath, 'src', '@interface'))) fs.mkdirSync(path.resolve(pluginPath, 'src', '@interface'))
+        fs.writeFileSync(path.resolve(pluginPath, 'src', '@interface', 'pluginApi.i.ts'), pluginApiInterface.data)
+        fs.writeFileSync(path.resolve(pluginPath, 'src', '@interface', 'packets.i.ts'), packetsInterface.data)
+        fs.writeFileSync(path.resolve(pluginPath, 'src', '@interface', 'packetTypes.i.ts'), packetTypesInterface.data)
 
         let neededUpdate = false
         let succeededUpdate = false

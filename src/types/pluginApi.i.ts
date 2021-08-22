@@ -4,6 +4,8 @@ import {
 import {
   packet_command_output,
   packet_start_game,
+  ClientBoundPackets,
+  ServerBoundPackets,
 } from "./packets.i"
 
 export interface PluginApi {
@@ -40,7 +42,7 @@ interface examplePluginConfig {
   [key: string]: unknown
 }
 
-interface ConnectionHandler {
+interface ConnectionHandler extends RakManager {
   readonly KEEPALIVEINT: number
   readonly host: string
   readonly port: number
@@ -53,7 +55,53 @@ interface ConnectionHandler {
   sendCommandFeedback(option: boolean): void
 }
 
-export interface RealmAPIWorld {
+interface RakManager {
+  readonly host: string
+  readonly port: number
+  readonly id: number
+  readonly version: string
+  readonly X509: string
+  readonly SALT: string
+  readonly CURVE: string
+  readonly ALGORITHM: string
+  readonly PUBLIC_KEY_ONLINE: string
+  on<K extends keyof ClientBoundPackets>(event: K, listener: (...args: ClientBoundPackets[K]) => void): this
+  on<S extends string | symbol>(
+    event: Exclude<S, keyof ClientBoundPackets>,
+    listener: (...args: any[]) => void, 
+  ): this
+  once<K extends keyof ClientBoundPackets>(event: K, listener: (...args: ClientBoundPackets[K]) => void): this
+  once<S extends string | symbol>(
+    event: Exclude<S, keyof ClientBoundPackets>,
+    listener: (...args: any[]) => void, 
+  ): this
+  emit<K extends keyof ClientBoundPackets>(event: K, ...args: ClientBoundPackets[K]): boolean
+  emit<S extends string | symbol>(
+    event: Exclude<S, keyof ClientBoundPackets>,
+    ...args: any[]
+  ): boolean
+  getRakLogger(): Logger
+  getXboxProfile(): XboxProfile
+  sendPacket<K extends keyof ServerBoundPackets>(name: K, params: ServerBoundPackets[K][0]): Promise<{ name: K, params: ServerBoundPackets[K][0] }>
+}
+
+interface XboxProfileExtraData {
+  XUID: string
+  identity: string
+  displayName: string
+  titleId: number
+}
+interface XboxProfile {
+  nbf: number
+  extraData: XboxProfileExtraData
+  randomNonce: number
+  iss: string
+  exp: number
+  iat: number
+  identityPublicKey: string
+}
+
+interface RealmAPIWorld {
   id: number
   remoteSubscriptionId: string
   owner: string
