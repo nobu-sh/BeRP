@@ -6,7 +6,7 @@ import {
   PlayerLeft,
   PlayerInitialized,
   PlayerMessage,
-  JsonRecieved,
+  JsonReceived,
 } from './events/index'
 import { PluginApi } from '../pluginApi'
 
@@ -33,8 +33,8 @@ export class EventManager extends EventEmitter {
     this._events.set('PlayerInitialized', PlayerInitializedEvent)
     const PlayerMessageEvent = new PlayerMessage(this)
     this._events.set('PlayerMessage', PlayerMessageEvent)
-    const JsonRecievedEvent = new JsonRecieved(this)
-    this._events.set('JsonRecieved', JsonRecievedEvent)
+    const JsonReceivedEvent = new JsonReceived(this)
+    this._events.set('JsonReceived', JsonReceivedEvent)
   }
   public getBerp(): BeRP { return this._berp }
   public getConnection(): ConnectionHandler { return this._connection }

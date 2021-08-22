@@ -4,7 +4,7 @@ import {
 } from "src/types/berp"
 import { EventManager } from "../EventManager"
 
-export class JsonRecieved {
+export class JsonReceived {
   private _events: EventManager
   constructor(events: EventManager) {
     this._events = events
@@ -14,7 +14,7 @@ export class JsonRecieved {
       if (!parsedMessage.rawtext[0].text.startsWith('{"berp":')) return
       const data: JsonData = JSON.parse(parsedMessage.rawtext[0].text)
 
-      return this._events.emit('JsonRecieved', data)
+      return this._events.emit('JsonReceived', data)
     })
   }
 }
