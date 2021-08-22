@@ -136,6 +136,7 @@ export interface examplePlugin {
 export interface examplePluginConfig {
   name: string
   displayName: string
+  color: string
   version: string
   description: string
   devMode: boolean

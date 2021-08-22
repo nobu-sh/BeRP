@@ -1,7 +1,6 @@
 import { Logger } from '../../../console'
 import {
   examplePluginConfig,
-  LoggerColors,
 } from 'src/types/berp'
 import { BeRP } from '../../'
 import { ConnectionHandler } from 'src/berp/network'
@@ -20,10 +19,9 @@ export class PluginApi {
   private _playerManager: PlayerManager
   private _worldManager: WorldManager
   public path: string
-  public color: LoggerColors = 'red'
   constructor (berp: BeRP, config: examplePluginConfig, path: string, connection: ConnectionHandler) {
     this._berp = berp
-    this._logger = new Logger(`${config.displayName} ${connection.realm.id}`, this.color)
+    this._logger = new Logger(`${config.displayName} ${connection.realm.id}`, config.color)
     this._config = config
     this._connection = connection
     this._commandManager = new CommandManager(this._connection)
