@@ -25,14 +25,7 @@ export class PluginManager extends EventEmitter{
     this._loadAll()
   }
   public async kill(): Promise<void> {
-    for (const [path, { config, plugin, api }] of this._activePlugins.entries()) {
-      try {
-        plugin.onDisabled()
-        api.onDisabled()
-      } catch (error) {
-        this._logger.error(`Plugin "${config.name || path}". Uncaught Exception(s):\n`, error)
-      }
-    }
+    //
   }
   private async _loadAll(): Promise<void> {
     return new Promise(async (res) => {
