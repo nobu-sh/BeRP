@@ -73,7 +73,7 @@ export class ConnectionManager {
     return new Promise(async (r, rj) => {
       try {
         if (!this._accountAuthRes) await this._authRefresh()
-        const newConnection = new ConnectionHandler(host, port, realm, this)
+        const newConnection = new ConnectionHandler(host, port, realm, this, this._berp)
         const xsts = await this._berp.getAuthProvider()
           .ezXSTSForRealmRak(this._accountAuthRes)
         await newConnection.authMc(xsts)

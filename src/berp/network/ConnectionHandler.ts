@@ -7,6 +7,7 @@ import { RakManager } from "../raknet"
 import { Logger } from '../../console'
 import { ConnectionManager } from "./ConnectionManager"
 import { RealmAPIWorld } from "src/types/berp"
+import { BeRP } from ".."
 // TODO: Client/plugins can control connection/diconnection of rak
 
 
@@ -20,12 +21,14 @@ export class ConnectionHandler extends RakManager {
   private _tickSyncKeepAlive: NodeJS.Timer
   private _connectionManager: ConnectionManager
   private _log: Logger
-  constructor(host: string, port: number, realm: RealmAPIWorld, cm: ConnectionManager) {
+  private _berp: BeRP
+  constructor(host: string, port: number, realm: RealmAPIWorld, cm: ConnectionManager, berp: BeRP) {
     super(host, port, cm.getAccount().username, realm.id)
     this.host = host
     this.port = port
     this.realm = realm
     this._connectionManager = cm
+    this._berp = berp
 
     this._log = new Logger(`Connection Handler (${cm.getAccount().username}:${realm.id})`, 'cyanBright')
 
@@ -80,6 +83,12 @@ export class ConnectionHandler extends RakManager {
 
     clearInterval(this._tickSyncKeepAlive)
     this.close()
+    const plugins = this._berp.getPluginManager().getActivePlugins()
+    for (const [connection, options] of plugins) {
+      if (this !== connection) continue
+      options.plugin.onDisabled()
+      options.api.onDisabled()
+    }
     this._log.warn(`Terminating connection handler with connection "${this.host}:${this.port}"`)
 
     this._log.warn("Disconnection on", `${this.host}:${this.port}`, `"${reason}"`)
@@ -107,7 +116,6 @@ export class ConnectionHandler extends RakManager {
     })
   }
   private async _handleGameStart(pak: packet_start_game): Promise<void> {
-    // console.log("Start game handled")
     this._gameInfo = pak
     await this.sendPacket(Packets.SetLocalPlayerAsInitialized, {
       runtime_entity_id: pak.runtime_entity_id,

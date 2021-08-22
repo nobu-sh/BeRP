@@ -28,9 +28,9 @@ export class PluginApi {
     this._eventManager = new EventManager(this._berp, this._connection, this)
     this._playerManager = new PlayerManager(this._berp, this._connection, this)
     this.path = path
-    this._berp.getPluginManager().on('kill', () => {
-      this._commandManager.kill()
-    })
+  }
+  public onDisabled(): void {
+    this._commandManager.kill()
   }
   public getLogger(): Logger { return this._logger }
   public getConnection(): ConnectionHandler { return this._connection }
