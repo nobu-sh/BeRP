@@ -24,9 +24,6 @@ export class PluginManager extends EventEmitter{
     this._logger = new Logger('Plugin Manager', '#6d17b3')
     this._loadAll()
   }
-  public async kill(): Promise<void> {
-    //
-  }
   private async _loadAll(): Promise<void> {
     return new Promise(async (res) => {
       if (!fs.existsSync(this._pluginsPath)) {
@@ -157,11 +154,6 @@ export class PluginManager extends EventEmitter{
 
       return false
     }
-    // if (!config.scripts.start) {
-    //   this.error(`plugin "${config.name || path}" missing main scripts.start in package.json. Cannot start plugin without needed scripts!`)
-
-    //   return false
-    // }
     if (!config.dependencies && !config.devDependencies) {
       this._logger.info(`WOW @${config.author || config.displayName || path}, your plugin has absolutely no depedencies! However, you should probably add "@types/node" as a devdependency.`)
     }

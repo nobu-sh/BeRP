@@ -31,4 +31,7 @@ export class Player {
   public sendMessage(message: string): void {
     this._pluginApi.getCommandManager().executeCommand(`tellraw "${this._name}" {"rawtext":[{"text":"${message}"}]}`)
   }
+  public executeCommand(command: string): void {
+    this._pluginApi.getCommandManager().executeCommand(`execute "${this._name}" ~ ~ ~ ${command}`)
+  }
 }
