@@ -14,7 +14,7 @@ export class WorldManager {
     this._inv = setInterval(() => {
       const spawn = this._connection.getGameInfo().spawn_position
       this._pluginApi.getCommandManager().executeCommand(`tp @s ${spawn.x} ${spawn.y} ${spawn.z}`)
-    })
+    }, 2500)
   }
   public kill(): void {
     clearInterval(this._inv)

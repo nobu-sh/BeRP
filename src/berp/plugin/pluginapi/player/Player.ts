@@ -34,4 +34,23 @@ export class Player {
   public executeCommand(command: string): void {
     this._pluginApi.getCommandManager().executeCommand(`execute "${this._name}" ~ ~ ~ ${command}`)
   }
+  public async getTags(): Promise<string[]> {
+    return new Promise((r) => {
+      this._pluginApi.getCommandManager().executeCommand(`tag "${this._name}" list`, (err, res) => {
+        if (err) return console.log(err)
+        if (!res.output[0].paramaters[1]) return
+        const filter = [res.output[0].paramaters[0], res.output[0].paramaters[1]]
+        const tags = res.output[0].paramaters.filter(x => !filter.includes(x)).toString()
+          .replace(/§\S/g, "")
+          .split(', ')
+
+        return r(tags)
+      })
+    })
+  }
+  public async hasTag(tag: string): Promise<boolean> {
+    if (!(await this.getTags()).includes(tag)) return false
+
+    return true
+  }
 }
