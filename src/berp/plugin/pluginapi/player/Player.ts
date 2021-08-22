@@ -53,4 +53,14 @@ export class Player {
 
     return true
   }
+  public async getScore(objective: string): Promise<number> {
+    return new Promise((r) => {
+      this._pluginApi.getCommandManager().executeCommand(`scoreboard players test "${this._name}" ${objective} * *`, (err, res) => {
+        if (err) return console.log(err)
+        if (res.output[0].paramaters[0] == this._name) return r(0)
+
+        return r(parseInt(res.output[0].paramaters[0]))
+      })
+    })
+  }
 }
