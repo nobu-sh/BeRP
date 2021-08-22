@@ -1,6 +1,7 @@
 import {
   Method,
 } from 'axios'
+
 export type LoggerColors = (
   "black" |
   "blackBright" |
