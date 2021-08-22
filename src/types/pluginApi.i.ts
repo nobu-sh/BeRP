@@ -201,10 +201,13 @@ interface EventValues {
 
 interface Player {
   getName(): string
+  getNickname(): string
   getUUID(): string 
   getEntityID(): bigint 
   getRuntimeID(): bigint
   getDevice(): number
+  getExecutionName(): string
+  setNickname(nickname: string): void
   sendMessage(message: string): void
   executeCommand(command: string): void
   getTags(): Promise<string[]>
