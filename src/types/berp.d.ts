@@ -163,3 +163,14 @@ export interface PlayerOptions {
   runtimeID: bigint
   device: number
 }
+
+export interface RawText {
+  rawtext: Array<{text: string}>
+}
+
+export interface JsonData {
+  event?: string
+  sender?: string
+  message?: string
+  data?: any
+}
