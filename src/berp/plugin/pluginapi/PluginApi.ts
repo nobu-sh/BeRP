@@ -26,11 +26,11 @@ export class PluginApi {
     this._logger = new Logger(`${config.displayName} ${connection.realm.id}`, config.color)
     this._config = config
     this._connection = connection
-    this._commandManager = new CommandManager(this._connection)
     this._playerManager = new PlayerManager(this._berp, this._connection, this)
     this._worldManager = new WorldManager(this._berp, this._connection, this)
     this._socketManager = new SocketManager(this._berp, this._connection, this)
     this._eventManager = new EventManager(this._berp, this._connection, this)
+    this._commandManager = new CommandManager(this._berp, this._connection, this)
     this.path = path
   }
   public onDisabled(): void {

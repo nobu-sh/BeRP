@@ -4,6 +4,7 @@ import { resolve } from 'path'
 export const ProtoDataPath = resolve(process.cwd(), 'data')
 export const CUR_VERSION = '1.17.10'
 export const CUR_VERSION_PROTOCOL = 448
+export const BeRP_VERSION = '1.0.0'
 
 const MCRAPI = "https://pocket.realms.minecraft.net/"
 

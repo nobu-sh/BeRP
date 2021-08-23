@@ -172,6 +172,9 @@ type LoggerColors = (
 
 interface CommandManager {
   executeCommand(command: string, callback?: (err: any, res: packet_command_output) => void): Promise<void>
+  registerCommand(options: CommandOptions, callback: (data: CommandResponse) => void): void
+  getPrefix(): string
+  setPrefix(prefix: string): void
 }
 
 interface EventManager {
@@ -198,6 +201,7 @@ interface EventValues {
   PlayerInitialized: [string]
   PlayerMessage: [PlayerMessage] 
   PlayerDied: [PlayerDied]
+  ChatCommand: [ChatCommand]
 }
 
 interface Player {
@@ -225,6 +229,11 @@ interface PlayerDied {
   player: Player
   killer?: Player | string
   cause: string
+}
+
+interface ChatCommand {
+  sender: Player
+  command: string
 }
 
 interface JsonRequest {
@@ -273,4 +282,16 @@ interface SocketManager {
 
 interface SocketValues {
   Message: [JsonData]
+}
+
+interface CommandOptions {
+  command: string
+  aliases?: string[]
+  description: string
+  permissionTags?: string[]
+}
+
+interface CommandResponse {
+  sender: Player
+  args: string[]
 }

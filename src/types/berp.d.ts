@@ -180,3 +180,37 @@ export interface JsonData {
   message?: string
   data?: any
 }
+
+interface Player {
+  getName(): string
+  getNickname(): string
+  getUUID(): string 
+  getEntityID(): bigint 
+  getRuntimeID(): bigint
+  getDevice(): number
+  getExecutionName(): string
+  setNickname(nickname: string): void
+  sendMessage(message: string): void
+  executeCommand(command: string): void
+  getTags(): Promise<string[]>
+  hasTag(tag: string): Promise<boolean>
+  getScore(objective: string): Promise<number>
+}
+
+export interface CommandOptions {
+  command: string
+  aliases?: string[]
+  description: string
+  permissionTags?: string[]
+}
+
+export interface CommandMapOptions {
+  options: CommandOptions
+  showInList: boolean
+  execute(data: CommandResponse): void
+}
+
+export interface CommandResponse {
+  sender: Player
+  args: string[]
+}

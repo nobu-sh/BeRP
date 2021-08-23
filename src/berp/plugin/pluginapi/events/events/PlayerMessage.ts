@@ -17,6 +17,12 @@ export class PlayerMessage {
       console.log('fired')
       if (packet.event !== 'PlayerMessage' || packet.sender == this._connection.getXboxProfile().extraData.displayName) return
 
+      if (packet.message.startsWith(this._pluginApi.getCommandManager().getPrefix())) return this._events.emit('ChatCommand', {
+        sender: this._pluginApi.getPlayerManager()
+          .getPlayerByName(packet.sender),
+        command: packet.message,
+      })
+
       return this._events.emit('PlayerMessage', {
         sender: this._pluginApi.getPlayerManager()
           .getPlayerByName(packet.sender),
@@ -25,6 +31,12 @@ export class PlayerMessage {
     })
     this._connection.on('text', (packet) => {
       if (packet.type !== 'chat' || packet.source_name == this._connection.getXboxProfile().extraData.displayName) return
+
+      if (packet.message.startsWith(this._pluginApi.getCommandManager().getPrefix())) return this._events.emit('ChatCommand', {
+        sender: this._pluginApi.getPlayerManager()
+          .getPlayerByName(packet.source_name),
+        command: packet.message,
+      })
 
       return this._events.emit('PlayerMessage', {
         sender: this._pluginApi.getPlayerManager()
