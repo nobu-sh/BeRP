@@ -45,7 +45,7 @@ export class CommandManager {
         this._requests.delete(request)
       }
     })
-    this._pluginApi.getEventManager().on('ChatCommand', (data) => {
+    this._pluginApi.getEventManager().on('ChatCommand', async (data) => {
       const parsedCommand = this._parseCommand(data.command)
       if (!this._commands.has(parsedCommand.command)) return data.sender.sendMessage("§cThis command doesn't exsist!")
       const commandData = this._commands.get(parsedCommand.command)
@@ -53,7 +53,7 @@ export class CommandManager {
         sender: data.sender,
         args: parsedCommand.args,
       })
-      const tags: string[] = data.sender.getTags()
+      const tags: string[] = await data.sender.getTags()
       const found = tags.some(r => commandData.options.permissionTags.indexOf(r) >= 0)
       if (!found) return data.sender.sendMessage('§cYou dont have permission to use this command!')
 
