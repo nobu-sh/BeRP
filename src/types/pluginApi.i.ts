@@ -197,6 +197,7 @@ interface EventValues {
   PlayerLeft: [Player]
   PlayerInitialized: [string]
   PlayerMessage: [PlayerMessage] 
+  PlayerDied: [PlayerDied]
 }
 
 interface Player {
@@ -218,6 +219,12 @@ interface Player {
 interface PlayerMessage {
   sender: Player
   message: string
+}
+
+interface PlayerDied {
+  player: Player
+  killer?: Player | string
+  cause: string
 }
 
 interface JsonRequest {

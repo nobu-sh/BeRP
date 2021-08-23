@@ -7,6 +7,7 @@ import {
   PlayerLeft,
   PlayerInitialized,
   PlayerMessage,
+  PlayerDied,
 } from './events/index'
 
 export class EventManager extends EventEmitter {
@@ -30,5 +31,7 @@ export class EventManager extends EventEmitter {
     this._events.set('PlayerInitialized', PlayerInitializedEvent)
     const PlayerMessageEvent = new PlayerMessage(this, this._berp, this._connection, this._pluginApi)
     this._events.set('PlayerMessage', PlayerMessageEvent)
+    const PlayerDiedEvent = new PlayerDied(this, this._berp, this._connection, this._pluginApi)
+    this._events.set('PlayerDied', PlayerDiedEvent)
   }
 }
