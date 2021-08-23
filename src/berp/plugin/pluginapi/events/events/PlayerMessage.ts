@@ -14,7 +14,8 @@ export class PlayerMessage {
     this._connection = connection
     this._pluginApi = pluginApi
     this._pluginApi.getSocketManager().on('Message', (packet) => {
-      if (packet.event !== 'PlayerMessage') return
+      console.log('fired')
+      if (packet.event !== 'PlayerMessage' || packet.sender == this._connection.getXboxProfile().extraData.displayName) return
 
       return this._events.emit('PlayerMessage', {
         sender: this._pluginApi.getPlayerManager()
@@ -23,7 +24,7 @@ export class PlayerMessage {
       })
     })
     this._connection.on('text', (packet) => {
-      if (packet.type !== 'chat') return
+      if (packet.type !== 'chat' || packet.source_name == this._connection.getXboxProfile().extraData.displayName) return
 
       return this._events.emit('PlayerMessage', {
         sender: this._pluginApi.getPlayerManager()
