@@ -1,18 +1,15 @@
-import {
-  RawText,
-} from "src/types/berp"
-import { BeRP } from "src/berp"
-import { ConnectionHandler } from "src/berp/network"
-import { EventManager } from "../EventManager"
-import { PluginApi } from "../../pluginApi"
+import { BeRP } from '../../../'
+import { EventEmitter } from 'events'
+import { ConnectionHandler } from 'src/berp/network'
+import { PluginApi } from '../pluginApi'
+import { RawText } from 'src/types/berp'
 
-export class JsonReceived {
-  private _events: EventManager
+export class SocketManager extends EventEmitter {
   private _berp: BeRP
   private _connection: ConnectionHandler
   private _pluginApi: PluginApi
-  constructor(events: EventManager, berp: BeRP, connection: ConnectionHandler, pluginApi: PluginApi) {
-    this._events = events
+  constructor(berp: BeRP, connection: ConnectionHandler, pluginApi: PluginApi) {
+    super()
     this._berp = berp
     this._connection = connection
     this._pluginApi = pluginApi
@@ -22,7 +19,7 @@ export class JsonReceived {
       if (!parsedMessage.rawtext[0].text.startsWith('{"berp":')) return
       const data = JSON.parse(parsedMessage.rawtext[0].text)
 
-      return this._events.emit('JsonReceived', data.berp)
+      return this.emit('MessageReceived', data.berp)
     })
   }
 }

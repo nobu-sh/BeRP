@@ -1,14 +1,13 @@
 import { BeRP } from '../../../'
 import { EventEmitter } from 'events'
 import { ConnectionHandler } from 'src/berp/network'
+import { PluginApi } from '../pluginApi'
 import {
   PlayerJoin,
   PlayerLeft,
   PlayerInitialized,
   PlayerMessage,
-  JsonReceived,
 } from './events/index'
-import { PluginApi } from '../pluginApi'
 
 // TODO: Add event/data exchange from gametest to berp via a rawtext text packet
 
@@ -33,7 +32,5 @@ export class EventManager extends EventEmitter {
     this._events.set('PlayerInitialized', PlayerInitializedEvent)
     const PlayerMessageEvent = new PlayerMessage(this, this._berp, this._connection, this._pluginApi)
     this._events.set('PlayerMessage', PlayerMessageEvent)
-    const JsonReceivedEvent = new JsonReceived(this, this._berp, this._connection, this._pluginApi)
-    this._events.set('JsonReceived', JsonReceivedEvent)
   }
 }
