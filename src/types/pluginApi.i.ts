@@ -16,6 +16,7 @@ export interface PluginApi {
   getEventManager(): EventManager
   getPlayerManager(): PlayerManager
   getWorldManager(): WorldManager
+  getSocketManager(): SocketManager
 }
 
 interface examplePluginConfig {
@@ -220,6 +221,10 @@ interface PlayerMessage {
   message: string
 }
 
+interface JsonRequest {
+  berp: JsonData
+}
+
 interface JsonData {
   event?: string
   sender?: string
@@ -239,4 +244,27 @@ interface PlayerManager {
 
 interface WorldManager {
   sendMessage(message: string): void
+}
+
+interface SocketManager {
+  on<K extends keyof SocketValues>(event: K, callback: (...args: SocketValues[K]) => void): this
+  on<S extends string | symbol>(
+    event: Exclude<S, keyof SocketValues>,
+    callback: (...args: unknown[]) => void,
+  ): this
+  once<K extends keyof SocketValues>(event: K, callback: (...args: SocketValues[K]) => void): this
+  once<S extends string | symbol>(
+    event: Exclude<S, keyof SocketValues>,
+    callback: (...args: unknown[]) => void,
+  ): this
+  emit<K extends keyof SocketValues>(event: K, ...args: SocketValues[K]): boolean
+  emit<S extends string | symbol>(
+    event: Exclude<S, keyof SocketValues>,
+    ...args: unknown[]
+  ): boolean
+  sendMessage(options: JsonRequest): void
+}
+
+interface SocketValues {
+  Message: [JsonData]
 }

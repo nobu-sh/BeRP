@@ -8,6 +8,7 @@ import { CommandManager } from './command/CommandManager'
 import { EventManager } from './events/EventManager'
 import { PlayerManager } from './player/PlayerManager'
 import { WorldManager } from './world/WorldManager'
+import { SocketManager } from './socket/SocketManager'
 
 export class PluginApi {
   private _berp: BeRP
@@ -18,6 +19,7 @@ export class PluginApi {
   private _eventManager: EventManager
   private _playerManager: PlayerManager
   private _worldManager: WorldManager
+  private _socketManager: SocketManager
   public path: string
   constructor (berp: BeRP, config: examplePluginConfig, path: string, connection: ConnectionHandler) {
     this._berp = berp
@@ -28,6 +30,7 @@ export class PluginApi {
     this._eventManager = new EventManager(this._berp, this._connection, this)
     this._playerManager = new PlayerManager(this._berp, this._connection, this)
     this._worldManager = new WorldManager(this._berp, this._connection, this)
+    this._socketManager = new SocketManager(this._berp, this._connection, this)
     this.path = path
   }
   public onDisabled(): void {
@@ -40,4 +43,5 @@ export class PluginApi {
   public getEventManager(): EventManager { return this._eventManager }
   public getPlayerManager(): PlayerManager { return this._playerManager }
   public getWorldManager(): WorldManager { return this._worldManager }
+  public getSocketManager(): SocketManager { return this._socketManager }
 }

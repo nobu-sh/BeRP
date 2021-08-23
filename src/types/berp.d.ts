@@ -170,6 +170,10 @@ export interface RawText {
   rawtext: Array<{text: string}>
 }
 
+export interface JsonRequest {
+  berp: JsonData
+}
+
 export interface JsonData {
   event?: string
   sender?: string
