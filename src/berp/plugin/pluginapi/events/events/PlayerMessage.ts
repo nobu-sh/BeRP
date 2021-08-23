@@ -1,4 +1,3 @@
-import { JsonData } from "src/types/berp"
 import { EventManager } from "../EventManager"
 import { BeRP } from "src/berp"
 import { ConnectionHandler } from "src/berp/network"
@@ -14,7 +13,7 @@ export class PlayerMessage {
     this._berp = berp
     this._connection = connection
     this._pluginApi = pluginApi
-    this._events.on('JsonReceived', (packet: JsonData) => {
+    this._pluginApi.getSocketManager().on('Message', (packet) => {
       if (packet.event !== 'PlayerMessage') return
 
       return this._events.emit('PlayerMessage', {

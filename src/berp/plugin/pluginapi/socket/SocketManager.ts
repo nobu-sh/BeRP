@@ -25,7 +25,7 @@ export class SocketManager extends EventEmitter {
       if (!parsedMessage.rawtext[0].text.startsWith('{"berp":')) return
       const data = JSON.parse(parsedMessage.rawtext[0].text)
 
-      return this.emit('MessageReceived', data.berp)
+      return this.emit('Message', data.berp)
     })
   }
   public sendMessage(options: JsonRequest): void {

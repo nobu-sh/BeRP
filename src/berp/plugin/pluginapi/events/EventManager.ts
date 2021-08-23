@@ -9,8 +9,6 @@ import {
   PlayerMessage,
 } from './events/index'
 
-// TODO: Add event/data exchange from gametest to berp via a rawtext text packet
-
 export class EventManager extends EventEmitter {
   private _berp: BeRP
   private _connection: ConnectionHandler

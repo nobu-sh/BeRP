@@ -197,7 +197,6 @@ interface EventValues {
   PlayerLeft: [Player]
   PlayerInitialized: [string]
   PlayerMessage: [PlayerMessage] 
-  JsonReceived: [JsonData]
 }
 
 interface Player {
