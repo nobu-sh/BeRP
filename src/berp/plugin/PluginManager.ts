@@ -44,6 +44,7 @@ export class PluginManager extends EventEmitter{
         if (!fs.statSync(path.resolve(this._pluginsPath, item)).isDirectory()) continue
         pluginDirs.push(item)
       }
+
       if (pluginDirs.length < 1) {
         this._logger.info('No Plugins found!')
 
@@ -116,6 +117,8 @@ export class PluginManager extends EventEmitter{
       } catch (error) {
 
       }
+
+      return res()
     })
   }
   private async _update(path: string, config: examplePluginConfig): Promise<boolean> {
