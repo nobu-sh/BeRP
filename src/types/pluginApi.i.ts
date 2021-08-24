@@ -47,7 +47,7 @@ interface examplePluginConfig {
   [key: string]: unknown
 }
 
-interface ConnectionHandler extends RakManager {
+export interface ConnectionHandler extends RakManager {
   readonly KEEPALIVEINT: number
   readonly host: string
   readonly port: number
@@ -60,7 +60,7 @@ interface ConnectionHandler extends RakManager {
   sendCommandFeedback(option: boolean): void
 }
 
-interface RakManager {
+export interface RakManager {
   readonly host: string
   readonly port: number
   readonly id: number
@@ -132,7 +132,7 @@ interface RealmAPIWorld {
   subscriptionRefreshStatus: unknown
 }
 
-interface ConnectionManager {
+export interface ConnectionManager {
   getAccount(): AccountInfo
   getLogger(): Logger
   getConnections(): Map<number, ConnectionHandler>
@@ -142,7 +142,7 @@ interface ConnectionManager {
   newConnection(host: string, port: number, realm: RealmAPIWorld): Promise<ConnectionHandler>
 }
 
-interface Logger {
+export interface Logger {
   changeColor(newColor: LoggerColors): void
   useHex(newColor: string): void
   info(...content: unknown[]): void
@@ -173,14 +173,14 @@ type LoggerColors = (
   "grey" 
 )
 
-interface CommandManager {
+export interface CommandManager {
   executeCommand(command: string, callback?: (err: any, res: packet_command_output) => void): Promise<void>
   registerCommand(options: CommandOptions, callback: (data: CommandResponse) => void): void
   getPrefix(): string
   setPrefix(prefix: string): void
 }
 
-interface EventManager {
+export interface EventManager {
   on<K extends keyof EventValues>(event: K, callback: (...args: EventValues[K]) => void): this
   on<S extends string | symbol>(
     event: Exclude<S, keyof EventValues>,
@@ -207,7 +207,7 @@ interface EventValues {
   ChatCommand: [ChatCommand]
 }
 
-interface Player {
+export interface Player {
   getName(): string
   getNickname(): string
   getUUID(): string 
@@ -252,7 +252,7 @@ interface JsonData {
   data?: any
 }
 
-interface PlayerManager {
+export interface PlayerManager {
   addPlayer(player: Player): void
   removePlayer(player: Player): void
   getPlayerByName(name: string): Player
@@ -262,11 +262,11 @@ interface PlayerManager {
   getPlayerList(): Map<string, Player>
 }
 
-interface WorldManager {
+export interface WorldManager {
   sendMessage(message: string): void
 }
 
-interface SocketManager {
+export interface SocketManager {
   on<K extends keyof SocketValues>(event: K, callback: (...args: SocketValues[K]) => void): this
   on<S extends string | symbol>(
     event: Exclude<S, keyof SocketValues>,
