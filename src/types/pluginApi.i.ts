@@ -218,6 +218,7 @@ interface Player {
   getTags(): Promise<string[]>
   hasTag(tag: string): Promise<boolean>
   getScore(objective: string): Promise<number>
+  kick(reason: string): void
 }
 
 interface PlayerMessage {

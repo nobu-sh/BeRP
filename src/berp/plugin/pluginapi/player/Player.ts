@@ -75,4 +75,7 @@ export class Player {
       })
     })
   }
+  public kick(reason: string): void {
+    this._pluginApi.getCommandManager().executeCommand(`kick "${this.getExecutionName()}" ${reason}`)
+  }
 }
