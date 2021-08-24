@@ -24,6 +24,7 @@ export class PluginManager extends EventEmitter{
     packets: 'https://raw.githubusercontent.com/NobUwU/BeRP/main/src/types/packets.i.ts',
     packetTypes: 'https://raw.githubusercontent.com/NobUwU/BeRP/main/src/types/packetTypes.i.ts',
   }
+  private _apiId = 0
   constructor(berp: BeRP) {
     super()
     this._berp = berp
@@ -210,10 +211,11 @@ export class PluginManager extends EventEmitter{
     return true
   }
   public registerPlugins(connection: ConnectionHandler): void {
+    this._apiId++
     for (const [plpath, config] of this._knownPlugins) {
       const entryPoint = path.resolve(plpath, config.main)
       const plugin: examplePlugin = require(entryPoint)
-      const pluginAPI = new PluginApi(this._berp, config, plpath, connection)
+      const pluginAPI = new PluginApi(this._berp, config, plpath, connection, this._apiId)
       const newPlugin: examplePlugin = new plugin(pluginAPI)
       newPlugin.onEnabled()
       this._activePlugins.set(connection, {

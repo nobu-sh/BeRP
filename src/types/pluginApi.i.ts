@@ -10,8 +10,11 @@ import {
 
 export interface PluginApi {
   new (berp: any, config: examplePluginConfig, path: string, connection: ConnectionHandler)
+  path: string
   getLogger(): Logger
   getConnection(): ConnectionHandler
+  getConfig(): examplePluginConfig
+  getApiId(): number
   getCommandManager(): CommandManager
   getEventManager(): EventManager
   getPlayerManager(): PlayerManager
