@@ -6,6 +6,7 @@ import { PlayerOptions } from 'src/types/berp'
 export class Player {
   private _name: string
   private _nickname: string
+  private _realmID: number
   private _uuid: string
   private _entityID: bigint
   private _runtimeID: bigint
@@ -16,6 +17,7 @@ export class Player {
   constructor(options: PlayerOptions, berp: BeRP, connection: ConnectionHandler, pluginApi: PluginApi) {
     this._name = options.name
     this._nickname = options.name
+    this._realmID = connection.realm.id
     this._uuid = options.uuid
     this._entityID = options.entityID
     this._runtimeID = options.runtimeID
@@ -27,6 +29,7 @@ export class Player {
   }
   public getName(): string { return this._name }
   public getNickname(): string { return this._nickname }
+  public getRealmID(): number { return this._realmID }
   public getUUID(): string { return this._uuid }
   public getEntityID(): bigint { return this._entityID }
   public getRuntimeID(): bigint { return this._runtimeID }

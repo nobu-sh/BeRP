@@ -184,6 +184,7 @@ export interface JsonData {
 interface Player {
   getName(): string
   getNickname(): string
+  getRealmID(): number
   getUUID(): string 
   getEntityID(): bigint 
   getRuntimeID(): bigint
