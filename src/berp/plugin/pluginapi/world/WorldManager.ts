@@ -22,7 +22,14 @@ export class WorldManager {
   }
   private _init(): void {
     setTimeout(() => {
-      this._pluginApi.getCommandManager().executeCommand('tp @a @s')
+      this._pluginApi.getCommandManager().executeCommand('list', (err, res) => {
+        if (err) return console.log(err)
+        const players = res.output[1].paramaters[0].split(', ')
+        for (const player of players) {
+          if (player == this._connection.getXboxProfile().extraData.displayName) continue
+          this._pluginApi.getCommandManager().executeCommand(`kick "${player}" §bBeRP Initialized`)
+        }
+      })
     }, 2500)
   }
   public kill(): void {
