@@ -219,6 +219,7 @@ interface Player {
   hasTag(tag: string): Promise<boolean>
   getScore(objective: string): Promise<number>
   kick(reason: string): void
+  getItemCount(item: string): Promise<number>
 }
 
 interface PlayerMessage {
