@@ -16,6 +16,7 @@ export class PlayerInitialized {
     this._connection.on('text', (packet) => {
       if (packet.message !== '§e%multiplayer.player.joined.realms') return
       const spawn = this._connection.getGameInfo().spawn_position
+      if (spawn.y == 32767) spawn.y = 10
       this._pluginApi.getCommandManager()
         .executeCommand(`tp "${packet.paramaters[0]}" ${spawn.x} ${spawn.y} ${spawn.z}`)
 

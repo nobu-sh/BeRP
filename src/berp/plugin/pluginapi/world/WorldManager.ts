@@ -13,8 +13,16 @@ export class WorldManager {
     this._pluginApi = pluginApi
     this._inv = setInterval(() => {
       const spawn = this._connection.getGameInfo().spawn_position
-      this._pluginApi.getCommandManager().executeCommand(`tag @s add "berpUser"`)
+      if (spawn.y == 32767) spawn.y = 10
+      this._pluginApi.getCommandManager().executeCommand('tag @s add "berpUser"')
       this._pluginApi.getCommandManager().executeCommand(`tp @s ${spawn.x} ${spawn.y} ${spawn.z}`)
+      this._pluginApi.getCommandManager().executeCommand('effect @s invisibility 20 255 true')
+    }, 2500)
+    this._init()
+  }
+  private _init(): void {
+    setTimeout(() => {
+      this._pluginApi.getCommandManager().executeCommand('tp @a @s')
     }, 2500)
   }
   public kill(): void {
