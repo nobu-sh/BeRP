@@ -217,3 +217,8 @@ export interface CommandResponse {
   sender: Player
   args: string[]
 }
+
+export interface ChatCommand {
+  sender: Player
+  command: string
+}
