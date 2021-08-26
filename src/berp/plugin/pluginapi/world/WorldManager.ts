@@ -11,13 +11,6 @@ export class WorldManager {
     this._berp = berp
     this._connection = connection
     this._pluginApi = pluginApi
-    this._inv = setInterval(() => {
-      const spawn = this._connection.getGameInfo().spawn_position
-      if (spawn.y == 32767) spawn.y = 10
-      this._pluginApi.getCommandManager().executeCommand('tag @s add "berpUser"')
-      this._pluginApi.getCommandManager().executeCommand(`tp @s ${spawn.x} ${spawn.y} ${spawn.z}`)
-      this._pluginApi.getCommandManager().executeCommand('effect @s invisibility 20 255 true')
-    }, 2500)
     this._init()
   }
   private _init(): void {
@@ -30,6 +23,13 @@ export class WorldManager {
           this._pluginApi.getCommandManager().executeCommand(`kick "${player}" §bBeRP Initialized`)
         }
       })
+    }, 2500)
+    this._inv = setInterval(() => {
+      const spawn = this._connection.getGameInfo().spawn_position
+      if (spawn.y == 32767) spawn.y = 10
+      this._pluginApi.getCommandManager().executeCommand('tag @s add "berpUser"')
+      this._pluginApi.getCommandManager().executeCommand(`tp @s ${spawn.x} ${spawn.y} ${spawn.z}`)
+      this._pluginApi.getCommandManager().executeCommand('effect @s invisibility 20 255 true')
     }, 2500)
   }
   public kill(): void {

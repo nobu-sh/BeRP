@@ -20,7 +20,6 @@ export class CommandManager {
   private _requests = new Map<string, string>()
   private _commandCache = new Map<string, packet_command_output>()
   private _inv
-  private _disabled = false
   constructor(berp: BeRP, connection: ConnectionHandler, pluginApi: PluginApi) {
     this._berp = berp
     this._connection = connection
@@ -86,7 +85,6 @@ export class CommandManager {
     })
   }
   public async executeCommand(command: string, callback?: (err: any, res: packet_command_output) => void): Promise<void> {
-    if (this._disabled) return
     if (command.startsWith('say' || 'tellraw' || 'me' || 'msg' || 'titleraw')) callback = undefined
     try {
       const requestID = uuidv4()
@@ -114,7 +112,6 @@ export class CommandManager {
   public getPrefix(): string { return this._berp.getCommandManager().getPrefix() }
   public setPrefix(prefix: string): void { this._berp.getCommandManager().setPrefix(prefix) }
   public kill(): void {
-    this._disabled = true
     clearInterval(this._inv)
   }
 }

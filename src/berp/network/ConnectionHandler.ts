@@ -83,12 +83,7 @@ export class ConnectionHandler extends RakManager {
 
     clearInterval(this._tickSyncKeepAlive)
     this.close()
-    const plugins = this._berp.getPluginManager().getActivePlugins()
-    for (const [connection, options] of plugins) {
-      if (this !== connection) continue
-      options.plugin.onDisabled()
-      options.api.onDisabled()
-    }
+    this._berp.getPluginManager().killPlugins(this)
     this._log.warn(`Terminating connection handler with connection "${this.host}:${this.port}"`)
 
     this._log.warn("Disconnection on", `${this.host}:${this.port}`, `"${reason}"`)
@@ -121,6 +116,7 @@ export class ConnectionHandler extends RakManager {
       runtime_entity_id: pak.runtime_entity_id,
     })
     this.emit("rak_ready")
+    this._berp.getPluginManager().registerPlugins(this)
     await this.sendPacket(Packets.TickSync, {
       request_time: BigInt(Date.now()),
       response_time: 0n,
