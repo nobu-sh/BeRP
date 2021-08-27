@@ -7,6 +7,7 @@ import {
   ClientBoundPackets,
   ServerBoundPackets,
 } from "./packets.i"
+import { Skin } from "./packetTypes.i"
 
 export interface PluginApi {
   new (berp: any, config: examplePluginConfig, path: string, connection: ConnectionHandler)
@@ -212,9 +213,10 @@ export interface Player {
   getNickname(): string
   getRealmID(): number
   getUUID(): string 
+  getXuid(): string
   getEntityID(): bigint 
-  getRuntimeID(): bigint
   getDevice(): number
+  getSkinData(): Skin
   getExecutionName(): string
   setNickname(nickname: string): void
   sendMessage(message: string): void

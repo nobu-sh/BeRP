@@ -1,6 +1,7 @@
 import {
   Method,
 } from 'axios'
+import { Skin } from './packetTypes.i'
 
 export type LoggerColors = (
   "black" |
@@ -161,9 +162,10 @@ export interface examplePluginConfig {
 export interface PlayerOptions {
   name: string
   uuid: string
+  xuid: string
   entityID: bigint
-  runtimeID: bigint
   device: number
+  skinData: Skin
 }
 
 export interface RawText {
@@ -181,14 +183,15 @@ export interface JsonData {
   data?: any
 }
 
-interface Player {
+export interface Player {
   getName(): string
   getNickname(): string
   getRealmID(): number
   getUUID(): string 
+  getXuid(): string
   getEntityID(): bigint 
-  getRuntimeID(): bigint
   getDevice(): number
+  getSkinData(): Skin
   getExecutionName(): string
   setNickname(nickname: string): void
   sendMessage(message: string): void

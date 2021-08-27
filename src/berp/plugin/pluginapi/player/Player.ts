@@ -2,15 +2,17 @@ import { ConnectionHandler } from 'src/berp/network'
 import { BeRP } from 'src/berp'
 import { PluginApi } from '../pluginApi'
 import { PlayerOptions } from 'src/types/berp'
+import { Skin } from 'src/types/packetTypes.i'
 
 export class Player {
   private _name: string
   private _nickname: string
   private _realmID: number
   private _uuid: string
+  private _xuid: string
   private _entityID: bigint
-  private _runtimeID: bigint
   private _device: number
+  private _skinData: Skin
   private _berp: BeRP
   private _connection: ConnectionHandler
   private _pluginApi: PluginApi
@@ -19,9 +21,10 @@ export class Player {
     this._nickname = options.name
     this._realmID = connection.realm.id
     this._uuid = options.uuid
+    this._xuid = options.xuid
     this._entityID = options.entityID
-    this._runtimeID = options.runtimeID
     this._device = options.device
+    this._skinData = options.skinData
     this._berp = berp
     this._connection = connection
     this._pluginApi = pluginApi
@@ -31,9 +34,10 @@ export class Player {
   public getNickname(): string { return this._nickname }
   public getRealmID(): number { return this._realmID }
   public getUUID(): string { return this._uuid }
+  public getXuid(): string { return this._xuid }
   public getEntityID(): bigint { return this._entityID }
-  public getRuntimeID(): bigint { return this._runtimeID }
   public getDevice(): number { return this._device }
+  public getSkinData(): Skin { return this._skinData }
   public getExecutionName(): string {
     if (this._name != this._nickname) return this._nickname
 

@@ -13,14 +13,15 @@ export class PlayerLeft {
     this._berp = berp
     this._connection = connection
     this._pluginApi = pluginApi
-    this._connection.on('text', (packet) => {
-      if (packet.message !== '§e%multiplayer.player.left.realms') return
-      const player = this._pluginApi.getPlayerManager()
-        .getPlayerByName(packet.paramaters[0])
-      this._pluginApi.getPlayerManager()
-        .removePlayer(player)
+    this._connection.on('player_list', (packet) => {
+      for (const record of packet.records.records) {
+        if (packet.records.type != 'remove') continue
+        const player = this._pluginApi.getPlayerManager().getPlayerByUUID(record.uuid)
+        this._pluginApi.getPlayerManager()
+          .removePlayer(player)
 
-      return this._events.emit('PlayerLeft', player)
+        return this._events.emit('PlayerLeft', player)
+      }
     })
   }
 }
