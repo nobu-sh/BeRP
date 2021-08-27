@@ -19,7 +19,7 @@ export class SocketManager extends EventEmitter {
     this._listener()
   }
   public onEnabled(): void {
-    return 
+    this._pluginApi.getCommandManager().executeCommand('tag @s add "berpUser"')
   }
   public onDisabled(): void {
     return
