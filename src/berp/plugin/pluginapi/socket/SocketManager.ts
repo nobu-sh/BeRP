@@ -18,6 +18,12 @@ export class SocketManager extends EventEmitter {
     this._pluginApi = pluginApi
     this._listener()
   }
+  public onEnabled(): void {
+    return 
+  }
+  public onDisabled(): void {
+    return
+  }
   private _listener(): void {
     this._connection.on('text', (packet) => {
       if (packet.type !== 'json_whisper') return

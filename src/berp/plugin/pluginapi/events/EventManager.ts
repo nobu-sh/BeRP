@@ -22,6 +22,12 @@ export class EventManager extends EventEmitter {
     this._pluginApi = pluginApi
     this._registerEvents()
   }
+  public onEnabled(): void {
+    return 
+  }
+  public onDisabled(): void {
+    return
+  }
   private _registerEvents(): void {
     const PlayerJoinEvent = new PlayerJoin(this, this._berp, this._connection, this._pluginApi)
     this._events.set('PlayerJoined', PlayerJoinEvent)

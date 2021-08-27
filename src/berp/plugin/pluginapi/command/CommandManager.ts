@@ -24,6 +24,8 @@ export class CommandManager {
     this._berp = berp
     this._connection = connection
     this._pluginApi = pluginApi
+  }
+  public onEnabled(): void {
     this._connection.on('command_output', (packet) => {
       if (!packet) return
       this._commandCache.set(packet.origin.uuid, packet)
@@ -47,6 +49,9 @@ export class CommandManager {
       this._berp.getCommandManager().executeCommand(data)
     })
     this._defaultCommands()
+  }
+  public onDisabled(): void {
+    clearInterval(this._inv)
   }
   private _defaultCommands(): void {
     this.registerCommand({
@@ -111,7 +116,4 @@ export class CommandManager {
   }
   public getPrefix(): string { return this._berp.getCommandManager().getPrefix() }
   public setPrefix(prefix: string): void { this._berp.getCommandManager().setPrefix(prefix) }
-  public kill(): void {
-    clearInterval(this._inv)
-  }
 }

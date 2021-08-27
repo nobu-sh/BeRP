@@ -35,9 +35,19 @@ export class PluginApi {
     this._worldManager = new WorldManager(this._berp, this._connection, this)
     this.path = path
   }
+  public onEnabled(): void {
+    this._commandManager.onEnabled()
+    this._playerManager.onEnabled()
+    this._worldManager.onEnabled()
+    this._socketManager.onEnabled()
+    this._eventManager.onEnabled()
+  }
   public onDisabled(): void {
-    this._commandManager.kill()
-    this._worldManager.kill()
+    this._commandManager.onDisabled()
+    this._playerManager.onDisabled()
+    this._worldManager.onDisabled()
+    this._socketManager.onDisabled()
+    this._eventManager.onDisabled()
   }
   public getLogger(): Logger { return this._logger }
   public getConnection(): ConnectionHandler { return this._connection }

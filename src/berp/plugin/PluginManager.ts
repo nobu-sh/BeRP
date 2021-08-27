@@ -220,6 +220,7 @@ export class PluginManager extends EventEmitter{
       const plugin: examplePlugin = require(entryPoint)
       const pluginAPI = new PluginApi(this._berp, config, plpath, connection, this._apiId)
       const newPlugin: examplePlugin = new plugin(pluginAPI)
+      pluginAPI.onEnabled()
       newPlugin.onEnabled()
       this._activePlugins.set(`${connection.id}_${this._apiId}`, {
         config: config,

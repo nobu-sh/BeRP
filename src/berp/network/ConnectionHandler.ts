@@ -1,7 +1,9 @@
 import {
   Packets,
   packet_disconnect,
+  packet_player_list,
   packet_start_game,
+  PlayerRecordsRecord,
 } from "../../types/packets.i"
 import { RakManager } from "../raknet"
 import { Logger } from '../../console'
@@ -16,6 +18,7 @@ export class ConnectionHandler extends RakManager {
   public readonly host: string
   public readonly port: number
   public readonly realm: RealmAPIWorld
+  public playerQue: PlayerRecordsRecord[] = []
   private _gameInfo: packet_start_game
   private _tickSync = 0n
   private _tickSyncKeepAlive: NodeJS.Timer
@@ -40,6 +43,7 @@ export class ConnectionHandler extends RakManager {
     })
     this.once(Packets.ResourcePacksStack, this._handleAcceptPacks.bind(this))
     this.once(Packets.StartGame, this._handleGameStart.bind(this))
+    this.on(Packets.PlayerList, this._playerQue.bind(this))
     this.once(Packets.Disconnect, this._handleDisconnect.bind(this))
     this.once('rak_closed', this._handleDisconnect.bind(this))
 
@@ -69,6 +73,13 @@ export class ConnectionHandler extends RakManager {
         type: 'player',
       },
     })
+  }
+
+  private _playerQue(pak?: packet_player_list) {
+    for (const record of pak.records.records) {
+      if (record.username == this.getXboxProfile().extraData.displayName) continue
+      this.playerQue.push(record)
+    }
   }
 
   private async _handleDisconnect(pak?: packet_disconnect): Promise<void> {
@@ -112,6 +123,7 @@ export class ConnectionHandler extends RakManager {
       runtime_entity_id: pak.runtime_entity_id,
     })
     this.emit("rak_ready")
+    this.removeListener('player_list', this._playerQue)
     this._berp.getPluginManager().registerPlugins(this)
     await this.sendPacket(Packets.TickSync, {
       request_time: BigInt(Date.now()),

@@ -18,6 +18,21 @@ export class PlayerManager {
     this._connection = connection
     this._pluginApi = pluginApi
   }
+  public onEnabled(): void {
+    for (const player of this._connection.playerQue) {
+      new Player({
+        name: player.username,
+        uuid: player.uuid,
+        xuid: player.xbox_user_id,
+        entityID: player.entity_unique_id,
+        device: player.build_platform,
+        skinData: player.skin_data,
+      }, this._berp, this._connection, this._pluginApi)
+    }
+  }
+  public onDisabled(): void {
+    return
+  }
   public addPlayer(player: Player): void {
     this._players.name.set(player.getName(), player)
     this._players.uuid.set(player.getUUID(), player)
