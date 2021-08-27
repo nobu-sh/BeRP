@@ -36,7 +36,20 @@ export class Player {
   public getUUID(): string { return this._uuid }
   public getXuid(): string { return this._xuid }
   public getEntityID(): bigint { return this._entityID }
-  public getDevice(): number { return this._device }
+  public getDevice(): string { 
+    switch(this._device) {
+    case 3:
+      return 'iOS'
+    case 7:
+      return 'Windows'
+    case 12:
+      return 'Switch'
+    case 13:
+      return 'Xbox'
+    default:
+      return `Unknown ID: ${this._device}`
+    }
+  }
   public getSkinData(): Skin { return this._skinData }
   public getExecutionName(): string {
     if (this._name != this._nickname) return this._nickname
