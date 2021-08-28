@@ -215,7 +215,7 @@ export interface Player {
   getUUID(): string 
   getXuid(): string
   getEntityID(): bigint 
-  getDevice(): number
+  getDevice(): string
   getSkinData(): Skin
   getExecutionName(): string
   setNickname(nickname: string): void
