@@ -260,8 +260,8 @@ export interface PlayerManager {
   removePlayer(player: Player): void
   getPlayerByName(name: string): Player
   getPlayerByUUID(uuid: string): Player
+  getPlayerByXuid(xuid: string): Player
   getPlayerByEntityID(entityID: bigint): Player
-  getPlayerByRuntimeID(runtimeID: bigint): Player
   getPlayerList(): Map<string, Player>
 }
 
