@@ -38,6 +38,8 @@ export class Player {
   public getEntityID(): bigint { return this._entityID }
   public getDevice(): string { 
     switch(this._device) {
+    case 1:
+      return 'Android'
     case 3:
       return 'iOS'
     case 7:
@@ -58,7 +60,13 @@ export class Player {
   }
   public setNickname(nickname: string): void {
     this._nickname = nickname
-    // TODO: Sends event to gametest
+    this._pluginApi.getSocketManager().sendMessage({
+      berp: {
+        event: 'UpdateNickName',
+        sender: this.getName(),
+        message: nickname,
+      },
+    })
   }
   public sendMessage(message: string): void {
     this._pluginApi.getCommandManager().executeCommand(`tellraw "${this.getExecutionName()}" {"rawtext":[{"text":"${message}"}]}`)
