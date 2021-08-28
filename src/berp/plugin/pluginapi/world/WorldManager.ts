@@ -18,6 +18,6 @@ export class WorldManager {
     return
   }
   public sendMessage(message: string): void {
-    this._pluginApi.getCommandManager().executeCommand(`tellraw @a {"rawtext":["text":"${message}"]}`)
+    this._pluginApi.getCommandManager().executeCommand(`tellraw @a {"rawtext":[{"text":"${message}"}]}`)
   }
 }
