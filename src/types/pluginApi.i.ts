@@ -203,7 +203,7 @@ export interface EventManager {
 interface EventValues {
   PlayerJoin: [Player]
   PlayerLeft: [Player]
-  PlayerInitialized: [string]
+  PlayerInitialized: [Player]
   PlayerMessage: [PlayerMessage] 
   PlayerDied: [PlayerDied]
   ChatCommand: [ChatCommand]
