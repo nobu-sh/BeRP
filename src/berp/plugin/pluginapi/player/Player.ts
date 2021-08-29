@@ -103,6 +103,9 @@ export class Player {
       })
     })
   }
+  public updateScore(operation: 'add' | 'remove' | 'set', objective: string, value: number): void {
+    this._pluginApi.getCommandManager().executeCommand(`scoreboard players ${operation} "${this.getExecutionName()}" ${objective} ${value}`)
+  }
   public kick(reason: string): void {
     this._pluginApi.getCommandManager().executeCommand(`kick "${this.getExecutionName()}" ${reason}`)
   }
