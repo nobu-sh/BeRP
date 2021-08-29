@@ -78,7 +78,7 @@ export class Player {
     return new Promise((r) => {
       this._pluginApi.getCommandManager().executeCommand(`tag "${this.getExecutionName()}" list`, (err, res) => {
         if (err) return console.log(err)
-        if (!res.output[0].paramaters[1]) return
+        if (!res.output[0].paramaters[1]) return r([])
         const filter = [res.output[0].paramaters[0], res.output[0].paramaters[1]]
         const tags = res.output[0].paramaters.filter(x => !filter.includes(x)).toString()
           .replace(/§\S/g, "")
