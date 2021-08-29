@@ -71,6 +71,9 @@ export class Player {
   public sendMessage(message: string): void {
     this._pluginApi.getCommandManager().executeCommand(`tellraw "${this.getExecutionName()}" {"rawtext":[{"text":"${message}"}]}`)
   }
+  public sendTitle(message: string, slot: 'actionbar' | 'title' | 'subtitle'): void {
+    this._pluginApi.getCommandManager().executeCommand(`titleraw "${this.getExecutionName()}" ${slot} {"rawtext":[{"text":"${message}"}]}`)
+  }
   public executeCommand(command: string): void {
     this._pluginApi.getCommandManager().executeCommand(`execute "${this.getExecutionName()}" ~ ~ ~ ${command}`)
   }

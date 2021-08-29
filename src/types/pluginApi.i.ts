@@ -221,10 +221,12 @@ export interface Player {
   getExecutionName(): string
   setNickname(nickname: string): void
   sendMessage(message: string): void
+  sendTitle(message: string, slot: 'actionbar' | 'title' | 'subtitle'): void
   executeCommand(command: string): void
   getTags(): Promise<string[]>
   hasTag(tag: string): Promise<boolean>
   getScore(objective: string): Promise<number>
+  updateScore(operation: 'add' | 'remove' | 'set', objective: string, value: number): void
   kick(reason: string): void
   getItemCount(item: string): Promise<number>
 }
