@@ -16,7 +16,7 @@ export class PlayerInitialized {
     this._connection.on('text', (packet) => {
       if (packet.message !== '§e%multiplayer.player.joined.realms') return
 
-      return this._events.emit('PlayerInitialized', packet.paramaters[0])
+      return this._events.emit('PlayerInitialized', this._pluginApi.getPlayerManager().getPlayerByName(packet.paramaters[0]))
     })
   }
 }
