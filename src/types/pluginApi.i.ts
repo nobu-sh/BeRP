@@ -225,6 +225,8 @@ export interface Player {
   executeCommand(command: string): void
   getTags(): Promise<string[]>
   hasTag(tag: string): Promise<boolean>
+  addTag(tag: string): void
+  removeTag(tag: string): void
   getScore(objective: string): Promise<number>
   updateScore(operation: 'add' | 'remove' | 'set', objective: string, value: number): void
   kick(reason: string): void

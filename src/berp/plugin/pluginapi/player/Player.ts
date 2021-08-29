@@ -96,6 +96,12 @@ export class Player {
 
     return true
   }
+  public addTag(tag: string): void {
+    this._pluginApi.getCommandManager().executeCommand(`tag "${this.getExecutionName()}" add "${tag}"`)
+  }
+  public removeTag(tag: string): void {
+    this._pluginApi.getCommandManager().executeCommand(`tag "${this.getExecutionName()}" remove "${tag}"`)
+  }
   public async getScore(objective: string): Promise<number> {
     return new Promise((r) => {
       this._pluginApi.getCommandManager().executeCommand(`scoreboard players test "${this.getExecutionName()}" ${objective} * *`, (err, res) => {
