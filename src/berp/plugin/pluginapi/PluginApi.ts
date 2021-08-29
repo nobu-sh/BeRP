@@ -16,18 +16,20 @@ export class PluginApi {
   private _config: examplePluginConfig
   private _connection: ConnectionHandler
   private _apiId: number
+  private _pluginId: number
   private _commandManager: CommandManager
   private _playerManager: PlayerManager
   private _worldManager: WorldManager
   private _socketManager: SocketManager
   private _eventManager: EventManager
   public path: string
-  constructor (berp: BeRP, config: examplePluginConfig, path: string, connection: ConnectionHandler, apiId: number) {
+  constructor (berp: BeRP, config: examplePluginConfig, path: string, connection: ConnectionHandler, apis: { apiId: number, pluginId: number }) {
     this._berp = berp
     this._logger = new Logger(`${config.displayName} ${connection.realm.id}`, config.color)
     this._config = config
     this._connection = connection
-    this._apiId = apiId
+    this._apiId = apis.apiId
+    this._pluginId = apis.pluginId
     this._playerManager = new PlayerManager(this._berp, this._connection, this)
     this._socketManager = new SocketManager(this._berp, this._connection, this)
     this._eventManager = new EventManager(this._berp, this._connection, this)
@@ -53,6 +55,7 @@ export class PluginApi {
   public getConnection(): ConnectionHandler { return this._connection }
   public getConfig(): examplePluginConfig { return this._config }
   public getApiId(): number { return this._apiId }
+  public getPluginId(): number { return this._pluginId }
   public getCommandManager(): CommandManager { return this._commandManager }
   public getPlayerManager(): PlayerManager { return this._playerManager }
   public getWorldManager(): WorldManager { return this._worldManager }

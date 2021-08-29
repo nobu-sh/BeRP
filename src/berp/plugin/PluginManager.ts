@@ -15,7 +15,7 @@ import axios from 'axios'
 
 export class PluginManager extends EventEmitter{
   private _berp: BeRP
-  private _knownPlugins = new Map<string, examplePluginConfig>()
+  private _knownPlugins = new Map<string, {config: examplePluginConfig, pluginId: number}>()
   private _activePlugins = new Map<string, {config: examplePluginConfig, plugin: examplePlugin, api: PluginApi, connection: ConnectionHandler}>()
   private _pluginsPath = path.resolve(process.cwd(), './plugins')
   private _logger: Logger
@@ -25,6 +25,7 @@ export class PluginManager extends EventEmitter{
     packetTypes: 'https://raw.githubusercontent.com/NobUwU/BeRP/main/src/types/packetTypes.i.ts',
   }
   private _apiId = 0
+  private _pluginId = 0
   constructor(berp: BeRP) {
     super()
     this._berp = berp
@@ -104,7 +105,11 @@ export class PluginManager extends EventEmitter{
         }
         try {
           this._logger.info(`Successfully loaded plugin "${config.displayName || pluginPath}"`)
-          this._knownPlugins.set(pluginPath, config)
+          this._pluginId++ 
+          this._knownPlugins.set(pluginPath, {
+            config: config,
+            pluginId: this._pluginId,
+          })
 
           try {
           } catch (error) {
@@ -214,16 +219,19 @@ export class PluginManager extends EventEmitter{
     return true
   }
   public registerPlugins(connection: ConnectionHandler): void {
-    for (const [plpath, config] of this._knownPlugins) {
+    for (const [plpath, options] of this._knownPlugins) {
       this._apiId++
-      const entryPoint = path.resolve(plpath, config.main)
+      const entryPoint = path.resolve(plpath, options.config.main)
       const plugin: examplePlugin = require(entryPoint)
-      const pluginAPI = new PluginApi(this._berp, config, plpath, connection, this._apiId)
+      const pluginAPI = new PluginApi(this._berp, options.config, plpath, connection, {
+        apiId: this._apiId,
+        pluginId: options.pluginId,
+      })
       const newPlugin: examplePlugin = new plugin(pluginAPI)
       pluginAPI.onEnabled()
       newPlugin.onEnabled()
       this._activePlugins.set(`${connection.id}_${this._apiId}`, {
-        config: config,
+        config: options.config,
         plugin: newPlugin, 
         api: pluginAPI,
         connection: connection,
@@ -237,6 +245,6 @@ export class PluginManager extends EventEmitter{
       pluginOptions.plugin.onDisabled()
     }
   }
-  public getPlugins(): Map<string, examplePluginConfig> { return this._knownPlugins }
+  public getPlugins(): Map<string, {config: examplePluginConfig, pluginId: number}> { return this._knownPlugins }
   public getActivePlugins(): Map<string, {config: examplePluginConfig, plugin: examplePlugin, api: PluginApi, connection: ConnectionHandler}> { return this._activePlugins }
 }

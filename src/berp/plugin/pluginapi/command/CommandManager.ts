@@ -45,7 +45,7 @@ export class CommandManager {
       }
     })
     this._pluginApi.getEventManager().on('ChatCommand', async (data) => {
-      if (this._pluginApi.getApiId() != 1) return
+      if (this._pluginApi.getPluginId() != 1) return
       this._berp.getCommandManager().executeCommand(data)
     })
     this._defaultCommands()
