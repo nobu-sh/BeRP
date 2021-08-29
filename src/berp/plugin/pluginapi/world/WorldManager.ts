@@ -20,4 +20,9 @@ export class WorldManager {
   public sendMessage(message: string): void {
     this._pluginApi.getCommandManager().executeCommand(`tellraw @a {"rawtext":[{"text":"${message}"}]}`)
   }
+  public kickAll(reason: string): void {
+    for (const [, player] of this._pluginApi.getPlayerManager().getPlayerList()) {
+      player.kick(reason)
+    }
+  }
 }
