@@ -219,8 +219,8 @@ export class PluginManager extends EventEmitter{
     return true
   }
   public registerPlugins(connection: ConnectionHandler): void {
+    this._apiId++
     for (const [plpath, options] of this._knownPlugins) {
-      this._apiId++
       const entryPoint = path.resolve(plpath, options.config.main)
       const plugin: examplePlugin = require(entryPoint)
       const pluginAPI = new PluginApi(this._berp, options.config, plpath, connection, {
