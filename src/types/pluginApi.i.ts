@@ -22,6 +22,13 @@ export interface PluginApi {
   getPlayerManager(): PlayerManager
   getWorldManager(): WorldManager
   getSocketManager(): SocketManager
+  getPlugins(): Map<string, {config: examplePluginConfig, plugin: examplePlugin, api: PluginApi, connection: ConnectionHandler}>
+}
+
+interface examplePlugin {
+  new (pluginApi: any)
+  onEnabled(): Promise<void>
+  onDisabled(): Promise<void>
 }
 
 interface examplePluginConfig {
