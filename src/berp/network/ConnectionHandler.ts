@@ -35,6 +35,8 @@ export class ConnectionHandler extends RakManager {
 
     this._log = new Logger(`Connection Handler (${cm.getAccount().username}:${realm.id})`, 'cyanBright')
 
+    this.setMaxListeners(Infinity)
+
     this.once('rak_connected', this._handleLogin.bind(this))
     this.once(Packets.ServerToClientHandshake, this._handleHandshake.bind(this))
     this.once(Packets.ResourcePacksInfo, async () => {
