@@ -74,8 +74,10 @@ export class PluginApi {
     return plugins
   }
   public createInterface(options: {name: string, interface: string}): void {
-    for (const [, entry] of this._berp.getPluginManager().getActivePlugins()) {
-      console.log(path.resolve(entry.path + '/@interface/'))
-    }
+    setTimeout(() => {
+      for (const [, entry] of this.getPlugins()) {
+        fs.writeFileSync(path.resolve(entry.path, 'src', '@interface', `${options.name}.i.ts`), options.interface)
+      }
+    }, 1000)
   }
 }
