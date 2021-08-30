@@ -1,5 +1,6 @@
 import { Logger } from '../../../console'
 import {
+  examplePlugin,
   examplePluginConfig,
 } from 'src/types/berp'
 import { BeRP } from '../../'
@@ -61,4 +62,13 @@ export class PluginApi {
   public getWorldManager(): WorldManager { return this._worldManager }
   public getSocketManager(): SocketManager { return this._socketManager }
   public getEventManager(): EventManager { return this._eventManager }
+  public getPlugins(): Map<string, {config: examplePluginConfig, plugin: examplePlugin, api: PluginApi, connection: ConnectionHandler}> {
+    const plugins = new Map<string, {config: examplePluginConfig, plugin: examplePlugin, api: PluginApi, connection: ConnectionHandler}>()
+    for (const [, entry] of this._berp.getPluginManager().getActivePlugins()) {
+      if (this._connection !== entry.connection) continue
+      plugins.set(entry.config.name, entry)
+    }
+
+    return plugins
+  }
 }
