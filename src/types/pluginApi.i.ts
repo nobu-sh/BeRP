@@ -23,9 +23,10 @@ export interface PluginApi {
   getWorldManager(): WorldManager
   getSocketManager(): SocketManager
   getPlugins(): Map<string, {config: examplePluginConfig, plugin: examplePlugin, api: PluginApi, connection: ConnectionHandler}>
+  createInterface(options: {name: string, interface: string}): void
 }
 
-interface examplePlugin {
+export interface examplePlugin {
   new (pluginApi: any)
   onEnabled(): Promise<void>
   onDisabled(): Promise<void>

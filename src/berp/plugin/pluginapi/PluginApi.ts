@@ -10,6 +10,8 @@ import { PlayerManager } from './player/PlayerManager'
 import { WorldManager } from './world/WorldManager'
 import { SocketManager } from './socket/SocketManager'
 import { EventManager } from './events/EventManager'
+import fs from 'fs'
+import path from 'path'
 
 export class PluginApi {
   private _berp: BeRP
@@ -62,13 +64,18 @@ export class PluginApi {
   public getWorldManager(): WorldManager { return this._worldManager }
   public getSocketManager(): SocketManager { return this._socketManager }
   public getEventManager(): EventManager { return this._eventManager }
-  public getPlugins(): Map<string, {config: examplePluginConfig, plugin: examplePlugin, api: PluginApi, connection: ConnectionHandler}> {
-    const plugins = new Map<string, {config: examplePluginConfig, plugin: examplePlugin, api: PluginApi, connection: ConnectionHandler}>()
+  public getPlugins(): Map<string, {config: examplePluginConfig, plugin: examplePlugin, api: PluginApi, connection: ConnectionHandler, path: string}> {
+    const plugins = new Map<string, {config: examplePluginConfig, plugin: examplePlugin, api: PluginApi, connection: ConnectionHandler, path: string}>()
     for (const [, entry] of this._berp.getPluginManager().getActivePlugins()) {
       if (this._connection !== entry.connection) continue
       plugins.set(entry.config.name, entry)
     }
 
     return plugins
+  }
+  public createInterface(options: {name: string, interface: string}): void {
+    for (const [, entry] of this._berp.getPluginManager().getActivePlugins()) {
+      console.log(path.resolve(entry.path + '/@interface/'))
+    }
   }
 }

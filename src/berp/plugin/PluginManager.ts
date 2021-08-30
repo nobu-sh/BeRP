@@ -16,7 +16,7 @@ import axios from 'axios'
 export class PluginManager extends EventEmitter{
   private _berp: BeRP
   private _knownPlugins = new Map<string, {config: examplePluginConfig, pluginId: number}>()
-  private _activePlugins = new Map<string, {config: examplePluginConfig, plugin: examplePlugin, api: PluginApi, connection: ConnectionHandler}>()
+  private _activePlugins = new Map<string, {config: examplePluginConfig, plugin: examplePlugin, api: PluginApi, connection: ConnectionHandler, path: string}>()
   private _pluginsPath = path.resolve(process.cwd(), './plugins')
   private _logger: Logger
   private _latestInterfaces = {
@@ -230,11 +230,12 @@ export class PluginManager extends EventEmitter{
       const newPlugin: examplePlugin = new plugin(pluginAPI)
       pluginAPI.onEnabled()
       newPlugin.onEnabled()
-      this._activePlugins.set(`${connection.id}_${this._apiId}`, {
+      this._activePlugins.set(`${connection.id}:${this._apiId}:${options.config.name}:${options.pluginId}`, {
         config: options.config,
         plugin: newPlugin, 
         api: pluginAPI,
         connection: connection,
+        path: plpath,
       })
     }
   }
@@ -246,5 +247,5 @@ export class PluginManager extends EventEmitter{
     }
   }
   public getPlugins(): Map<string, {config: examplePluginConfig, pluginId: number}> { return this._knownPlugins }
-  public getActivePlugins(): Map<string, {config: examplePluginConfig, plugin: examplePlugin, api: PluginApi, connection: ConnectionHandler}> { return this._activePlugins }
+  public getActivePlugins(): Map<string, {config: examplePluginConfig, plugin: examplePlugin, api: PluginApi, connection: ConnectionHandler, path: string}> { return this._activePlugins }
 }
