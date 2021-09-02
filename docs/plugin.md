@@ -10,7 +10,7 @@
 ## Package.json
 - The package.json for the plugin is the same as any node package, but with a few extra entries: displayName, color, and devMode.
 - DisplayName is what will be displayed in BeRP for the logger.
-- Color is what color the displayName will be in the logger.
+- Color is what color the displayName will be in the logger. Color can take a string for the color, or a hex value.
 - DevMode is a boolean option that allows for the plugin to be recompiled each time it is loaded.
 ```json
 {
@@ -29,6 +29,7 @@
   "author": "You!",
   "license": "ISC",
   "dependencies": {
+    "@azure/msal-node": "^1.2.0",
     "ts-node": "^10.0.0",
     "typescript": "^4.3.2"
   },

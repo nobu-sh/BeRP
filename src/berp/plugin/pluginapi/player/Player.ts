@@ -60,6 +60,7 @@ export class Player {
 
     return this._name
   }
+  public getConnection(): ConnectionHandler { return this._connection }
   public setNickname(nickname: string): void {
     this._nickname = nickname
     this._pluginApi.getSocketManager().sendMessage({
