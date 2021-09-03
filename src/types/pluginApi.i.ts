@@ -264,9 +264,12 @@ interface JsonRequest {
 
 interface JsonData {
   event?: string
-  sender?: string
+  sender?: any
+  player?: any
+  entities?: any
   message?: string
   data?: any
+  requestId: string
 }
 
 export interface PlayerManager {

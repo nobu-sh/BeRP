@@ -65,7 +65,7 @@ export class Player {
     this._nickname = nickname
     this._pluginApi.getSocketManager().sendMessage({
       berp: {
-        event: 'UpdateNickName',
+        event: 'UpdateNameTag',
         sender: this.getName(),
         message: nickname,
       },
