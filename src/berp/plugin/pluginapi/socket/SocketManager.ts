@@ -41,7 +41,7 @@ export class SocketManager extends EventEmitter {
       platform_chat_id: '',
       source_name: this._connection.getXboxProfile().extraData.displayName,
       type: 'chat',
-      xuid: this._connection.getXboxProfile().extraData.displayName,
+      xuid: this._connection.getXboxProfile().extraData.XUID,
     })
   }
 }
