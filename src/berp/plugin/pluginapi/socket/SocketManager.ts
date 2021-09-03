@@ -31,7 +31,10 @@ export class SocketManager extends EventEmitter {
       const parsedMessage: RawText = JSON.parse(packet.message)
       if (!parsedMessage.rawtext[0].text.startsWith('{"berp":')) return
       const data = JSON.parse(parsedMessage.rawtext[0].text)
-      if (this._requests.has(`${data.berp.requestId}:${data.berp.event}`)) this._requests.get(`${data.berp.requestId}:${data.berp.event}`).execute(data.berp)
+      if (this._requests.has(`${data.berp.requestId}:${data.berp.event}`)) {
+        this._requests.get(`${data.berp.requestId}:${data.berp.event}`).execute(data.berp)
+        this._requests.delete(`${data.berp.requestId}:${data.berp.event}`)
+      }
 
       return this.emit('Message', data.berp)
     })
