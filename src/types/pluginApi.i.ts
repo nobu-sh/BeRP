@@ -302,7 +302,7 @@ export interface SocketManager {
     event: Exclude<S, keyof SocketValues>,
     ...args: unknown[]
   ): boolean
-  sendMessage(options: JsonRequest): void
+  sendMessage(options: JsonRequest, callback: (data: JsonRequest) => void): void
 }
 
 interface SocketValues {

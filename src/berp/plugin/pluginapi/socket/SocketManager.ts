@@ -11,6 +11,7 @@ export class SocketManager extends EventEmitter {
   private _berp: BeRP
   private _connection: ConnectionHandler
   private _pluginApi: PluginApi
+  private _requests = new Map<string, {execute: any}>()
   constructor(berp: BeRP, connection: ConnectionHandler, pluginApi: PluginApi) {
     super()
     this._berp = berp
@@ -30,11 +31,13 @@ export class SocketManager extends EventEmitter {
       const parsedMessage: RawText = JSON.parse(packet.message)
       if (!parsedMessage.rawtext[0].text.startsWith('{"berp":')) return
       const data = JSON.parse(parsedMessage.rawtext[0].text)
+      if (this._requests.has(`${data.berp.requestId}:${data.berp.event}`)) this._requests.get(`${data.berp.requestId}:${data.berp.event}`).execute(data.berp)
 
       return this.emit('Message', data.berp)
     })
   }
-  public sendMessage(options: JsonRequest): void {
+  public sendMessage(options: JsonRequest, callback: (data: JsonRequest) => void): void {
+    this._requests.set(`${options.berp.requestId}:${options.berp.event}`, { execute: callback })
     this._connection.sendPacket('text', {
       message: JSON.stringify(options),
       needs_translation: false,

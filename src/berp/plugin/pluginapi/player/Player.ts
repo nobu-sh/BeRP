@@ -68,7 +68,10 @@ export class Player {
         event: 'UpdateNameTag',
         sender: this.getName(),
         message: nickname,
+        requestId: "1",
       },
+    }, () => {
+      return
     })
   }
   public sendMessage(message: string): void {
