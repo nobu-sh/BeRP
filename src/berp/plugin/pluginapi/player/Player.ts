@@ -61,17 +61,15 @@ export class Player {
     return this._name
   }
   public getConnection(): ConnectionHandler { return this._connection }
-  public setNickname(nickname: string): void {
-    this._nameTag = nickname
+  public setNameTag(nameTag: string): void {
+    this._nameTag = nameTag
     this._pluginApi.getSocketManager().sendMessage({
       berp: {
         event: 'UpdateNameTag',
-        sender: this.getName(),
-        message: nickname,
+        player: this.getName(),
+        message: nameTag,
         requestId: "1",
       },
-    }, () => {
-      return
     })
   }
   public sendMessage(message: string): void {

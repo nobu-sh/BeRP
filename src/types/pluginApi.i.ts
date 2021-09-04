@@ -228,7 +228,7 @@ export interface Player {
   getSkinData(): Skin
   getExecutionName(): string
   getConnection(): ConnectionHandler
-  setNickname(nickname: string): void
+  setNameTag(nameTag: string): void
   sendMessage(message: string): void
   sendTitle(message: string, slot: 'actionbar' | 'title' | 'subtitle'): void
   executeCommand(command: string): void
