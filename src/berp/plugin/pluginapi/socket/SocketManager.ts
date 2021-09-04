@@ -6,24 +6,33 @@ import {
   JsonRequest,
   RawText,
 } from 'src/types/berp'
+import {
+  EnableRequest,
+} from './requests/index'
 
 export class SocketManager extends EventEmitter {
   private _berp: BeRP
   private _connection: ConnectionHandler
   private _pluginApi: PluginApi
   private _requests = new Map<string, {execute: any}>()
+  private _defaultRequests = new Map<string, any>()
+  public enabled: boolean
   constructor(berp: BeRP, connection: ConnectionHandler, pluginApi: PluginApi) {
     super()
     this._berp = berp
     this._connection = connection
     this._pluginApi = pluginApi
-    this._listener()
+    this.enabled = false
   }
   public onEnabled(): void {
+    this._listener()
+    this._loadRequests() 
     this._pluginApi.getCommandManager().executeCommand('tag @s add "berpUser"')
   }
   public onDisabled(): void {
-    return
+    for (const [, request] of this._defaultRequests) {
+      request.onDisabled()
+    }
   }
   private _listener(): void {
     this._connection.on('text', (packet) => {
@@ -43,8 +52,16 @@ export class SocketManager extends EventEmitter {
       return this.emit('Message', data.berp)
     })
   }
-  public sendMessage(options: JsonRequest, callback: (data: JsonRequest) => void): void {
-    this._requests.set(`${options.berp.requestId}:${options.berp.event}`, { execute: callback })
+  private async _loadRequests(): Promise<void> {
+    return new Promise(async (res) => {
+      const Enable = new EnableRequest(this)
+      this._defaultRequests.set('EnableRequest', Enable)
+      await Enable.onEnabled()
+      res()
+    })
+  }
+  public sendMessage(options: JsonRequest, callback?: (data: JsonRequest) => void): void {
+    if (callback) this._requests.set(`${options.berp.requestId}:${options.berp.event}`, { execute: callback })
     this._connection.sendPacket('text', {
       message: JSON.stringify(options),
       needs_translation: false,
