@@ -40,6 +40,8 @@ export class Player {
     switch(this._device) {
     case 1:
       return 'Android'
+    case 2:
+      return 'iOS'
     case 3:
       return 'iOS'
     case 7:
@@ -62,15 +64,8 @@ export class Player {
   }
   public getConnection(): ConnectionHandler { return this._connection }
   public setNameTag(nameTag: string): void {
+    this._pluginApi.getPlayerManager().updatePlayerNameTag(this, nameTag)
     this._nameTag = nameTag
-    this._pluginApi.getSocketManager().sendMessage({
-      berp: {
-        event: 'UpdateNameTag',
-        player: this.getName(),
-        message: nameTag,
-        requestId: "1",
-      },
-    })
   }
   public sendMessage(message: string): void {
     this._pluginApi.getCommandManager().executeCommand(`tellraw "${this.getExecutionName()}" {"rawtext":[{"text":"${message}"}]}`)

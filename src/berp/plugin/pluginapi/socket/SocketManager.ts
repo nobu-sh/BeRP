@@ -36,20 +36,25 @@ export class SocketManager extends EventEmitter {
   }
   private _listener(): void {
     this._connection.on('text', (packet) => {
-      if (packet.type !== 'json_whisper') return
-      const parsedMessage: RawText = JSON.parse(packet.message)
-      if (!parsedMessage.rawtext[0].text.startsWith('{"berp":')) return
-      const message = []
-      for (const raw of parsedMessage.rawtext) {
-        message.push(raw.text)
+      try {
+        if (packet.type !== 'json_whisper') return
+        const parsedMessage: RawText = JSON.parse(packet.message)
+        if (!parsedMessage.rawtext[0].text.startsWith('{"berp":')) return
+        const message = []
+        for (const raw of parsedMessage.rawtext) {
+          message.push(raw.text)
+        }
+        const data = JSON.parse(message.join(''))
+        if (this._requests.has(`${data.berp.requestId}:${data.berp.event}`)) {
+          this._requests.get(`${data.berp.requestId}:${data.berp.event}`).execute(data.berp)
+          this._requests.delete(`${data.berp.requestId}:${data.berp.event}`)
+        }
+        
+        return this.emit('Message', data.berp)
+      } catch (err) {
+        console.log(packet.message)
+        console.log(`caught: ${err}`)
       }
-      const data = JSON.parse(message.join(''))
-      if (this._requests.has(`${data.berp.requestId}:${data.berp.event}`)) {
-        this._requests.get(`${data.berp.requestId}:${data.berp.event}`).execute(data.berp)
-        this._requests.delete(`${data.berp.requestId}:${data.berp.event}`)
-      }
-      
-      return this.emit('Message', data.berp)
     })
   }
   private async _loadRequests(): Promise<void> {
