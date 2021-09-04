@@ -8,6 +8,7 @@ import {
 } from 'src/types/berp'
 import {
   EnableRequest,
+  Heartbeat,
 } from './requests/index'
 
 export class SocketManager extends EventEmitter {
@@ -27,7 +28,7 @@ export class SocketManager extends EventEmitter {
   public onEnabled(): void {
     this._listener()
     this._loadRequests() 
-    this._pluginApi.getCommandManager().executeCommand('tag @s add "berpUser"')
+    setTimeout(() => this._pluginApi.getCommandManager().executeCommand('tag @s add "berpUser"'), 3500)
   }
   public onDisabled(): void {
     for (const [, request] of this._defaultRequests) {
@@ -62,6 +63,9 @@ export class SocketManager extends EventEmitter {
       const Enable = new EnableRequest(this)
       this._defaultRequests.set('EnableRequest', Enable)
       await Enable.onEnabled()
+      const Heart = new Heartbeat(this)
+      this._defaultRequests.set('Heartbeat', Heart)
+      await Heart.onEnabled()
       res()
     })
   }
@@ -76,4 +80,5 @@ export class SocketManager extends EventEmitter {
       xuid: this._connection.getXboxProfile().extraData.XUID,
     })
   }
+  public getHeartbeats(): number { return this._defaultRequests.get('Heartbeat').getTotalBeats() }
 }

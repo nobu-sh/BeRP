@@ -10,7 +10,8 @@ export class EnableRequest {
     this._socket.on('Message', (packet) => {
       if (packet.event != "EnableRequest" || this._socket.enabled == true) return
       this._socket.enabled = true
-      this._socket.sendMessage({
+
+      return this._socket.sendMessage({
         berp: {
           event: "EnableRequest",
           requestId: packet.requestId,

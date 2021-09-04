@@ -266,6 +266,8 @@ interface JsonData {
   event?: string
   sender?: any
   player?: any
+  command?: string
+  entityId?: string
   entities?: any
   message?: string
   data?: any
@@ -304,6 +306,7 @@ export interface SocketManager {
     ...args: unknown[]
   ): boolean
   sendMessage(options: JsonRequest, callback?: (data: JsonRequest) => void): void
+  getHeartbeats(): number
 }
 
 interface SocketValues {
