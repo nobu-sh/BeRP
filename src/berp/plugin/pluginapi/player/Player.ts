@@ -6,7 +6,7 @@ import { Skin } from 'src/types/packetTypes.i'
 
 export class Player {
   private _name: string
-  private _nickname: string
+  private _nameTag: string
   private _realmID: number
   private _uuid: string
   private _xuid: string
@@ -18,7 +18,7 @@ export class Player {
   private _pluginApi: PluginApi
   constructor(options: PlayerOptions, berp: BeRP, connection: ConnectionHandler, pluginApi: PluginApi) {
     this._name = options.name
-    this._nickname = options.name
+    this._nameTag = options.name
     this._realmID = connection.realm.id
     this._uuid = options.uuid
     this._xuid = options.xuid
@@ -31,7 +31,7 @@ export class Player {
     this._pluginApi.getPlayerManager().addPlayer(this)
   }
   public getName(): string { return this._name }
-  public getNickname(): string { return this._nickname }
+  public getNameTag(): string { return this._nameTag }
   public getRealmID(): number { return this._realmID }
   public getUUID(): string { return this._uuid }
   public getXuid(): string { return this._xuid }
@@ -56,13 +56,13 @@ export class Player {
   }
   public getSkinData(): Skin { return this._skinData }
   public getExecutionName(): string {
-    if (this._name != this._nickname) return this._nickname
+    if (this._name != this._nameTag) return this._nameTag
 
     return this._name
   }
   public getConnection(): ConnectionHandler { return this._connection }
   public setNickname(nickname: string): void {
-    this._nickname = nickname
+    this._nameTag = nickname
     this._pluginApi.getSocketManager().sendMessage({
       berp: {
         event: 'UpdateNameTag',

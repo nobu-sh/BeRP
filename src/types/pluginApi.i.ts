@@ -219,7 +219,7 @@ interface EventValues {
 
 export interface Player {
   getName(): string
-  getNickname(): string
+  getNameTag(): string
   getRealmID(): number
   getUUID(): string 
   getXuid(): string
