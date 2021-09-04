@@ -280,6 +280,7 @@ export interface PlayerManager {
   getPlayerByXuid(xuid: string): Player
   getPlayerByEntityID(entityID: bigint): Player
   getPlayerList(): Map<string, Player>
+  updatePlayerNameTag(player: Player, nameTag: string): void
 }
 
 export interface WorldManager {
