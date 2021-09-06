@@ -232,7 +232,7 @@ export interface Player {
   setNameTag(nameTag: string): void
   sendMessage(message: string): void
   sendTitle(message: string, slot: 'actionbar' | 'title' | 'subtitle'): void
-  executeCommand(command: string): void
+  executeCommand(command: string, callback?: (err: any, data: packet_command_output) => void): void
   getTags(): Promise<string[]>
   hasTag(tag: string): Promise<boolean>
   addTag(tag: string): void
