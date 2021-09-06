@@ -6,12 +6,14 @@ import { packet_command_output } from 'src/types/packets.i'
 import {
   CommandOptions,
   CommandResponse,
+  ConsoleCommandOptions,
 } from 'src/types/berp'
 import {
   CUR_VERSION_PROTOCOL,
   CUR_VERSION,
   BeRP_VERSION,
 } from '../../../../Constants'
+import { ConsoleCommand } from './ConsoleCommand'
 
 export class CommandManager {
   private _berp: BeRP
@@ -113,6 +115,10 @@ export class CommandManager {
     this._berp.getCommandManager().registerCommand(options, (data) => {
       callback(data)
     }) 
+  }
+  public registerConsoleCommand(options: ConsoleCommandOptions, callback: (args: string[]) => void): void {
+    const command = new ConsoleCommand(options, callback)
+    this._berp.getCommandHandler().registerCommand(command)
   }
   public getPrefix(): string { return this._berp.getCommandManager().getPrefix() }
   public setPrefix(prefix: string): void { this._berp.getCommandManager().setPrefix(prefix) }

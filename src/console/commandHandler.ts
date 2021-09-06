@@ -38,6 +38,10 @@ class CommandHandler {
     }
   }
 
+  public registerCommand(command: BaseCommand): void {
+    this._commands.push(command)
+  }
+
   public getCommands(): Map<string, BaseCommand> {
     const map = new Map<string, BaseCommand>()
     for (const command of this._commands) {

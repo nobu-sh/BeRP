@@ -213,6 +213,13 @@ export interface CommandOptions {
   permissionTags?: string[]
 }
 
+export interface ConsoleCommandOptions {
+  command: string
+  aliases: string[]
+  description: string
+  usage: string
+}
+
 export interface CommandMapOptions {
   options: CommandOptions
   showInList: boolean

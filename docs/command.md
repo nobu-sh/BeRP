@@ -28,15 +28,14 @@ this.api.getCommandManager().registerCommand({
 })
 ```
 Properties:
+```
+ags: string[]
+```
 
 ```
 sender: Player
 ```
 Type: *[Player](https://github.com/NobUwU/BeRP/blob/main/docs/player.md)*
-
-```
-ags: string[]
-```
 
 ## setPrefix
 ```ts

@@ -185,6 +185,7 @@ type LoggerColors = (
 
 export interface CommandManager {
   executeCommand(command: string, callback?: (err: any, res: packet_command_output) => void): Promise<void>
+  registerConsoleCommand(options: ConsoleCommandOptions, callback: (args: string[]) => void): void
   registerCommand(options: CommandOptions, callback: (data: CommandResponse) => void): void
   getPrefix(): string
   setPrefix(prefix: string): void
@@ -318,6 +319,13 @@ interface CommandOptions {
   aliases?: string[]
   description: string
   permissionTags?: string[]
+}
+
+export interface ConsoleCommandOptions {
+  command: string
+  aliases: string[]
+  description: string
+  usage: string
 }
 
 interface CommandResponse {
