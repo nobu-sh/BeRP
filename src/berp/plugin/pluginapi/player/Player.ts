@@ -3,6 +3,7 @@ import { BeRP } from 'src/berp'
 import { PluginApi } from '../pluginApi'
 import { PlayerOptions } from 'src/types/berp'
 import { Skin } from 'src/types/packetTypes.i'
+import { packet_command_output } from 'src/types/packets.i'
 
 export class Player {
   private _name: string
@@ -73,8 +74,14 @@ export class Player {
   public sendTitle(message: string, slot: 'actionbar' | 'title' | 'subtitle'): void {
     this._pluginApi.getCommandManager().executeCommand(`titleraw "${this.getExecutionName()}" ${slot} {"rawtext":[{"text":"${message}"}]}`)
   }
-  public executeCommand(command: string): void {
-    this._pluginApi.getCommandManager().executeCommand(`execute "${this.getExecutionName()}" ~ ~ ~ ${command}`)
+  public executeCommand(command: string, callback?: (err: any, data: packet_command_output) => void): void {
+    if (callback) {
+      this._pluginApi.getCommandManager().executeCommand(`execute "${this.getExecutionName()}" ~ ~ ~ ${command}`, (err, data) => {
+        callback(err, data)
+      })
+    } else {
+      this._pluginApi.getCommandManager().executeCommand(`execute "${this.getExecutionName()}" ~ ~ ~ ${command}`)
+    }
   }
   public async getTags(): Promise<string[]> {
     return new Promise((r) => {
