@@ -69,3 +69,4 @@ export = examplePlugin
 ```
 
 # Method Guids
+- [Logger](https://github.com/NobUwU/BeRP/blob/main/docs/logger.md)

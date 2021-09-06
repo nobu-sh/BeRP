@@ -15,7 +15,12 @@ export class PlayerMessage {
     this._pluginApi = pluginApi
     this._pluginApi.getSocketManager().on('Message', (packet) => {
       if (packet.event !== 'PlayerMessage' || packet.sender == this._connection.getXboxProfile().extraData.displayName) return
-      const sender = this._pluginApi.getPlayerManager().getPlayerByName(packet.sender)
+      let sender
+      if (packet.sender != undefined) {
+        sender = this._pluginApi.getPlayerManager().getPlayerByName(packet.sender)
+      } else {
+        sender = this._pluginApi.getPlayerManager().getPlayerByNameTag(packet.player.nameTag)
+      }
 
       if (!packet.message.startsWith(this._pluginApi.getCommandManager().getPrefix())) return this._events.emit('PlayerMessage', {
         sender: sender,
