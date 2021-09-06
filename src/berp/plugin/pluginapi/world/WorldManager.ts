@@ -11,10 +11,10 @@ export class WorldManager {
     this._connection = connection
     this._pluginApi = pluginApi
   }
-  public onEnabled(): void {
+  public async onEnabled(): Promise<void> {
     return 
   }
-  public onDisabled(): void {
+  public async onDisabled(): Promise<void> {
     return
   }
   public sendMessage(message: string): void {

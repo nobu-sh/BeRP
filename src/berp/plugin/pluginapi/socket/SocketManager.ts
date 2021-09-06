@@ -25,12 +25,12 @@ export class SocketManager extends EventEmitter {
     this._pluginApi = pluginApi
     this.enabled = false
   }
-  public onEnabled(): void {
+  public async onEnabled(): Promise<void> {
     this._listener()
     this._loadRequests() 
     setTimeout(() => this._pluginApi.getCommandManager().executeCommand('tag @s add "berpUser"'), 3500)
   }
-  public onDisabled(): void {
+  public async onDisabled(): Promise<void> {
     for (const [, request] of this._defaultRequests) {
       request.onDisabled()
     }

@@ -239,11 +239,11 @@ export class PluginManager extends EventEmitter{
       })
     }
   }
-  public killPlugins(connection: ConnectionHandler): void {
+  public async killPlugins(connection: ConnectionHandler): Promise<void> {
     for (const [, pluginOptions] of this._activePlugins) {
       if (pluginOptions.connection !== connection) continue
-      pluginOptions.api.onDisabled()
-      pluginOptions.plugin.onDisabled()
+      await pluginOptions.plugin.onDisabled()
+      await pluginOptions.api.onDisabled()
     }
   }
   public getPlugins(): Map<string, {config: examplePluginConfig, pluginId: number}> { return this._knownPlugins }

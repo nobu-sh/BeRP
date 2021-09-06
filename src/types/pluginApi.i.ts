@@ -184,7 +184,7 @@ type LoggerColors = (
 )
 
 export interface CommandManager {
-  executeCommand(command: string, callback?: (err: any, res: packet_command_output) => void): Promise<void>
+  executeCommand(command: string, callback?: (res: packet_command_output) => void): void
   registerConsoleCommand(options: ConsoleCommandOptions, callback: (args: string[]) => void): void
   registerCommand(options: CommandOptions, callback: (data: CommandResponse) => void): void
   getPrefix(): string
@@ -232,7 +232,7 @@ export interface Player {
   setNameTag(nameTag: string): void
   sendMessage(message: string): void
   sendTitle(message: string, slot: 'actionbar' | 'title' | 'subtitle'): void
-  executeCommand(command: string, callback?: (err: any, data: packet_command_output) => void): void
+  executeCommand(command: string, callback?: (data: packet_command_output) => void): void
   getTags(): Promise<string[]>
   hasTag(tag: string): Promise<boolean>
   addTag(tag: string): void

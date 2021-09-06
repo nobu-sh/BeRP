@@ -74,10 +74,10 @@ export class Player {
   public sendTitle(message: string, slot: 'actionbar' | 'title' | 'subtitle'): void {
     this._pluginApi.getCommandManager().executeCommand(`titleraw "${this.getExecutionName()}" ${slot} {"rawtext":[{"text":"${message}"}]}`)
   }
-  public executeCommand(command: string, callback?: (err: any, data: packet_command_output) => void): void {
+  public executeCommand(command: string, callback?: (data: packet_command_output) => void): void {
     if (callback) {
-      this._pluginApi.getCommandManager().executeCommand(`execute "${this.getExecutionName()}" ~ ~ ~ ${command}`, (err, data) => {
-        callback(err, data)
+      this._pluginApi.getCommandManager().executeCommand(`execute "${this.getExecutionName()}" ~ ~ ~ ${command}`, (data) => {
+        callback(data)
       })
     } else {
       this._pluginApi.getCommandManager().executeCommand(`execute "${this.getExecutionName()}" ~ ~ ~ ${command}`)
@@ -85,8 +85,7 @@ export class Player {
   }
   public async getTags(): Promise<string[]> {
     return new Promise((r) => {
-      this._pluginApi.getCommandManager().executeCommand(`tag "${this.getExecutionName()}" list`, (err, res) => {
-        if (err) return console.log(err)
+      this._pluginApi.getCommandManager().executeCommand(`tag "${this.getExecutionName()}" list`, (res) => {
         if (!res.output[0].paramaters[1]) return r([])
         const filter = [res.output[0].paramaters[0], res.output[0].paramaters[1]]
         const tags = res.output[0].paramaters.filter(x => !filter.includes(x)).toString()
@@ -110,8 +109,7 @@ export class Player {
   }
   public async getScore(objective: string): Promise<number> {
     return new Promise((r) => {
-      this._pluginApi.getCommandManager().executeCommand(`scoreboard players test "${this.getExecutionName()}" ${objective} * *`, (err, res) => {
-        if (err) return console.log(err)
+      this._pluginApi.getCommandManager().executeCommand(`scoreboard players test "${this.getExecutionName()}" ${objective} * *`, (res) => {
         if (res.output[0].paramaters[0] == this._name) return r(0)
 
         return r(parseInt(res.output[0].paramaters[0]))
@@ -126,8 +124,7 @@ export class Player {
   }
   public async getItemCount(item: string): Promise<number> {
     return new Promise((r) => {
-      this._pluginApi.getCommandManager().executeCommand(`clear "${this.getExecutionName()}" ${item} 0 0`, (err, res) => {
-        if (err) return console.log(err)
+      this._pluginApi.getCommandManager().executeCommand(`clear "${this.getExecutionName()}" ${item} 0 0`, (res) => {
         let count = res.output[0].paramaters[1]
         if (count == undefined) count = '0'
 

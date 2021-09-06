@@ -19,41 +19,29 @@ export class CommandManager {
   private _berp: BeRP
   private _connection: ConnectionHandler
   private _pluginApi: PluginApi
-  private _requests = new Map<string, string>()
-  private _commandCache = new Map<string, packet_command_output>()
-  private _inv
+  private _requests = new Map<string, {execute: CallableFunction}>()
   constructor(berp: BeRP, connection: ConnectionHandler, pluginApi: PluginApi) {
     this._berp = berp
     this._connection = connection
     this._pluginApi = pluginApi
   }
-  public onEnabled(): void {
+  public async onEnabled(): Promise<void> {
     this._connection.on('command_output', (packet) => {
       if (!packet) return
-      this._commandCache.set(packet.origin.uuid, packet)
-    })
-    this._inv = setInterval(() => {
-      for (const [request, command] of this._requests) {
-        this._connection.sendPacket('command_request', {
-          command: command,
-          interval: false,
-          origin: {
-            uuid: request,
-            request_id: request,
-            type: 'player',
-          },
-        })
-        this._requests.delete(request)
-      }
+      if (!this._requests.has(packet.origin.uuid)) return
+      this._requests.get(packet.origin.uuid).execute(packet)
     })
     this._pluginApi.getEventManager().on('ChatCommand', async (data) => {
       if (this._pluginApi.getPluginId() != 1) return
       this._berp.getCommandManager().executeCommand(data)
+      this._connection.sendCommandFeedback(false)
     })
     this._defaultCommands()
+
+    return
   }
-  public onDisabled(): void {
-    clearInterval(this._inv)
+  public async onDisabled(): Promise<void> {
+    return
   }
   private _defaultCommands(): void {
     this.registerCommand({
@@ -76,40 +64,22 @@ export class CommandManager {
       data.sender.sendMessage(`§7This server is running §9BeRP v${BeRP_VERSION}§7 for §aMinecraft: Bedrock Edition v${CUR_VERSION} §7(§a${CUR_VERSION_PROTOCOL}§7).`)
     })
   }
-  private _findResponse(requestID: string): Promise<packet_command_output> {
-    this._connection.sendCommandFeedback(true)
-
-    return new Promise((res) => {
-      const inv = setInterval(() => {
-        const cache = this._commandCache.get(requestID)
-        if (!cache) return
-        this._commandCache.delete(requestID)
-        clearInterval(inv)
-        this._connection.sendCommandFeedback(false)
-
-        return res(cache)
-      })
-    })
-  }
-  public async executeCommand(command: string, callback?: (err: any, res: packet_command_output) => void): Promise<void> {
+  public executeCommand(command: string, callback?: (res: packet_command_output) => void): void {
     if (command.startsWith('say' || 'tellraw' || 'me' || 'msg' || 'titleraw')) callback = undefined
-    try {
-      const requestID = uuidv4()
-      this._requests.set(requestID, command)
-      if (callback) {
-        const response = await this._findResponse(requestID)
-
-        return callback(undefined, response)
-      } else {
-        return
-      }
-    } catch (error) {
-      if (callback) {
-        return callback(error, undefined)
-      } else {
-        console.log(error)
-      }
+    const requestId = uuidv4()
+    if (callback) {
+      this._connection.sendCommandFeedback(true)
+      this._requests.set(requestId, { execute: callback })
     }
+    this._connection.sendPacket('command_request', {
+      command: command,
+      interval: false,
+      origin: {
+        uuid: requestId,
+        request_id: requestId,
+        type: 'player',
+      },
+    })
   }
   public registerCommand(options: CommandOptions, callback: (data: CommandResponse) => void): void {
     this._berp.getCommandManager().registerCommand(options, (data) => {

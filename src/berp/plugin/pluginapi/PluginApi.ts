@@ -40,19 +40,23 @@ export class PluginApi {
     this._worldManager = new WorldManager(this._berp, this._connection, this)
     this.path = path
   }
-  public onEnabled(): void {
-    this._commandManager.onEnabled()
-    this._playerManager.onEnabled()
-    this._worldManager.onEnabled()
-    this._socketManager.onEnabled()
-    this._eventManager.onEnabled()
+  public async onEnabled(): Promise<void> {
+    await this._commandManager.onEnabled()
+    await this._playerManager.onEnabled()
+    await this._worldManager.onEnabled()
+    await this._socketManager.onEnabled()
+    await this._eventManager.onEnabled()
+
+    return
   }
-  public onDisabled(): void {
-    this._commandManager.onDisabled()
-    this._playerManager.onDisabled()
-    this._worldManager.onDisabled()
-    this._socketManager.onDisabled()
-    this._eventManager.onDisabled()
+  public async onDisabled(): Promise<void> {
+    await this._commandManager.onDisabled()
+    await this._playerManager.onDisabled()
+    await this._worldManager.onDisabled()
+    await this._socketManager.onDisabled()
+    await this._eventManager.onDisabled()
+
+    return
   }
   public getLogger(): Logger { return this._logger }
   public getConnection(): ConnectionHandler { return this._connection }

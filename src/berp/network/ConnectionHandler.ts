@@ -90,9 +90,9 @@ export class ConnectionHandler extends RakManager {
       reason = pak.message
     }
 
+    await this._berp.getPluginManager().killPlugins(this)
     clearInterval(this._tickSyncKeepAlive)
     this.close()
-    this._berp.getPluginManager().killPlugins(this)
     this._log.warn(`Terminating connection handler with connection "${this.host}:${this.port}"`)
 
     this._log.warn("Disconnection on", `${this.host}:${this.port}`, `"${reason}"`)

@@ -19,7 +19,7 @@ export class PlayerManager {
     this._connection = connection
     this._pluginApi = pluginApi
   }
-  public onEnabled(): void {
+  public async onEnabled(): Promise<void> {
     for (const player of this._connection.playerQue) {
       new Player({
         name: player.username,
@@ -31,7 +31,7 @@ export class PlayerManager {
       }, this._berp, this._connection, this._pluginApi)
     }
   }
-  public onDisabled(): void {
+  public async onDisabled(): Promise<void> {
     return
   }
   public addPlayer(player: Player): void {

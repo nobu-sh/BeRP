@@ -22,10 +22,10 @@ export class EventManager extends EventEmitter {
     this._pluginApi = pluginApi
     this._registerEvents()
   }
-  public onEnabled(): void {
+  public async onEnabled(): Promise<void> {
     return 
   }
-  public onDisabled(): void {
+  public async onDisabled(): Promise<void> {
     return
   }
   private _registerEvents(): void {
