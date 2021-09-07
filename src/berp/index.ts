@@ -15,6 +15,7 @@ import { PluginManager } from './plugin/PluginManager'
 import { resolve } from 'path'
 import * as Constants from '../Constants'
 import { CommandManager } from './command/CommandManager'
+import { ScriptManager } from './scripting/ScriptManager'
 export class BeRP {
   private _console: BerpConsole
   private _commandHandler: CommandHandler
@@ -22,6 +23,7 @@ export class BeRP {
   private _authProvider: AuthHandler
   private _sequentialBucket: SequentialBucket
   private _commandManager: CommandManager
+  private _scriptManager: ScriptManager
   private _pluginManager: PluginManager
   private _logger = new Logger('BeRP', '#6990ff')
   constructor() {
@@ -40,6 +42,7 @@ export class BeRP {
     })
     this._authProvider.createApp(this._authProvider.createConfig())
     this._commandManager = new CommandManager(this)
+    this._scriptManager = new ScriptManager(this)
     this._pluginManager = new PluginManager(this)
     this._console = new BerpConsole()
     this._commandHandler = new CommandHandler(this)
@@ -51,6 +54,7 @@ export class BeRP {
   public getAuthProvider(): AuthHandler { return this._authProvider }
   public getSequentialBucket(): SequentialBucket { return this._sequentialBucket }
   public getCommandManager(): CommandManager { return this._commandManager }
+  public getScriptManager(): ScriptManager { return this._scriptManager }
   public getPluginManager(): PluginManager { return this._pluginManager }
   public Request = Request
 }
