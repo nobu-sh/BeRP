@@ -18,6 +18,9 @@ export class ScriptManager {
       if (!fs.existsSync(this._scriptsPath)) {
         this._logger.warn("Scripts folder does not exist. Creating scripts folder:", `"${this._scriptsPath}"`)
         fs.mkdirSync(this._scriptsPath, { recursive: true })
+        fs.mkdirSync(path.resolve(this._scriptsPath, '@interface'), { recursive: true })
+        const typeing = fs.readFileSync(path.resolve(process.cwd(), 'src', 'types', 'scripts.d.ts'), 'utf-8')
+        fs.writeFileSync(path.resolve(this._scriptsPath, '@interface', 'scripts.d.ts'), typeing)
       }
 
       return res()
