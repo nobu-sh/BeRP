@@ -16,7 +16,7 @@ import axios from 'axios'
 export class PluginManager extends EventEmitter{
   private _berp: BeRP
   private _knownPlugins = new Map<string, {config: examplePluginConfig, pluginId: number}>()
-  private _activePlugins = new Map<string, {config: examplePluginConfig, plugin: examplePlugin, api: PluginApi, connection: ConnectionHandler, path: string}>()
+  private _activePlugins = new Map<string, {config: examplePluginConfig, plugin: examplePlugin, api: PluginApi, connection: ConnectionHandler, path: string, ids: {api: number, plugin: number}}>()
   private _pluginsPath = path.resolve(process.cwd(), './plugins')
   private _logger: Logger
   private _latestInterfaces = {
@@ -236,6 +236,10 @@ export class PluginManager extends EventEmitter{
         api: pluginAPI,
         connection: connection,
         path: plpath,
+        ids: {
+          api: this._apiId,
+          plugin: options.pluginId,
+        },
       })
     }
   }
@@ -244,6 +248,7 @@ export class PluginManager extends EventEmitter{
       if (pluginOptions.connection !== connection) continue
       await pluginOptions.plugin.onDisabled()
       await pluginOptions.api.onDisabled()
+      this._activePlugins.delete(`${pluginOptions.connection.id}:${pluginOptions.ids.api}:${pluginOptions.config.name}:${pluginOptions.ids.plugin}`)
     }
   }
   public getPlugins(): Map<string, {config: examplePluginConfig, pluginId: number}> { return this._knownPlugins }
