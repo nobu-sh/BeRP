@@ -2,6 +2,7 @@
 import { Logger } from '../../console'
 import path from 'path'
 import {
+  ActivePlugin,
   examplePlugin,
   examplePluginConfig,
 } from 'src/types/berp'
@@ -16,7 +17,7 @@ import axios from 'axios'
 export class PluginManager extends EventEmitter{
   private _berp: BeRP
   private _knownPlugins = new Map<string, {config: examplePluginConfig, pluginId: number}>()
-  private _activePlugins = new Map<string, {config: examplePluginConfig, plugin: examplePlugin, api: PluginApi, connection: ConnectionHandler, path: string, ids: {api: number, plugin: number}}>()
+  private _activePlugins = new Map<string, ActivePlugin>()
   private _pluginsPath = path.resolve(process.cwd(), './plugins')
   private _logger: Logger
   private _latestInterfaces = {
@@ -252,5 +253,5 @@ export class PluginManager extends EventEmitter{
     }
   }
   public getPlugins(): Map<string, {config: examplePluginConfig, pluginId: number}> { return this._knownPlugins }
-  public getActivePlugins(): Map<string, {config: examplePluginConfig, plugin: examplePlugin, api: PluginApi, connection: ConnectionHandler, path: string}> { return this._activePlugins }
+  public getActivePlugins(): Map<string, ActivePlugin> { return this._activePlugins }
 }

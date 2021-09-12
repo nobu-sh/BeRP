@@ -22,8 +22,13 @@ export interface PluginApi {
   getPlayerManager(): PlayerManager
   getWorldManager(): WorldManager
   getSocketManager(): SocketManager
-  getPlugins(): Map<string, {config: examplePluginConfig, plugin: examplePlugin, api: PluginApi, connection: ConnectionHandler}>
-  createInterface(options: {name: string, interface: string}): void
+  getPlugins(): Map<string, ActivePlugin>
+  createInterface(options: InterfaceOptions): void
+}
+
+interface InterfaceOptions {
+  name: string
+  interface: string
 }
 
 export interface examplePlugin {
@@ -331,4 +336,16 @@ export interface ConsoleCommandOptions {
 interface CommandResponse {
   sender: Player
   args: string[]
+}
+
+interface ActivePlugin {
+  config: examplePluginConfig
+  plugin: examplePlugin
+  api: PluginApi
+  connection: ConnectionHandler
+  path: string
+  ids: {
+    api: number
+    plugin: number
+  }
 }

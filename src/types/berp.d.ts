@@ -1,6 +1,8 @@
 import {
   Method,
 } from 'axios'
+import { ConnectionHandler } from 'src/berp/network'
+import { PluginApi } from 'src/berp/plugin/pluginapi/pluginApi'
 import { Skin } from './packetTypes.i'
 
 export type LoggerColors = (
@@ -234,4 +236,16 @@ export interface CommandResponse {
 export interface ChatCommand {
   sender: Player
   command: string
+}
+
+export interface ActivePlugin {
+  config: examplePluginConfig
+  plugin: examplePlugin
+  api: PluginApi
+  connection: ConnectionHandler
+  path: string
+  ids: {
+    api: number
+    plugin: number
+  }
 }
