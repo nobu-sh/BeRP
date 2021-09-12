@@ -16,6 +16,7 @@ export class CommandManager {
   private _parseCommand(content: string): { command: string, args: string[] } {
     const command = content.replace(this._prefix, '').split(' ')[0]
     const args = content.replace(`${this._prefix}${command} `, '').split(' ')
+    if (args[0] == `${this._prefix}${command}`) args[0] = undefined
 
     return {
       command: command,
