@@ -12,6 +12,8 @@ import { Skin } from "./packetTypes.i"
 export interface PluginApi {
   new (berp: any, config: examplePluginConfig, path: string, connection: ConnectionHandler)
   path: string
+  onEnabled(): Promise<void>
+  onDisabled(): Promise<void>
   getLogger(): Logger
   getConnection(): ConnectionHandler
   getConfig(): examplePluginConfig
