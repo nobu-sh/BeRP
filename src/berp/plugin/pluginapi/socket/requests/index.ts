@@ -1,2 +1,7 @@
-export { EnableRequest } from './enable'
-export { Heartbeat } from './heartbeat'
+import { EnableRequest } from './enable'
+import { Heartbeat } from './heartbeat'
+
+export const defaultRequests = [
+  EnableRequest,
+  Heartbeat,
+]

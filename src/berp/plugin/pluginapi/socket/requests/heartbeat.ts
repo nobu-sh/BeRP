@@ -3,7 +3,7 @@ import { SocketManager } from "../SocketManager"
 export class Heartbeat {
   private _socket: SocketManager
   private _totalBeats: number
-
+  public requestName = "Heartbeat"
   constructor(socket: SocketManager) {
     this._socket = socket
     this._totalBeats = 0

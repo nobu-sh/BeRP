@@ -6,10 +6,7 @@ import {
   JsonRequest,
   RawText,
 } from 'src/types/berp'
-import {
-  EnableRequest,
-  Heartbeat,
-} from './requests/index'
+import { defaultRequests } from './requests/index'
 
 export class SocketManager extends EventEmitter {
   private _berp: BeRP
@@ -58,16 +55,12 @@ export class SocketManager extends EventEmitter {
       }
     })
   }
-  private async _loadRequests(): Promise<void> {
-    return new Promise(async (res) => {
-      const Enable = new EnableRequest(this)
-      this._defaultRequests.set('EnableRequest', Enable)
-      await Enable.onEnabled()
-      const Heart = new Heartbeat(this)
-      this._defaultRequests.set('Heartbeat', Heart)
-      await Heart.onEnabled()
-      res()
-    })
+  private _loadRequests(): void {
+    for (const request of defaultRequests) {
+      const newRequest = new request(this)
+      newRequest.onEnabled()
+      this._defaultRequests.set(newRequest.requestName, newRequest)
+    }
   }
   public sendMessage(options: JsonRequest, callback?: (data: JsonRequest) => void): void {
     if (callback) this._requests.set(`${options.berp.requestId}:${options.berp.event}`, { execute: callback })

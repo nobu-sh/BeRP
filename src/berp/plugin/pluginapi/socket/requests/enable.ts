@@ -2,7 +2,7 @@ import { SocketManager } from "../SocketManager"
 
 export class EnableRequest {
   private _socket: SocketManager
-
+  public requestName = "EnableRequest"
   constructor(socket: SocketManager) {
     this._socket = socket
   }
