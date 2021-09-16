@@ -69,7 +69,7 @@ export class CommandManager {
     })
   }
   public executeCommand(command: string, callback?: (res: packet_command_output) => void): void {
-    if (command.startsWith('say' || 'tellraw' || 'me' || 'msg' || 'titleraw')) callback = undefined
+    if (command.startsWith('say' || 'tellraw' || 'me' || 'titleraw')) callback = undefined
     const requestId = uuidv4()
     if (callback) {
       this._connection.sendCommandFeedback(true)
