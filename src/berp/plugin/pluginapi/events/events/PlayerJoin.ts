@@ -9,6 +9,7 @@ export class PlayerJoin {
   private _berp: BeRP
   private _connection: ConnectionHandler
   private _pluginApi: PluginApi
+  public eventName = "PlayerJoin"
   constructor(events: EventManager, berp: BeRP, connection: ConnectionHandler, pluginApi: PluginApi) {
     this._events = events
     this._berp = berp

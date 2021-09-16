@@ -8,6 +8,7 @@ export class PlayerDied {
   private _berp: BeRP
   private _connection: ConnectionHandler
   private _pluginApi: PluginApi
+  public eventName = "PlayerDied"
   constructor(events: EventManager, berp: BeRP, connection: ConnectionHandler, pluginApi: PluginApi) {
     this._events = events
     this._berp = berp

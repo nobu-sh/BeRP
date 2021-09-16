@@ -2,13 +2,7 @@ import { BeRP } from '../../../'
 import { EventEmitter } from 'events'
 import { ConnectionHandler } from 'src/berp/network'
 import { PluginApi } from '../pluginApi'
-import {
-  PlayerJoin,
-  PlayerLeft,
-  PlayerInitialized,
-  PlayerMessage,
-  PlayerDied,
-} from './events/index'
+import { defaultEvents } from './events/index'
 
 export class EventManager extends EventEmitter {
   private _berp: BeRP
@@ -29,15 +23,9 @@ export class EventManager extends EventEmitter {
     return
   }
   private _registerEvents(): void {
-    const PlayerJoinEvent = new PlayerJoin(this, this._berp, this._connection, this._pluginApi)
-    this._events.set('PlayerJoined', PlayerJoinEvent)
-    const PlayerLeftEvent = new PlayerLeft(this, this._berp, this._connection, this._pluginApi)
-    this._events.set('PlayerLeft', PlayerLeftEvent)
-    const PlayerInitializedEvent = new PlayerInitialized(this, this._berp, this._connection, this._pluginApi)
-    this._events.set('PlayerInitialized', PlayerInitializedEvent)
-    const PlayerMessageEvent = new PlayerMessage(this, this._berp, this._connection, this._pluginApi)
-    this._events.set('PlayerMessage', PlayerMessageEvent)
-    const PlayerDiedEvent = new PlayerDied(this, this._berp, this._connection, this._pluginApi)
-    this._events.set('PlayerDied', PlayerDiedEvent)
+    for (const event of defaultEvents) {
+      const newEvent = new event(this, this._berp, this._connection, this._pluginApi)
+      this._events.set(newEvent.eventName, newEvent)
+    }
   }
 }
