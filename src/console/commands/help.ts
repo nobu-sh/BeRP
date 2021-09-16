@@ -20,16 +20,17 @@ export class Help extends BaseCommand {
     if (!args[0]) {
       let log = `${chalk.blueBright("Active BeRP Session - Command List:")}\n`
       for (const command of commands.values()) {
-        log += `${chalk.gray("  -")}   ${chalk.grey(`${command.name}`)}\n`
+        if (command.showInList == false) continue
+        log += `${chalk.gray("  -")}   ${chalk.grey(`${command.options.name}`)}\n`
       }
       console.log(log)
     } else {
       const commandName = args[0].toLowerCase()
-      const command = [...commands.values()].find(c => c.name === commandName || c.aliases.includes(commandName))
+      const command = [...commands.values()].find(c => c.options.name === commandName || c.options.name.includes(commandName))
 
       if (!command) return this._berp.getCommandHandler().error(`Unknown commmand "${commandName}"!`)
 
-      console.log(`${chalk.blueBright(`Active BeRP Session - Command - ${commandName}:`)}\n${chalk.gray("  name:")}           ${chalk.gray(command.name)}\n${chalk.gray("  usage:")}          ${command.usage ? `${chalk.gray(commandName)} ${chalk.gray(command.usage)}` : ""}\n${chalk.gray("  description:")}    ${chalk.gray(command.description)}\n${chalk.gray("  aliases:")}        ${chalk.gray(command.aliases?.join(chalk.gray(", ")))}\n`)
+      console.log(`${chalk.blueBright(`Active BeRP Session - Command - ${commandName}:`)}\n${chalk.gray("  name:")}           ${chalk.gray(command.options.name)}\n${chalk.gray("  usage:")}          ${command.options.usage ? `${chalk.gray(commandName)} ${chalk.gray(command.options.usage)}` : ""}\n${chalk.gray("  description:")}    ${chalk.gray(command.options.description)}\n${chalk.gray("  aliases:")}        ${chalk.gray(command.options.aliases?.join(chalk.gray(", ")))}\n`)
     }
   }
 }

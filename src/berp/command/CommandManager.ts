@@ -3,6 +3,7 @@ import {
   CommandMapOptions,
   CommandOptions,
   CommandResponse,
+  ConsoleCommandOptions,
 } from 'src/types/berp'
 import { BeRP } from '..'
 
@@ -55,6 +56,24 @@ export class CommandManager {
         showInList: false,
         execute: callback,
       })
+    }
+  }
+  public unregisterCommand(options: CommandOptions | ConsoleCommandOptions, type: "game" | "console"): void {
+    switch (type) {
+    case "game":
+      if (!this._commands.has(options.command)) return
+      this._commands.delete(options.command)
+      if (!options.aliases) return
+      for (const aliases of options.aliases) {
+        this._commands.delete(aliases)
+      }
+      break
+    case "console":
+      this._berp.getCommandHandler().unregisterCommand(options as ConsoleCommandOptions)
+      break
+    default:
+      this._berp.getLogger().error('Unknown unregister type!')
+      break
     }
   }
   public getCommands(): Map<string, CommandMapOptions> { return this._commands }

@@ -20,6 +20,7 @@ export class CommandManager {
   private _connection: ConnectionHandler
   private _pluginApi: PluginApi
   private _requests = new Map<string, {execute: CallableFunction}>()
+  private _commands = new Map<string, {type: "game" | "console", command: CommandOptions | ConsoleCommandOptions}>()
   constructor(berp: BeRP, connection: ConnectionHandler, pluginApi: PluginApi) {
     this._berp = berp
     this._connection = connection
@@ -41,7 +42,10 @@ export class CommandManager {
     return
   }
   public async onDisabled(): Promise<void> {
-    return
+    for (const [, command] of this._commands) {
+      if (command.command.command == "help" || command.command.command == "about") continue
+      this._berp.getCommandManager().unregisterCommand(command.command, command.type)
+    }
   }
   private _defaultCommands(): void {
     this.registerCommand({
@@ -82,11 +86,19 @@ export class CommandManager {
     })
   }
   public registerCommand(options: CommandOptions, callback: (data: CommandResponse) => void): void {
+    this._commands.set(`${options.command}:game`, {
+      type: 'game',
+      command: options,
+    })
     this._berp.getCommandManager().registerCommand(options, (data) => {
       callback(data)
     }) 
   }
   public registerConsoleCommand(options: ConsoleCommandOptions, callback: (args: string[]) => void): void {
+    this._commands.set(`${options.command}:console`, {
+      type: 'console',
+      command: options,
+    })
     const command = new ConsoleCommand(options, callback)
     this._berp.getCommandHandler().registerCommand(command)
   }
