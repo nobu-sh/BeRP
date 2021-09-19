@@ -1,6 +1,6 @@
 import { ConnectionHandler } from 'src/berp/network'
 import { BeRP } from 'src/berp'
-import { PluginApi } from '../pluginApi'
+import { PluginApi } from '../PluginApi'
 import { PlayerOptions } from 'src/types/berp'
 import { Skin } from 'src/types/packetTypes.i'
 import { packet_command_output } from 'src/types/packets.i'

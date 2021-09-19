@@ -7,7 +7,7 @@ import {
   examplePluginConfig,
 } from 'src/types/berp'
 import childProcess from "child_process"
-import { PluginApi } from './pluginapi/pluginApi' 
+import { PluginApi } from './pluginapi/PluginApi' 
 import { BeRP } from '../'
 import fs from 'fs'
 import { ConnectionHandler } from '../network'

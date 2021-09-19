@@ -1,7 +1,7 @@
 import { BeRP } from '../../../'
 import { EventEmitter } from 'events'
 import { ConnectionHandler } from 'src/berp/network'
-import { PluginApi } from '../pluginApi'
+import { PluginApi } from '../PluginApi'
 import { defaultEvents } from './events/index'
 
 export class EventManager extends EventEmitter {

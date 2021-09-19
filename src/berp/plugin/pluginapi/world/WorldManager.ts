@@ -1,6 +1,6 @@
 import { ConnectionHandler } from 'src/berp/network'
 import { BeRP } from 'src/berp'
-import { PluginApi } from '../pluginApi'
+import { PluginApi } from '../PluginApi'
 
 export class WorldManager {
   private _berp: BeRP

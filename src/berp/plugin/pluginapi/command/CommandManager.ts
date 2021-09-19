@@ -1,6 +1,6 @@
 import { BeRP } from '../../../'
 import { ConnectionHandler } from 'src/berp/network'
-import { PluginApi } from '../pluginApi'
+import { PluginApi } from '../PluginApi'
 import { v4 as uuidv4 } from 'uuid'
 import { packet_command_output } from 'src/types/packets.i'
 import {

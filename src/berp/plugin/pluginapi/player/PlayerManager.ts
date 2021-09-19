@@ -1,6 +1,6 @@
 import { ConnectionHandler } from 'src/berp/network'
 import { BeRP } from 'src/berp'
-import { PluginApi } from '../pluginApi'
+import { PluginApi } from '../PluginApi'
 import { Player } from './Player'
 
 export class PlayerManager {

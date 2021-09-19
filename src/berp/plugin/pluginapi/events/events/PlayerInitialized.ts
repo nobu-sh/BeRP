@@ -1,7 +1,7 @@
 import { EventManager } from "../EventManager"
 import { BeRP } from "src/berp"
 import { ConnectionHandler } from "src/berp/network"
-import { PluginApi } from "../../pluginApi"
+import { PluginApi } from "../../PluginApi"
 
 export class PlayerInitialized {
   private _events: EventManager
