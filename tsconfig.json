@@ -8,6 +8,7 @@
     "removeComments": false,
     "esModuleInterop": true,
     "experimentalDecorators": true,
+    "skipLibCheck": true,
     "baseUrl": "."
   },
   "include": [

@@ -330,6 +330,7 @@ packet_start_game:
    limited_world_width: li32
    limited_world_length: li32
    is_new_nether: bool
+   edu_shared_uri_resource: bool
    experimental_gameplay_override: bool
    # A base64 encoded world ID that is used to identify the world.
    level_id: string
