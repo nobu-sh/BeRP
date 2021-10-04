@@ -1,14 +1,15 @@
 ## [minecraft-data](https://github.com/PrismarineJS/minecraft-data)
 
-<p>
+```
 MIT
 
-Some of the data was extracted manually or automatically from wiki.vg and minecraft.gamepedia.com. If required by one of the sources the license might change to something more appropriate.
-</p>
+Some of the data was extracted manually or automatically from wiki.vg and minecraft.gamepedia.com.
+If required by one of the sources the license might change to something more appropriate.
+```
 
 ## [dragonfly](https://github.com/df-mc/dragonfly)
 
-<p>
+```
 MIT License
 
 Copyright (c) 2019 Dragonfly Tech
@@ -30,11 +31,11 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-</p>
+```
 
 ## [PocketMine-MP](https://github.com/pmmp/PocketMine-MP)
 
-<p>
+```
                    GNU LESSER GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
@@ -135,20 +136,20 @@ the following:
 
    d) Do one of the following:
 
-   0) Convey the Minimal Corresponding Source under the terms of this
-   License, and the Corresponding Application Code in a form
-   suitable for, and under terms that permit, the user to
-   recombine or relink the Application with a modified version of
-   the Linked Version to produce a modified Combined Work, in the
-   manner specified by section 6 of the GNU GPL for conveying
-   Corresponding Source.
+       0) Convey the Minimal Corresponding Source under the terms of this
+       License, and the Corresponding Application Code in a form
+       suitable for, and under terms that permit, the user to
+       recombine or relink the Application with a modified version of
+       the Linked Version to produce a modified Combined Work, in the
+       manner specified by section 6 of the GNU GPL for conveying
+       Corresponding Source.
 
-   1) Use a suitable shared library mechanism for linking with the
-   Library.  A suitable mechanism is one that (a) uses at run time
-   a copy of the Library already present on the user's computer
-   system, and (b) will operate properly with a modified version
-   of the Library that is interface-compatible with the Linked
-   Version.
+       1) Use a suitable shared library mechanism for linking with the
+       Library.  A suitable mechanism is one that (a) uses at run time
+       a copy of the Library already present on the user's computer
+       system, and (b) will operate properly with a modified version
+       of the Library that is interface-compatible with the Linked
+       Version.
 
    e) Provide Installation Information, but only if you would otherwise
    be required to provide such information under section 6 of the
@@ -200,4 +201,4 @@ whether future versions of the GNU Lesser General Public License shall
 apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.
-</p>
+```
