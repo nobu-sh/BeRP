@@ -4,4 +4,4 @@ BeRP sources its minecraft protobuf data from third parties such as: [minecraft-
 
 BeRP does not claim authorship of any of the items in this folder. Please support the orginal authors!
 
-[LEGAL](./legal.md)
+[LEGAL](./LEGAL.md)
