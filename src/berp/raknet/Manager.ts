@@ -234,14 +234,14 @@ export class RakManager extends EventEmitter {
         .getDataMap()
         .getFile('steve.json')
         .toString('utf-8'))
-    // const skinBin = DataProvider
-    //   .getDataMap()
-    //   .getFile('steveSkin.bin')
-    //   .toString('base64')
-    // const skinGeometry = DataProvider
-    //   .getDataMap()
-    //   .getFile('steveGeometry.json')
-    //   .toString('base64')
+    const skinBin = DataProvider
+      .getDataMap()
+      .getFile('steveSkin.bin')
+      .toString('base64')
+    const skinGeometry = DataProvider
+      .getDataMap()
+      .getFile('steveGeometry.json')
+      .toString('base64')
 
     const payload = {
       ...skinData,
@@ -262,8 +262,9 @@ export class RakManager extends EventEmitter {
         .slice(0, 16),
       SelfSignedId: nextUUID(),
       ServerAddress: `${this.host}:${this.port}`,
-      // SkinData: skinBin,
-      // SkinGeometryData: skinGeometry,
+      SkinData: skinBin,
+      SkinGeometryData: skinGeometry,
+      SkinGeometryVersion: "1.14.0",
       ThirdPartyName: this._xboxProfile.extraData.displayName,
       ThirdPartyNameOnly: false,
       UIProfile: 0,

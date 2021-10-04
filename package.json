@@ -51,7 +51,7 @@
     "axios": "^0.21.1",
     "chalk": "^4.1.1",
     "cli-select": "^1.1.2",
-    "enquirer": "NobUwU/enquirer#typings",
+    "enquirer": "github:NobUwU/enquirer#typings",
     "js-yaml": "^4.1.0",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.1",
