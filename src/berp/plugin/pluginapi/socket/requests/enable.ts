@@ -8,7 +8,7 @@ export class EnableRequest {
   }
   public onEnabled(): void {
     this._socket.on('Message', (packet) => {
-      if (packet.event != "EnableRequest" || this._socket.enabled == true) return
+      if (packet.event != "EnableSocket" || this._socket.enabled == true) return
       this._socket.enabled = true
 
       return this._socket.sendMessage({
