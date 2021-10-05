@@ -1,7 +1,7 @@
-# Data Source
+# Proto Data
 
-BeRP sources it's protocol data from [minecraft-data](https://github.com/PrismarineJS/minecraft-data)
+BeRP sources its minecraft protobuf data from third parties such as: [minecraft-data](https://github.com/PrismarineJS/minecraft-data), [pocketmine](https://github.com/pmmp/PocketMine-MP), [dragonfly](https://github.com/df-mc/dragonfly)
 
-BeRP does not claim any of this data as it's own or takes credit.
+BeRP does not claim authorship of any of the items in this folder. Please support the orginal authors!
 
-Reason why we don't use [minecraft-data](https://www.npmjs.com/package/minecraft-data), is that we only need to use the latest protocol data for Minecraft Bedrock Edition.
+[LEGAL](./LEGAL.md)
