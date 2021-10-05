@@ -27,10 +27,9 @@ export class BeRP {
   constructor() {
     logLogo()
 
-    this._logger.info("Calling Protocol Compiler...")
+    this._logger.info("Preparing Modules...")
     AttemptProtocolCompiler()
 
-    this._logger.info("Preparing Modules...")
     this._networkManager = new NetworkManager(this)
     this._sequentialBucket = new SequentialBucket(5, new Logger("Sequential Bucket", "#8769ff"))
     this._authProvider = new AuthHandler({

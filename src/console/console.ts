@@ -33,7 +33,6 @@ class BerpConsole extends EventEmitter {
     super()
     this._listenerBinded = this._listener.bind(this)
     this.start()
-    this._logger.success("BeRP Enhanced Console Initialized")
   }
   public getLogger(): Logger { return this._logger }
 

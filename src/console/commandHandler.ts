@@ -15,7 +15,7 @@ class CommandHandler {
 
     this._berp.getConsole().on('input', this._handleConsole.bind(this))
 
-    this._logger.success('BeRP Command Handler Initialized')
+    this._logger.success('Type "help" for a list of commands.')
   }
   public getLogger(): Logger { return this._logger }
 
