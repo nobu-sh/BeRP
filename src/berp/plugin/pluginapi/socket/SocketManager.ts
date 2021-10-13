@@ -26,9 +26,6 @@ export class SocketManager extends EventEmitter {
     this._listener()
     this._loadRequests() 
     setTimeout(() => this._pluginApi.getCommandManager().executeCommand('tag @s add "berpUser"'), 3500)
-    this.on("Message", (data) => {
-      console.log(data)
-    })
   }
   public async onDisabled(): Promise<void> {
     for (const [, request] of this._defaultRequests) {
