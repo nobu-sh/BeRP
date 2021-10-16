@@ -18,6 +18,7 @@ export class PluginManager extends EventEmitter{
   private _berp: BeRP
   private _knownPlugins = new Map<string, {config: examplePluginConfig, pluginId: number}>()
   private _activePlugins = new Map<string, ActivePlugin>()
+  private _tempPlugins = new Map<string, ActivePlugin>()
   private _pluginsPath = path.resolve(process.cwd(), './plugins')
   private _logger: Logger
   private _latestInterfaces = {
@@ -122,9 +123,20 @@ export class PluginManager extends EventEmitter{
           }, true)
           const pluginClass = require(entryPoint)
           const plugin: examplePlugin = new pluginClass(api)
+          this._tempPlugins.set(`${config.name}:${config.author}`, {
+            config: config,
+            plugin: plugin, 
+            api: api,
+            connection: {} as any,
+            path: pluginPath,
+            ids: {
+              api: 0,
+              plugin: 0,
+            },
+          })
           try {
             plugin.onLoaded()
-            api.onDisabled()
+            api.onEnabled()
           } catch (err) {}
 
           try {
@@ -265,6 +277,11 @@ export class PluginManager extends EventEmitter{
       await pluginOptions.plugin.onDisabled()
       await pluginOptions.api.onDisabled()
       this._activePlugins.delete(`${pluginOptions.connection.id}:${pluginOptions.ids.api}:${pluginOptions.config.name}:${pluginOptions.ids.plugin}`)
+    }
+  }
+  public killTempPlugins(): void {
+    for (const [, temp] of this._tempPlugins) {
+      temp.api.onDisabled()
     }
   }
   public getPlugins(): Map<string, {config: examplePluginConfig, pluginId: number}> { return this._knownPlugins }

@@ -2,6 +2,9 @@ import { Logger } from '../../../console'
 import {
   examplePlugin,
   examplePluginConfig,
+  RealmAPIJoinInfo,
+  RealmAPIWorld,
+  RealmAPIWorldsRes,
 } from 'src/types/berp'
 import { BeRP } from '../../'
 import { ConnectionHandler } from 'src/berp/network'
@@ -12,6 +15,9 @@ import { SocketManager } from './socket/SocketManager'
 import { EventManager } from './events/EventManager'
 import fs from 'fs'
 import path from 'path'
+import { AccountInfo } from '@azure/msal-common'
+import * as C from '../../../Constants'
+import { createXBLToken } from '../../../berp/utils'
 
 export class PluginApi {
   private _berp: BeRP
@@ -26,6 +32,7 @@ export class PluginApi {
   private _socketManager: SocketManager
   private _eventManager: EventManager
   private _temp: boolean
+  private _interval
   public path: string
   constructor (berp: BeRP, config: examplePluginConfig, path: string, connection: ConnectionHandler, apis: { apiId: number, pluginId: number }, temp = false) {
     this._berp = berp
@@ -54,6 +61,7 @@ export class PluginApi {
     return
   }
   public async onDisabled(): Promise<void> {
+    clearInterval(this._interval)
     if (this._temp) return
     await this._commandManager.onDisabled()
     await this._playerManager.onDisabled()
@@ -89,12 +97,82 @@ export class PluginApi {
       }
     }, 1000)
   }
-  public async autoConnect(accountName: string, realmId: number): Promise<void> {
+  public async autoConnect(accountEmail: string, realmId: number): Promise<void> {
     if (!this._temp) return this._logger.error("AutoConnect is only allowed in the onLoaded() method!")
+    const foundAccounts = new Map<string, AccountInfo>()
     const accounts = await this._berp
       .getAuthProvider()
       .getCache()
       .getAllAccounts()
-    console.log(accounts)
+    for (const account of accounts) {
+      foundAccounts.set(account.username, account)
+    }
+    if (!foundAccounts.has(accountEmail)) return this._logger.error(`No account found with the email "${accountEmail}"`)
+    const account = foundAccounts.get(accountEmail)
+    const authRes = await this._berp.getAuthProvider().aquireTokenFromCache({
+      scopes: C.Scopes,
+      account,
+    })
+    const xsts = await this._berp.getAuthProvider().ezXSTSForRealmAPI(authRes)
+
+    let net = this._berp.getNetworkManager().getAccounts()
+      .get(account.username)
+    if (!net) {
+      net = this._berp.getNetworkManager().create(account)
+    }
+    const foundRealms = new Map<number, RealmAPIWorld>()
+    const req = new this._berp.Request({
+      method: "GET",
+      url: C.Endpoints.RealmAPI.GET.Realms,
+      headers: C.RealmAPIHeaders(createXBLToken(xsts)),
+    }, {
+      requestTimeout: 50000,
+      attemptTimeout: 300,
+      attempts: 20,
+    })
+    req.onFufilled = async (res: RealmAPIWorldsRes) => {
+      if (!res.servers || !res.servers.length) return this._logger.error(`No realms could be found under the account "${account.username}"`)
+      for await (const server of res.servers) {
+        foundRealms.set(server.id, server)
+      }
+      if (!foundRealms.has(realmId)) return this._logger.error(`No realm with the Id "${realmId}" was found.`)
+      const realm = foundRealms.get(realmId)
+      const req = new this._berp.Request({
+        method: "GET",
+        url: C.Endpoints.RealmAPI.GET.RealmJoinInfo(realm.id),
+        headers: C.RealmAPIHeaders(createXBLToken(xsts)),
+      }, {
+        requestTimeout: 50000,
+        attemptTimeout: 300,
+        attempts: 100,
+      })
+      req.onFufilled = (res: RealmAPIJoinInfo) => {
+        const split = res.address.split(":")
+        const ip = split[0]
+        const port = parseInt(split[1])
+        net.newConnection(ip, port, realm)
+      }
+      req.onFailed = () => {
+        return this._logger.error(`Failed to get join info for realm "${realm.name}"`)
+      }
+      this._berp.getSequentialBucket().addRequest(req)
+    }
+    req.onFailed = () => {
+      return this._logger
+        .error(`Failed to select account for realm connection...`)
+    }
+    this._berp.getSequentialBucket().addRequest(req)
+  }
+  public autoReconnect(accountEmail: string, realmId: number): void {
+    if (!this._temp) return this._logger.error("AutoReconnect is only allowed in the onLoaded() method!")
+    this._interval = setInterval(() => {
+      const accounts = this._berp.getNetworkManager().getAccounts()
+      if (!accounts.has(accountEmail)) return
+      const account = accounts.get(accountEmail)
+      if (account.getConnections().has(realmId)) return
+      this._logger.success(`AutoReconnect attempting to connect to realm Id "${realmId}" using the email "${accountEmail}"`)
+
+      return this.autoConnect(accountEmail, realmId)
+    }, 10000)
   }
 }
