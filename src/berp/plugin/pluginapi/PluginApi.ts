@@ -25,22 +25,26 @@ export class PluginApi {
   private _worldManager: WorldManager
   private _socketManager: SocketManager
   private _eventManager: EventManager
+  private _temp: boolean
   public path: string
-  constructor (berp: BeRP, config: examplePluginConfig, path: string, connection: ConnectionHandler, apis: { apiId: number, pluginId: number }) {
+  constructor (berp: BeRP, config: examplePluginConfig, path: string, connection: ConnectionHandler, apis: { apiId: number, pluginId: number }, temp = false) {
     this._berp = berp
-    this._logger = new Logger(`${config.displayName} ${connection.realm.id}`, config.color)
+    this._logger = new Logger(`${config.displayName} ${connection.realm.id || 69420}`, config.color)
     this._config = config
     this._connection = connection
     this._apiId = apis.apiId
     this._pluginId = apis.pluginId
+    this._temp = temp
+    this.path = path
+    if (this._temp) return
     this._playerManager = new PlayerManager(this._berp, this._connection, this)
     this._socketManager = new SocketManager(this._berp, this._connection, this)
     this._eventManager = new EventManager(this._berp, this._connection, this)
     this._commandManager = new CommandManager(this._berp, this._connection, this)
     this._worldManager = new WorldManager(this._berp, this._connection, this)
-    this.path = path
   }
   public async onEnabled(): Promise<void> {
+    if (this._temp) return
     await this._commandManager.onEnabled()
     await this._playerManager.onEnabled()
     await this._worldManager.onEnabled()
@@ -50,6 +54,7 @@ export class PluginApi {
     return
   }
   public async onDisabled(): Promise<void> {
+    if (this._temp) return
     await this._commandManager.onDisabled()
     await this._playerManager.onDisabled()
     await this._worldManager.onDisabled()

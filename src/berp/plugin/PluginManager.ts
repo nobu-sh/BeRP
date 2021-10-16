@@ -111,6 +111,21 @@ export class PluginManager extends EventEmitter{
             config: config,
             pluginId: this._pluginId,
           })
+          const entryPoint = path.resolve(pluginPath, config.main)
+          const api = new PluginApi(this._berp, config, pluginPath, {
+            realm: {
+              id: 0,
+            },
+          } as any, {
+            apiId: 0,
+            pluginId: 0, 
+          }, true)
+          const pluginClass = require(entryPoint)
+          const plugin: examplePlugin = new pluginClass(api)
+          try {
+            plugin.onLoaded()
+            api.onDisabled()
+          } catch (err) {}
 
           try {
           } catch (error) {

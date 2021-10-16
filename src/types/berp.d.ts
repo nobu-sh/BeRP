@@ -132,6 +132,7 @@ export interface RealmAPIWorld {
 
 export interface examplePlugin {
   new (pluginApi: any)
+  onLoaded(): Promise<void>
   onEnabled(): Promise<void>
   onDisabled(): Promise<void>
 }
