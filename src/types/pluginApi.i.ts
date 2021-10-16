@@ -349,10 +349,12 @@ export interface Heartbeat extends defaultRequest {
 }
 
 export interface SocketEntity extends defaultRequest {
-  id: string
-  runtimeId: number
-  nameTag: string
-  location: BlockPos
+  entity: {
+    id: string
+    runtimeId: number
+    nameTag: string
+    location: BlockPos
+  }
 }
 
 export interface PlayerMessageSocket extends defaultRequest {
