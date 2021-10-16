@@ -26,6 +26,8 @@ export interface PluginApi {
   getSocketManager(): SocketManager
   getPlugins(): Map<string, ActivePlugin>
   createInterface(options: InterfaceOptions): void
+  autoConnect(accountName: string, realmId: number): Promise<void>
+  autoReconnect(accountName: string, realmId: number, msPerAttempt: number): Promise<void>
 }
 
 interface InterfaceOptions {

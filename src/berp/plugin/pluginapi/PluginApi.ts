@@ -89,4 +89,12 @@ export class PluginApi {
       }
     }, 1000)
   }
+  public async autoConnect(accountName: string, realmId: number): Promise<void> {
+    if (!this._temp) return this._logger.error("AutoConnect is only allowed in the onLoaded() method!")
+    const accounts = await this._berp
+      .getAuthProvider()
+      .getCache()
+      .getAllAccounts()
+    console.log(accounts)
+  }
 }
