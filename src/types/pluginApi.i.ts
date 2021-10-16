@@ -322,6 +322,102 @@ export interface SocketManager {
 
 interface SocketValues {
   Message: [JsonData]
+  SocketEnabled: [defaultRequest]
+  SocketDisabled: [defaultRequest]
+  Heartbeat: [Heartbeat]
+  EntityDestroyed: [SocketEntity]
+  EntityCreate: [SocketEntity]
+  PlayerMessage: [PlayerMessageSocket]
+  ChatCommand: [ChatCommandSocket]
+  InventoryRequest: [InventoryRequest]
+  CommandRequest: [CommandRequest]
+  PlayerRequest: [PlayerRequest]
+  EntityRequest: [SocketEntity]
+  UpdateEntity: [UpdateEntity]
+  NameTagChanged: [NameTagChanged]
+  GetRequests: [GetRequests]
+}
+
+interface defaultRequest {
+  event: string
+  message?: string
+  requestId: string
+}
+
+export interface Heartbeat extends defaultRequest {
+  tick: number
+}
+
+export interface SocketEntity extends defaultRequest {
+  id: string
+  runtimeId: number
+  nameTag: string
+  location: BlockPos
+}
+
+export interface PlayerMessageSocket extends defaultRequest {
+  sender: string
+  player: {
+    name: string
+    nameTag: string
+  }
+  message: string
+}
+
+export interface ChatCommandSocket extends defaultRequest {
+  sender: string
+  player: {
+    name: string
+    nameTag: string
+  }
+  command: string
+}
+
+export interface InventoryRequest extends defaultRequest {
+  data: {
+    slot: number
+    id: string
+    amount: number
+    data: number
+  }[]
+}
+
+export interface CommandRequest extends defaultRequest {
+  data: {
+    statusMessage?: string
+  }
+}
+
+export interface PlayerRequest extends defaultRequest {
+  player: {
+    name: string
+    nameTag: string
+    location: BlockPos
+    isSneaking: boolean
+    id: string
+  }
+}
+
+export interface UpdateEntity extends defaultRequest {
+  data: {
+    statusMessage: string
+    err: boolean
+  }
+}
+
+export interface NameTagChanged extends defaultRequest {
+  player: string
+  data: {
+    old: string
+    new: string
+  }
+}
+
+export interface GetRequests extends defaultRequest {
+ data: {
+   request: string
+   params: string
+ }[]
 }
 
 interface CommandOptions {
@@ -353,4 +449,10 @@ interface ActivePlugin {
     api: number
     plugin: number
   }
+}
+
+interface BlockPos {
+  x: number
+  y: number
+  z: number
 }
