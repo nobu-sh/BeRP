@@ -36,7 +36,7 @@ export class PluginApi {
   public path: string
   constructor (berp: BeRP, config: examplePluginConfig, path: string, connection: ConnectionHandler, apis: { apiId: number, pluginId: number }, temp = false) {
     this._berp = berp
-    this._logger = new Logger(`${config.displayName} ${connection.realm.id || 1320}`, config.color)
+    this._logger = new Logger(`${config.displayName} ${connection.realm.id || "(Init)"}`, config.color)
     this._config = config
     this._connection = connection
     this._apiId = apis.apiId
