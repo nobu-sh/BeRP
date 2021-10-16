@@ -53,11 +53,14 @@ class examplePlugin {
       this.api = api // References the pluginAPI for BeRP
     }
 
+    async onLoaded(): Promise<void> {
+      this.api.getLogger().info('Plugin loaded!')
+      // The onLoaded function is called each time the plugin is loaded by BeRP
+    }
     async onEnabled(): Promise<void> {
       this.api.getLogger().info('Plugin enabled!')
       // The onEnabled function is called each time the plugin is started
     }
-
     async onDisabled(): Promise<void> {
       this.api.getLogger().success('Plugin disabled!')
       // The onDiabled function is called each time the plugin is shutting down
