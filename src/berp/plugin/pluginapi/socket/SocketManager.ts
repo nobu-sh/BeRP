@@ -3,10 +3,12 @@ import { EventEmitter } from 'events'
 import { ConnectionHandler } from 'src/berp/network'
 import { PluginApi } from '../pluginApi'
 import {
+  JsonData,
   JsonRequest,
   RawText,
 } from 'src/types/berp'
 import { defaultRequests } from './requests/index'
+import { v4 as uuidv4 } from 'uuid'
 
 export class SocketManager extends EventEmitter {
   private _berp: BeRP
@@ -62,7 +64,7 @@ export class SocketManager extends EventEmitter {
       this._defaultRequests.set(newRequest.requestName, newRequest)
     }
   }
-  public sendMessage(options: JsonRequest, callback?: (data: JsonRequest) => void): void {
+  public sendMessage(options: JsonRequest, callback?: (data: JsonData) => void): void {
     if (callback) this._requests.set(`${options.berp.requestId}:${options.berp.event}`, { execute: callback })
     this._connection.sendPacket('text', {
       message: JSON.stringify(options),
@@ -74,4 +76,5 @@ export class SocketManager extends EventEmitter {
     })
   }
   public getHeartbeats(): number { return this._defaultRequests.get('Heartbeat').getTotalBeats() }
+  public newUUID(): string { return uuidv4() }
 }

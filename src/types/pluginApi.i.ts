@@ -315,8 +315,9 @@ export interface SocketManager {
     event: Exclude<S, keyof SocketValues>,
     ...args: unknown[]
   ): boolean
-  sendMessage(options: JsonRequest, callback?: (data: JsonRequest) => void): void
+  sendMessage(options: JsonRequest, callback?: (data: JsonData) => void): void
   getHeartbeats(): number
+ newUUID(): string
 }
 
 interface SocketValues {
