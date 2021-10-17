@@ -53,8 +53,15 @@ export class PluginManager extends EventEmitter{
 
         return res()
       }
-      for (const plugin of pluginDirs) {
+      for await (const plugin of pluginDirs) {
         await this.register(path.resolve(this._pluginsPath, plugin))
+      }
+
+      for (const [, temp] of this._tempPlugins) {
+        try {
+          temp.plugin.onLoaded()
+          temp.api.onEnabled()
+        } catch (err) {}
       }
     })
   }
@@ -134,10 +141,6 @@ export class PluginManager extends EventEmitter{
               plugin: 0,
             },
           })
-          try {
-            plugin.onLoaded()
-            api.onEnabled()
-          } catch (err) {}
 
           try {
           } catch (error) {
@@ -257,7 +260,9 @@ export class PluginManager extends EventEmitter{
       })
       const newPlugin: examplePlugin = new plugin(pluginAPI)
       pluginAPI.onEnabled()
-      newPlugin.onEnabled()
+      try {
+        newPlugin.onEnabled()
+      } catch (err) {}
       this._activePlugins.set(`${connection.id}:${this._apiId}:${options.config.name}:${options.pluginId}`, {
         config: options.config,
         plugin: newPlugin, 
@@ -274,7 +279,9 @@ export class PluginManager extends EventEmitter{
   public async killPlugins(connection: ConnectionHandler): Promise<void> {
     for (const [, pluginOptions] of this._activePlugins) {
       if (pluginOptions.connection !== connection) continue
-      await pluginOptions.plugin.onDisabled()
+      try {
+        await pluginOptions.plugin.onDisabled()
+      } catch (err) {}
       await pluginOptions.api.onDisabled()
       this._activePlugins.delete(`${pluginOptions.connection.id}:${pluginOptions.ids.api}:${pluginOptions.config.name}:${pluginOptions.ids.plugin}`)
     }
