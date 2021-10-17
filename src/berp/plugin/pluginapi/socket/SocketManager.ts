@@ -7,8 +7,32 @@ import {
   JsonRequest,
   RawText,
 } from 'src/types/berp'
+import {
+  SocketValues,
+} from 'src/types/pluginApi.i'
 import { defaultRequests } from './requests/index'
 import { v4 as uuidv4 } from 'uuid'
+
+export interface SocketManager {
+  on<K extends keyof SocketValues>(event: K, callback: (...args: SocketValues[K]) => void): this
+  on<S extends string | symbol>(
+    event: Exclude<S, keyof SocketValues>,
+    callback: (...args: unknown[]) => void,
+  ): this
+  once<K extends keyof SocketValues>(event: K, callback: (...args: SocketValues[K]) => void): this
+  once<S extends string | symbol>(
+    event: Exclude<S, keyof SocketValues>,
+    callback: (...args: unknown[]) => void,
+  ): this
+  emit<K extends keyof SocketValues>(event: K, ...args: SocketValues[K]): boolean
+  emit<S extends string | symbol>(
+    event: Exclude<S, keyof SocketValues>,
+    ...args: unknown[]
+  ): boolean
+  sendMessage(options: JsonRequest, callback?: (data: JsonData) => void): void
+  getHeartbeats(): number
+  newUUID(): string
+}
 
 export class SocketManager extends EventEmitter {
   private _berp: BeRP
@@ -59,7 +83,7 @@ export class SocketManager extends EventEmitter {
   }
   private _loadRequests(): void {
     for (const request of defaultRequests) {
-      const newRequest = new request(this)
+      const newRequest = new request(this, this._berp, this._connection, this._pluginApi)
       newRequest.onEnabled()
       this._defaultRequests.set(newRequest.requestName, newRequest)
     }

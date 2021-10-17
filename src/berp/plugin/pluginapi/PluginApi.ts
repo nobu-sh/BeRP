@@ -10,6 +10,7 @@ import { BeRP } from '../../'
 import { ConnectionHandler } from 'src/berp/network'
 import { CommandManager } from './command/CommandManager'
 import { PlayerManager } from './player/PlayerManager'
+import { EntityManager } from './entity/EntityManager'
 import { WorldManager } from './world/WorldManager'
 import { SocketManager } from './socket/SocketManager'
 import { EventManager } from './events/EventManager'
@@ -28,6 +29,7 @@ export class PluginApi {
   private _pluginId: number
   private _commandManager: CommandManager
   private _playerManager: PlayerManager
+  private _entityManager: EntityManager
   private _worldManager: WorldManager
   private _socketManager: SocketManager
   private _eventManager: EventManager
@@ -45,6 +47,7 @@ export class PluginApi {
     this.path = path
     if (this._temp) return
     this._playerManager = new PlayerManager(this._berp, this._connection, this)
+    this._entityManager = new EntityManager(this._berp, this._connection, this)
     this._socketManager = new SocketManager(this._berp, this._connection, this)
     this._eventManager = new EventManager(this._berp, this._connection, this)
     this._commandManager = new CommandManager(this._berp, this._connection, this)
@@ -54,6 +57,7 @@ export class PluginApi {
     if (this._temp) return
     await this._commandManager.onEnabled()
     await this._playerManager.onEnabled()
+    await this._entityManager.onEnabled()
     await this._worldManager.onEnabled()
     await this._socketManager.onEnabled()
     await this._eventManager.onEnabled()
@@ -65,6 +69,7 @@ export class PluginApi {
     if (this._temp) return
     await this._commandManager.onDisabled()
     await this._playerManager.onDisabled()
+    await this._entityManager.onDisabled()
     await this._worldManager.onDisabled()
     await this._socketManager.onDisabled()
     await this._eventManager.onDisabled()
@@ -78,6 +83,7 @@ export class PluginApi {
   public getPluginId(): number { return this._pluginId }
   public getCommandManager(): CommandManager { return this._commandManager }
   public getPlayerManager(): PlayerManager { return this._playerManager }
+  public getEntityManager(): EntityManager { return this._entityManager }
   public getWorldManager(): WorldManager { return this._worldManager }
   public getSocketManager(): SocketManager { return this._socketManager }
   public getEventManager(): EventManager { return this._eventManager }

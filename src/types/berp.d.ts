@@ -171,6 +171,12 @@ export interface PlayerOptions {
   skinData: Skin
 }
 
+export interface EntityOptions {
+  id: string
+  nameTag: string
+  runtimeId: number
+}
+
 export interface RawText {
   rawtext: Array<{text: string}>
 }

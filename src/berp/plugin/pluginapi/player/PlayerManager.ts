@@ -61,7 +61,7 @@ export class PlayerManager {
         event: 'UpdateNameTag',
         player: player.getName(),
         message: nameTag,
-        requestId: "1",
+        requestId: this._pluginApi.getSocketManager().newUUID(),
       },
     })
     this._players.nameTag.set(nameTag, player)

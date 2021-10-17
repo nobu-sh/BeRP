@@ -22,6 +22,7 @@ export interface PluginApi {
   getCommandManager(): CommandManager
   getEventManager(): EventManager
   getPlayerManager(): PlayerManager
+  getEntityManager(): EntityManager
   getWorldManager(): WorldManager
   getSocketManager(): SocketManager
   getPlugins(): Map<string, ActivePlugin>
@@ -225,6 +226,8 @@ interface EventValues {
   PlayerMessage: [PlayerMessage] 
   PlayerDied: [PlayerDied]
   ChatCommand: [ChatCommand]
+  EntityCreate: [Entity]
+  EntityDestroyed: [Entity]
 }
 
 export interface Player {
@@ -295,6 +298,19 @@ export interface PlayerManager {
   updatePlayerNameTag(player: Player, nameTag: string): void
 }
 
+export interface EntityManager {
+  addEntity(entity: Entity): void
+  removeEntity(entity: Entity): void
+  getEntityByRuntimeID(runtimID: number): Entity
+  getEntities(): Map<number, Entity>
+}
+
+export interface Entity {
+  getID(): string
+  getNameTag(): string
+  getRuntimeID(): number
+}
+
 export interface WorldManager {
   sendMessage(message: string): void
 }
@@ -317,10 +333,10 @@ export interface SocketManager {
   ): boolean
   sendMessage(options: JsonRequest, callback?: (data: JsonData) => void): void
   getHeartbeats(): number
- newUUID(): string
+  newUUID(): string
 }
 
-interface SocketValues {
+export interface SocketValues {
   Message: [JsonData]
   SocketEnabled: [defaultRequest]
   SocketDisabled: [defaultRequest]
