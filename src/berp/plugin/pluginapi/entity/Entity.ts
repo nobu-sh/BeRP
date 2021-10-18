@@ -23,4 +23,16 @@ export class Entity {
   public getID(): string { return this._id }
   public getNameTag(): string { return this._nameTag }
   public getRuntimeID(): number { return this._runtimeId }
+  public executeCommand(command: string): void {
+    this._pluginApi.getSocketManager().sendMessage({
+      berp: {
+        event: "UpdateEntity",
+        entity: this._runtimeId,
+        data: {
+          command: command,
+        },
+        requestId: this._pluginApi.getSocketManager().newUUID(),
+      },
+    })
+  }
 }

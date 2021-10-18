@@ -28,7 +28,7 @@ export interface PluginApi {
   getPlugins(): Map<string, ActivePlugin>
   createInterface(options: InterfaceOptions): void
   autoConnect(accountEmail: string, realmId: number): Promise<void>
-  autoReconnect(accountEmail: string, realmId: number, msPerAttempt: number): Promise<void>
+  autoReconnect(accountEmail: string, realmId: number): Promise<void>
 }
 
 interface InterfaceOptions {
@@ -275,13 +275,13 @@ interface JsonRequest {
   berp: JsonData
 }
 
-interface JsonData {
+export interface JsonData {
   event?: string
   sender?: any
   player?: any
-  command?: string
-  entityId?: string
   entities?: any
+  entity?: any
+  command?: any
   message?: string
   data?: any
   requestId: string
@@ -309,6 +309,7 @@ export interface Entity {
   getID(): string
   getNameTag(): string
   getRuntimeID(): number
+  executeCommand(command: string): void
 }
 
 export interface WorldManager {

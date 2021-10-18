@@ -190,6 +190,8 @@ export interface JsonData {
   sender?: any
   player?: any
   entities?: any
+  entity?: any
+  command?: any
   message?: string
   data?: any
   requestId: string
