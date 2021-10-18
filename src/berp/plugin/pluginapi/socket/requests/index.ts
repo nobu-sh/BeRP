@@ -4,6 +4,7 @@ import { Heartbeat } from './heartbeat'
 import { GetRequests } from './GetRequests'
 import { EntityCreate } from './EntityCreate'
 import { EntityDestroyed } from './EntityDestroyed'
+import { PlayerMessage } from "./PlayerMessage"
 
 export const defaultRequests = [
   Message,
@@ -12,4 +13,5 @@ export const defaultRequests = [
   GetRequests,
   EntityCreate,
   EntityDestroyed,
+  PlayerMessage,
 ]
