@@ -258,3 +258,9 @@ export interface ActivePlugin {
     plugin: number
   }
 }
+
+export interface BlockPos {
+  x: number
+  y: number
+  z: number
+}

@@ -310,6 +310,8 @@ export interface Entity {
   getNameTag(): string
   getRuntimeID(): number
   executeCommand(command: string): void
+  setNameTag(nameTag: string): void
+  getLocation(): Promise<BlockPos>
 }
 
 export interface WorldManager {

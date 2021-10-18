@@ -1,7 +1,9 @@
 import { ConnectionHandler } from 'src/berp/network'
 import { BeRP } from 'src/berp'
 import { PluginApi } from '../pluginApi'
-import { EntityOptions } from 'src/types/berp'
+import {
+  BlockPos, EntityOptions, 
+} from 'src/types/berp'
 
 export class Entity {
   private _id: string
@@ -33,6 +35,38 @@ export class Entity {
         },
         requestId: this._pluginApi.getSocketManager().newUUID(),
       },
+    })
+  }
+  public setNameTag(nameTag: string): void {
+    this._nameTag = nameTag
+    this._pluginApi.getSocketManager().sendMessage({
+      berp: {
+        event: "UpdateEntity",
+        entity: this._runtimeId,
+        data: {
+          nameTag: nameTag,
+        },
+        requestId: this._pluginApi.getSocketManager().newUUID(),
+      },
+    })
+  }
+  public async getLocation(): Promise<BlockPos> {
+    return new Promise((res) => {
+      this._pluginApi.getSocketManager().sendMessage({
+        berp: {
+          event: "EntityRequest",
+          entity: this._runtimeId,
+          requestId: this._pluginApi.getSocketManager().newUUID(),
+        },
+      }, (packet) => {
+        if (!packet.entity) return res({
+          x: 0,
+          y: 0,
+          z: 0, 
+        })
+
+        return res(packet.entity.location)
+      })
     })
   }
 }
