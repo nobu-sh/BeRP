@@ -17,6 +17,8 @@ export class EntityDestroyed {
   }
   public onEnabled(): void {
     this._socket.on("EntityDestroyed", (packet) => {
+      if (!this._pluginApi.getEntityManager().getEntities()
+        .has(packet.entity.runtimeId)) return
       const entity = this._pluginApi.getEntityManager().getEntityByRuntimeID(packet.entity.runtimeId)
       this._pluginApi.getEntityManager().removeEntity(entity)
     })
