@@ -253,6 +253,7 @@ export interface Player {
   updateScore(operation: 'add' | 'remove' | 'set', objective: string, value: number): void
   kick(reason: string): void
   getItemCount(item: string): Promise<number>
+  getLocation(): Promise<BlockPos | void>
 }
 
 interface PlayerMessage {

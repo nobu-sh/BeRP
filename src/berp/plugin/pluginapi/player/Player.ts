@@ -1,7 +1,10 @@
 import { ConnectionHandler } from 'src/berp/network'
 import { BeRP } from 'src/berp'
 import { PluginApi } from '../pluginApi'
-import { PlayerOptions } from 'src/types/berp'
+import {
+  BlockPos,
+  PlayerOptions,
+} from 'src/types/berp'
 import { Skin } from 'src/types/packetTypes.i'
 import { packet_command_output } from 'src/types/packets.i'
 
@@ -65,6 +68,7 @@ export class Player {
   }
   public getConnection(): ConnectionHandler { return this._connection }
   public setNameTag(nameTag: string): void {
+    if (!this._pluginApi.getSocketManager().enabled) return this._pluginApi.getLogger().error("setNameTag() can't be used because there is no Socket Connection.")
     this._pluginApi.getPlayerManager().updatePlayerNameTag(this, nameTag)
     this._nameTag = nameTag
   }
@@ -129,6 +133,27 @@ export class Player {
         if (count == undefined) count = '0'
 
         return r(parseInt(count))
+      })
+    })
+  }
+  public async getLocation(): Promise<BlockPos | void> {
+    if (!this._pluginApi.getSocketManager().enabled) return this._pluginApi.getLogger().error("getLocation() can't be used because there is no Socket Connection.")
+
+    return new Promise((res) => {
+      this._pluginApi.getSocketManager().sendMessage({
+        berp: {
+          event: "PlayerRequest",
+          player: this._name,
+          requestId: this._pluginApi.getSocketManager().newUUID(),
+        },
+      }, (packet) => {
+        if (!packet.player) return res({
+          x: 0,
+          y: 0,
+          z: 0, 
+        })
+
+        return res(packet.player.location)
       })
     })
   }
