@@ -7,7 +7,10 @@ import {
 } from 'src/types/berp'
 import { Skin } from 'src/types/packetTypes.i'
 import { packet_command_output } from 'src/types/packets.i'
-import { Inventory, InventoryRequest } from 'src/types/pluginApi.i'
+import {
+  Inventory,
+  InventoryRequest,
+} from 'src/types/pluginApi.i'
 
 export class Player {
   private _name: string
