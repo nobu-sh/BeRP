@@ -254,6 +254,7 @@ export interface Player {
   kick(reason: string): void
   getItemCount(item: string): Promise<number>
   getLocation(): Promise<BlockPos>
+  getInventory(): Promise<Inventory[]>
 }
 
 interface PlayerMessage {
@@ -402,6 +403,13 @@ export interface InventoryRequest extends defaultRequest {
     amount: number
     data: number
   }[]
+}
+
+export interface Inventory {
+  slot: number
+  id: string
+  amount: number
+  data: number
 }
 
 export interface CommandRequest extends defaultRequest {

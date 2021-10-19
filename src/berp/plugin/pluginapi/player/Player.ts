@@ -7,6 +7,7 @@ import {
 } from 'src/types/berp'
 import { Skin } from 'src/types/packetTypes.i'
 import { packet_command_output } from 'src/types/packets.i'
+import { Inventory, InventoryRequest } from 'src/types/pluginApi.i'
 
 export class Player {
   private _name: string
@@ -155,6 +156,23 @@ export class Player {
 
         return res(packet.player.location)
       })
+    })
+  }
+  public async getInventory(): Promise<Inventory[] | void> {
+    if (!this._pluginApi.getSocketManager().enabled) return this._pluginApi.getLogger().error("getInventory() can't be used because there is no Socket Connection.")
+
+    return new Promise((res) => {
+      this._pluginApi.getSocketManager()
+        .sendMessage({
+          berp: {
+            event: "InventoryRequest",
+            player: this.getName(),
+            requestId: this._pluginApi.getSocketManager()
+              .newUUID(),
+          },
+        }, (packet: InventoryRequest) => {
+          return res(packet.data)
+        })
     })
   }
 }
