@@ -20,7 +20,15 @@ export class EnableRequest {
       if (packet.event != "EnableSocket" || this._socket.enabled == true) return
       this._socket.enabled = true
       this._socket.emit("Enabled", packet)
-      this._pluginApi.getLogger().success("Socket connection established!")
+      if (!packet.data) {
+        this._pluginApi.getLogger().success("Socket connection established!")
+      } else {
+        this._pluginApi.getLogger().success(`Socket connection established using ${packet.data.api || "unkown"} v${packet.data.version || "unkown"} for Minecraft: Bedrock v${packet.data.mcbe || "unkown"} (${packet.data.protocol || "unkown"})!`)
+        this._socket._api = packet.data.api || "unkown"
+        this._socket._verison = packet.data.version || "unkown"
+        this._socket._mcbe = packet.data.mcbe || "unkown"
+        this._socket._protocol = packet.data.protocol || "unkown"
+      }
 
       return this._socket.sendMessage({
         berp: {

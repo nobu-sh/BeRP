@@ -40,6 +40,10 @@ export class SocketManager extends EventEmitter {
   private _pluginApi: PluginApi
   private _requests = new Map<string, {execute: any}>()
   private _defaultRequests = new Map<string, any>()
+  public _api: string
+  public _verison: string
+  public _mcbe: string
+  public _protocol: number
   public enabled: boolean
   constructor(berp: BeRP, connection: ConnectionHandler, pluginApi: PluginApi) {
     super()
