@@ -356,6 +356,7 @@ export interface SocketValues {
   EntityRequest: [SocketEntity]
   UpdateEntity: [UpdateEntity]
   NameTagChanged: [NameTagChanged]
+  TagsRequest: [TagsRequest]
   GetRequests: [GetRequests]
 }
 
@@ -441,6 +442,11 @@ export interface NameTagChanged extends defaultRequest {
     old: string
     new: string
   }
+}
+
+export interface TagsRequest extends defaultRequest {
+  player: string
+  data: string[]
 }
 
 export interface GetRequests extends defaultRequest {

@@ -28,6 +28,12 @@ export class EnableRequest {
         this._socket._verison = packet.data.version || "unkown"
         this._socket._mcbe = packet.data.mcbe || "unkown"
         this._socket._protocol = packet.data.protocol || "unkown"
+        this._pluginApi.getCommandManager().registerCommand({
+          command: packet.data.api.toLocaleLowerCase(),
+          description: "Returns information about the current socket manager.",
+        }, (res) => {
+          res.sender.sendMessage(`§7BeRP SocketManager is using §9${packet.data.api} v${packet.data.version}§7 for §aMinecraft: Bedrock Edition v${packet.data.mcbe} §7(§a${packet.data.protocol}§7).`)
+        })
       }
 
       return this._socket.sendMessage({
