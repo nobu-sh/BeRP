@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import {
   AccountInfo,
 } from "@azure/msal-node"
@@ -337,6 +338,8 @@ export interface SocketManager {
     ...args: unknown[]
   ): boolean
   sendMessage(options: JsonRequest, callback?: (data: JsonData) => void): void
+  // @ts-ignore
+  sendPacket<K extends keyof SocketOutboundValues>(name: K, params: SocketOutboundValues[K][0], callback?: (data: SocketValues[K][0]) => void): void
   getHeartbeats(): number
   newUUID(): string
 }
@@ -491,4 +494,54 @@ interface BlockPos {
   x: number
   y: number
   z: number
+}
+
+export interface SocketOutboundValues {
+  CommandRequest: [CommandRequestOutbound]
+  DisableRequest: []
+  EnableRequest: []
+  EntityRequest: [EntityRequestOutbound]
+  ToggleMessages: [ToggleRequests]
+  ToggleCommands: [ToggleRequests]
+  GetRequests: []
+  InventoryRequest: [InventoryRequestOutbound]
+  PlayerRequest: [PlayerRequestOutbound]
+  TagsRequest: [PlayerRequestOutbound]
+  UpdateEntity: [UpdateEntityOutbound]
+  UpdateNameTag: [UpdateNameTagOutbound]
+}
+
+interface CommandRequestOutbound {
+  command: string
+}
+
+interface EntityRequestOutbound {
+  entity: number
+}
+
+interface ToggleRequests {
+  data: boolean
+}
+
+interface InventoryRequestOutbound {
+  player: string
+}
+
+interface PlayerRequestOutbound {
+  player: string
+}
+
+interface UpdateEntityOutbound {
+  entity: number
+  data: {
+    nameTag?: string
+    kill?: boolean
+    command?: string
+    triggerEvent?: string
+  }
+}
+
+interface UpdateNameTagOutbound {
+  player: string
+  message: string
 }

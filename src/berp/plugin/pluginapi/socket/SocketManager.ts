@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { BeRP } from '../../../'
 import { EventEmitter } from 'events'
 import { ConnectionHandler } from 'src/berp/network'
@@ -8,6 +9,7 @@ import {
   RawText,
 } from 'src/types/berp'
 import {
+  SocketOutboundValues,
   SocketValues,
 } from 'src/types/pluginApi.i'
 import { defaultRequests } from './requests/index'
@@ -101,6 +103,21 @@ export class SocketManager extends EventEmitter {
       source_name: this._connection.getXboxProfile().extraData.displayName,
       type: 'chat',
       xuid: this._connection.getXboxProfile().extraData.XUID,
+    })
+  }
+  // @ts-ignore
+  public sendPacket<K extends keyof SocketOutboundValues>(name: K, params: SocketOutboundValues[K][0], callback?: (data: SocketValues[K][0]) => void): void {
+    const requestId = this.newUUID()
+    this.sendMessage({
+      berp: {
+        event: name,
+        requestId: requestId,
+        ...params,
+      },
+    }, (res) => {
+      if (!callback) return
+
+      return callback(res as any)
     })
   }
   public getHeartbeats(): number { return this._defaultRequests.get('Heartbeat').getTotalBeats() }
