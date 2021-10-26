@@ -19,6 +19,8 @@ export class GetPlayers {
     this._socket.on("Enabled", () => {
       this._socket.sendPacket("GetPlayers", undefined, (res) => {
         for (const entry of res.data) {
+          if (!this._pluginApi.getPlayerManager().getPlayerList()
+            .has(entry.name)) continue
           if (entry.name == this._connection.getXboxProfile().extraData.displayName) continue
           const player = this._pluginApi.getPlayerManager().getPlayerByName(entry.name)
           if (player.getNameTag() == entry.nameTag) continue
