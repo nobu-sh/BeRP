@@ -361,6 +361,8 @@ export interface SocketValues {
   NameTagChanged: [NameTagChanged]
   TagsRequest: [TagsRequest]
   GetRequests: [GetRequests]
+  GetPlayers: [GetPlayers]
+  GetEntities: [GetEntities]
 }
 
 interface defaultRequest {
@@ -459,6 +461,21 @@ export interface GetRequests extends defaultRequest {
  }[]
 }
 
+export interface GetPlayers extends defaultRequest {
+  data: {
+    name: string
+    nameTag: string
+  }[]
+}
+
+export interface GetEntities extends defaultRequest {
+  data: {
+    id: string
+    runtimeId: number
+    nameTag: string
+  }[]
+}
+
 interface CommandOptions {
   command: string
   aliases?: string[]
@@ -509,6 +526,8 @@ export interface SocketOutboundValues {
   TagsRequest: [PlayerRequestOutbound]
   UpdateEntity: [UpdateEntityOutbound]
   UpdateNameTag: [UpdateNameTagOutbound]
+  GetPlayers: []
+  GetEntities: []
 }
 
 interface CommandRequestOutbound {

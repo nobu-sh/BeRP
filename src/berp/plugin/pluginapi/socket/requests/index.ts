@@ -5,6 +5,8 @@ import { GetRequests } from './GetRequests'
 import { EntityCreate } from './EntityCreate'
 import { EntityDestroyed } from './EntityDestroyed'
 import { PlayerMessage } from "./PlayerMessage"
+import { GetPlayers } from './GetPlayers'
+import { GetEntities } from './GetEntities'
 
 export const defaultRequests = [
   Message,
@@ -14,4 +16,6 @@ export const defaultRequests = [
   EntityCreate,
   EntityDestroyed,
   PlayerMessage,
+  GetPlayers,
+  GetEntities,
 ]

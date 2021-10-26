@@ -76,6 +76,10 @@ export class Player {
     this._pluginApi.getPlayerManager().updatePlayerNameTag(this, nameTag)
     this._nameTag = nameTag
   }
+  public setNameTagBackDoor(nameTag: string): void {
+    this._pluginApi.getPlayerManager().updatePlayerNameTag(this, nameTag, false)
+    this._nameTag = nameTag
+  }
   public sendMessage(message: string): void {
     this._pluginApi.getCommandManager().executeCommand(`tellraw "${this.getExecutionName()}" {"rawtext":[{"text":"${message}"}]}`)
   }

@@ -54,8 +54,10 @@ export class PlayerManager {
   public getPlayerByXuid(xuid: string): Player { return this._players.xuid.get(xuid) }
   public getPlayerByEntityID(entityID: bigint): Player { return this._players.entityID.get(entityID) }
   public getPlayerList(): Map<string, Player> { return this._players.name }
-  public updatePlayerNameTag(player: Player, nameTag: string): void {
+  public updatePlayerNameTag(player: Player, nameTag: string, emit = true): void {
     this._players.nameTag.delete(player.getNameTag())
+    this._players.nameTag.set(nameTag, player)
+    if (!emit) return
     this._pluginApi.getSocketManager().sendMessage({
       berp: {
         event: 'UpdateNameTag',
@@ -64,6 +66,5 @@ export class PlayerManager {
         requestId: this._pluginApi.getSocketManager().newUUID(),
       },
     })
-    this._players.nameTag.set(nameTag, player)
   }
 }
