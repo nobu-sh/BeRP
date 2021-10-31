@@ -182,7 +182,6 @@ function parseYAML(lines) {
     return ret
   } catch (e) {
     if (e instanceof yaml.YAMLException) {
-      // @ts-expect-error
       delete e.mark // remove logging spam
     }
     throw e
