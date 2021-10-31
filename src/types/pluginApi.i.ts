@@ -319,6 +319,7 @@ export interface Entity {
 
 export interface WorldManager {
   sendMessage(message: string): void
+  kickAll(reason: string): void
 }
 
 export interface SocketManager {
