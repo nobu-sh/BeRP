@@ -160,6 +160,22 @@ export class PluginManager extends EventEmitter{
   private async _update(path: string, config: examplePluginConfig): Promise<boolean> {
     return new Promise((res) => {
       this._logger.info(`Installing dependencies for "${config.displayName || path}"`)
+      childProcess.exec('npm i tsc', {
+        cwd: path,
+      }, (err, out, s) => {
+        if (err) {
+          this._logger.error(`Failed to install dependencies for "${config.displayName || path}". Recieved Error(s):\n`, out, s)
+          res(false)
+        }
+      })
+      childProcess.exec('npm i typescript', {
+        cwd: path,
+      }, (err, out, s) => {
+        if (err) {
+          this._logger.error(`Failed to install dependencies for "${config.displayName || path}". Recieved Error(s):\n`, out, s)
+          res(false)
+        }
+      })
       childProcess.exec('npm i', {
         cwd: path,
       }, (err, out, s) => {
