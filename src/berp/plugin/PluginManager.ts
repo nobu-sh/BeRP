@@ -265,7 +265,7 @@ export class PluginManager extends EventEmitter{
 
     return true
   }
-  public registerPlugins(connection: ConnectionHandler): void {
+  public async registerPlugins(connection: ConnectionHandler): Promise<void> {
     this._apiId++
     for (const [plpath, options] of this._knownPlugins) {
       const entryPoint = path.resolve(plpath, options.config.main)
@@ -275,7 +275,7 @@ export class PluginManager extends EventEmitter{
         pluginId: options.pluginId,
       })
       const newPlugin: examplePlugin = new plugin(pluginAPI)
-      pluginAPI.onEnabled()
+      await pluginAPI.onEnabled()
       try {
         newPlugin.onEnabled()
       } catch (err) {}
