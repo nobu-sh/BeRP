@@ -36,7 +36,7 @@ export class Disconnect extends BaseCommand {
             const connections = Array.from(account.getConnections().entries())
             this._berp.getConsole()
               .sendSelectPrompt("Select which realm you would like to disconnect from", connections.map(([k,v]) => `${v.realm.name.replace(/§\S/g, "")} (${k})`))
-              .then(r => {
+              .then(async (r) => {
                 if (r) {
                   try {
                     const id = /\(.*\)/.exec(r)[0].replace(/(\(|\))/g, "")
@@ -45,6 +45,7 @@ export class Disconnect extends BaseCommand {
                       return this._berp.getNetworkManager().getLogger()
                         .error(`Failed to select realm "${r}"`)
                     }
+                    await this._berp.getPluginManager().killPlugins(realm)
                     realm.close()
                   } catch (error) {
                     return this._berp.getNetworkManager().getLogger()

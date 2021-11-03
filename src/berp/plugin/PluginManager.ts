@@ -307,6 +307,15 @@ export class PluginManager extends EventEmitter{
       temp.api.onDisabled()
     }
   }
+  public async killAllPlugins(): Promise<void> {
+    for (const [, plugin] of this._activePlugins) {
+      try {
+        await plugin.plugin.onDisabled()
+      } catch (err) {}
+      await plugin.api.onDisabled()
+      this._activePlugins.delete(`${plugin.connection.id}:${plugin.ids.api}:${plugin.config.name}:${plugin.ids.plugin}`)
+    }
+  }
   public getPlugins(): Map<string, {config: examplePluginConfig, pluginId: number}> { return this._knownPlugins }
   public getActivePlugins(): Map<string, ActivePlugin> { return this._activePlugins }
 }

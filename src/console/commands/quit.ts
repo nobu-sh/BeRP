@@ -15,7 +15,8 @@ export class Quit extends BaseCommand {
     super()
     this._berp = berp
   }
-  public execute(): void {
+  public async execute(): Promise<void> {
+    await this._berp.getPluginManager().killAllPlugins()
     this._berp.getConsole().stop()
     this._berp.getSequentialBucket().pauseFlush()
     this._berp.getSequentialBucket().emptyBucket()
