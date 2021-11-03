@@ -574,5 +574,7 @@ interface UpdateNameTagOutbound {
 
 interface ScoreRequestOutbound {
   player: string
-  objective: string
+  data: {
+    objective: string
+  }
 }
