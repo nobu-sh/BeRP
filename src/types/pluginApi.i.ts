@@ -364,6 +364,7 @@ export interface SocketValues {
   GetRequests: [GetRequests]
   GetPlayers: [GetPlayers]
   GetEntities: [GetEntities]
+  ScoreRequest: [ScoreRequest]
 }
 
 interface defaultRequest {
@@ -477,6 +478,10 @@ export interface GetEntities extends defaultRequest {
   }[]
 }
 
+export interface ScoreRequest extends defaultRequest {
+  data: number
+}
+
 interface CommandOptions {
   command: string
   aliases?: string[]
@@ -529,6 +534,7 @@ export interface SocketOutboundValues {
   UpdateNameTag: [UpdateNameTagOutbound]
   GetPlayers: []
   GetEntities: []
+  ScoreRequest: [ScoreRequestOutbound]
 }
 
 interface CommandRequestOutbound {
@@ -564,4 +570,9 @@ interface UpdateEntityOutbound {
 interface UpdateNameTagOutbound {
   player: string
   message: string
+}
+
+interface ScoreRequestOutbound {
+  player: string
+  objective: string
 }
