@@ -265,32 +265,49 @@ export class PluginManager extends EventEmitter{
 
     return true
   }
-  public async registerPlugins(connection: ConnectionHandler): Promise<void> {
+  public async registerPlugins(connection: ConnectionHandler): Promise<ActivePlugin[]> {
     this._apiId++
-    for (const [plpath, options] of this._knownPlugins) {
-      const entryPoint = path.resolve(plpath, options.config.main)
-      const plugin: examplePlugin = require(entryPoint)
-      const pluginAPI = new PluginApi(this._berp, options.config, plpath, connection, {
-        apiId: this._apiId,
-        pluginId: options.pluginId,
-      })
-      const newPlugin: examplePlugin = new plugin(pluginAPI)
-      await pluginAPI.onEnabled()
-      try {
-        newPlugin.onEnabled()
-      } catch (err) {}
-      this._activePlugins.set(`${connection.id}:${this._apiId}:${options.config.name}:${options.pluginId}`, {
-        config: options.config,
-        plugin: newPlugin, 
-        api: pluginAPI,
-        connection: connection,
-        path: plpath,
-        ids: {
-          api: this._apiId,
-          plugin: options.pluginId,
-        },
-      })
-    }
+    const plugins: ActivePlugin[] = []
+
+    return new Promise(async (res) => {
+      for await (const [plpath, options] of this._knownPlugins) {
+        const entryPoint = path.resolve(plpath, options.config.main)
+        const plugin: examplePlugin = require(entryPoint)
+        const pluginAPI = new PluginApi(this._berp, options.config, plpath, connection, {
+          apiId: this._apiId,
+          pluginId: options.pluginId,
+        })
+        const newPlugin: examplePlugin = new plugin(pluginAPI)
+        await pluginAPI.onEnabled()
+        try {
+          newPlugin.onEnabled()
+        } catch (err) {}
+        this._activePlugins.set(`${connection.id}:${this._apiId}:${options.config.name}:${options.pluginId}`, {
+          config: options.config,
+          plugin: newPlugin, 
+          api: pluginAPI,
+          connection: connection,
+          path: plpath,
+          ids: {
+            api: this._apiId,
+            plugin: options.pluginId,
+          },
+        })
+        plugins.push({
+          config: options.config,
+          plugin: newPlugin,
+          api: pluginAPI,
+          connection: connection,
+          path: plpath,
+          ids: {
+            api: this._apiId,
+            plugin: options.pluginId,
+          },
+        })
+      }
+
+      return res(plugins)
+    })
   }
   public async killPlugins(connection: ConnectionHandler): Promise<void> {
     for (const [, pluginOptions] of this._activePlugins) {

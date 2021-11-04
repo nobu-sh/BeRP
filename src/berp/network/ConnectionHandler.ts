@@ -8,7 +8,10 @@ import {
 import { RakManager } from "../raknet"
 import { Logger } from '../../console'
 import { ConnectionManager } from "./ConnectionManager"
-import { RealmAPIWorld } from "src/types/berp"
+import {
+  ActivePlugin,
+  RealmAPIWorld,
+} from "src/types/berp"
 import { BeRP } from ".."
 // TODO: Client/plugins can control connection/diconnection of rak
 
@@ -24,6 +27,7 @@ export class ConnectionHandler extends RakManager {
   private _tickSyncKeepAlive: NodeJS.Timer
   private _connectionManager: ConnectionManager
   private _log: Logger
+  private _plugins = new Map<string, ActivePlugin>()
   private _berp: BeRP
   constructor(host: string, port: number, realm: RealmAPIWorld, cm: ConnectionManager, berp: BeRP) {
     super(host, port, cm.getAccount().username, realm.id)
@@ -125,8 +129,8 @@ export class ConnectionHandler extends RakManager {
       runtime_entity_id: pak.runtime_entity_id,
     })
     this.emit("rak_ready")
+    this._registerPlugins()
     this.removeListener('player_list', this._playerQue)
-    this._berp.getPluginManager().registerPlugins(this)
     await this.sendPacket(Packets.TickSync, {
       request_time: BigInt(Date.now()),
       response_time: 0n,
@@ -137,5 +141,11 @@ export class ConnectionHandler extends RakManager {
         response_time: 0n,
       })
     }, 50 * ConnectionHandler.KEEPALIVEINT)
+  }
+  private async _registerPlugins(): Promise<void> {
+    const plugins = await this._berp.getPluginManager().registerPlugins(this)
+    for (const plugin of plugins) {
+      this._plugins.set(`${plugin.ids.api}:${plugin.config.name}:${plugin.ids.plugin}`, plugin)
+    }
   }
 }
