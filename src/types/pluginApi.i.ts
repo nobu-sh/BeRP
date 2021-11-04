@@ -79,6 +79,7 @@ export interface ConnectionHandler extends RakManager {
   getConnectionManager(): ConnectionManager
   close(): void
   sendCommandFeedback(option: boolean): void
+  getPlugins(): Map<string, ActivePlugin>
 }
 
 export interface RakManager {

@@ -145,7 +145,8 @@ export class ConnectionHandler extends RakManager {
   private async _registerPlugins(): Promise<void> {
     const plugins = await this._berp.getPluginManager().registerPlugins(this)
     for (const plugin of plugins) {
-      this._plugins.set(`${plugin.ids.api}:${plugin.config.name}:${plugin.ids.plugin}`, plugin)
+      this._plugins.set(plugin.config.name, plugin)
     }
   }
+  public getPlugins(): Map<string, ActivePlugin> { return this._plugins }
 }
