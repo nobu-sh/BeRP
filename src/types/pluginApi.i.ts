@@ -511,6 +511,7 @@ interface ActivePlugin {
   ids: {
     api: number
     plugin: number
+    instance: number
   }
 }
 

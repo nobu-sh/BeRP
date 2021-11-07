@@ -18,6 +18,7 @@ export class PluginManager extends EventEmitter{
   private _berp: BeRP
   private _knownPlugins = new Map<string, {config: examplePluginConfig, pluginId: number}>()
   private _activePlugins = new Map<string, ActivePlugin>()
+  private _pluginInstances = new Map<string, number>()
   private _tempPlugins = new Map<string, ActivePlugin>()
   private _pluginsPath = path.resolve(process.cwd(), './plugins')
   private _logger: Logger
@@ -139,6 +140,7 @@ export class PluginManager extends EventEmitter{
             ids: {
               api: 0,
               plugin: 0,
+              instance: 0,
             },
           })
 
@@ -282,6 +284,8 @@ export class PluginManager extends EventEmitter{
         try {
           newPlugin.onEnabled()
         } catch (err) {}
+        const inst = this._pluginInstances.get(options.config.name) ?? 0
+        this._pluginInstances.set(options.config.name, inst + 1)
         this._activePlugins.set(`${connection.id}:${this._apiId}:${options.config.name}:${options.pluginId}`, {
           config: options.config,
           plugin: newPlugin, 
@@ -291,6 +295,7 @@ export class PluginManager extends EventEmitter{
           ids: {
             api: this._apiId,
             plugin: options.pluginId,
+            instance: inst + 1,
           },
         })
         plugins.push({
@@ -302,6 +307,7 @@ export class PluginManager extends EventEmitter{
           ids: {
             api: this._apiId,
             plugin: options.pluginId,
+            instance: 0,
           },
         })
       }
