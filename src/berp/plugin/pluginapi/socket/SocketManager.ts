@@ -74,7 +74,7 @@ export class SocketManager extends EventEmitter {
         for (const raw of parsedMessage.rawtext) {
           message.push(raw.text)
         }
-        const data = JSON.parse(message.join(''))
+        const data = JSON.parse(message.join('').replace(/\n/g, "\\n"))
         if (this._requests.has(`${data.berp.requestId}:${data.berp.event}`)) {
           this._requests.get(`${data.berp.requestId}:${data.berp.event}`).execute(data.berp)
           this._requests.delete(`${data.berp.requestId}:${data.berp.event}`)
