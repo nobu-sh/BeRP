@@ -127,7 +127,8 @@ export class PluginManager extends EventEmitter{
             },
           } as any, {
             apiId: 0,
-            pluginId: 0, 
+            pluginId: 0,
+            instanceId: 0,
           }, true)
           const pluginClass = require(entryPoint)
           const plugin: examplePlugin = new pluginClass(api)
@@ -278,6 +279,7 @@ export class PluginManager extends EventEmitter{
         const pluginAPI = new PluginApi(this._berp, options.config, plpath, connection, {
           apiId: this._apiId,
           pluginId: options.pluginId,
+          instanceId: 0,
         })
         const newPlugin: examplePlugin = new plugin(pluginAPI)
         await pluginAPI.onEnabled()

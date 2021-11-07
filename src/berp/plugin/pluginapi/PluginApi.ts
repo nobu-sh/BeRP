@@ -27,6 +27,7 @@ export class PluginApi {
   private _connection: ConnectionHandler
   private _apiId: number
   private _pluginId: number
+  private _instanceId: number
   private _commandManager: CommandManager
   private _playerManager: PlayerManager
   private _entityManager: EntityManager
@@ -37,13 +38,14 @@ export class PluginApi {
   private _hasConnected = false
   private _interval
   public path: string
-  constructor (berp: BeRP, config: examplePluginConfig, path: string, connection: ConnectionHandler, apis: { apiId: number, pluginId: number }, temp = false) {
+  constructor (berp: BeRP, config: examplePluginConfig, path: string, connection: ConnectionHandler, apis: { apiId: number, pluginId: number, instanceId: number }, temp = false) {
     this._berp = berp
     this._logger = new Logger(`${config.displayName} ${connection.realm.id || "(Init)"}`, config.color)
     this._config = config
     this._connection = connection
     this._apiId = apis.apiId
     this._pluginId = apis.pluginId
+    this._instanceId = apis.instanceId
     this._temp = temp
     this.path = path
     if (this._temp) return
@@ -82,6 +84,7 @@ export class PluginApi {
   public getConfig(): examplePluginConfig { return this._config }
   public getApiId(): number { return this._apiId }
   public getPluginId(): number { return this._pluginId }
+  public getInstanceId(): number { return this._instanceId }
   public getCommandManager(): CommandManager { return this._commandManager }
   public getPlayerManager(): PlayerManager { return this._playerManager }
   public getEntityManager(): EntityManager { return this._entityManager }

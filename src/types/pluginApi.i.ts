@@ -20,6 +20,7 @@ export interface PluginApi {
   getConfig(): examplePluginConfig
   getApiId(): number
   getPluginId(): number
+  getInstanceId(): number
   getCommandManager(): CommandManager
   getEventManager(): EventManager
   getPlayerManager(): PlayerManager
