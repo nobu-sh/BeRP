@@ -276,18 +276,18 @@ export class PluginManager extends EventEmitter{
       for await (const [plpath, options] of this._knownPlugins) {
         const entryPoint = path.resolve(plpath, options.config.main)
         const plugin: examplePlugin = require(entryPoint)
+        const inst = this._pluginInstances.get(options.config.name) ?? 0
+        this._pluginInstances.set(options.config.name, inst + 1)
         const pluginAPI = new PluginApi(this._berp, options.config, plpath, connection, {
           apiId: this._apiId,
           pluginId: options.pluginId,
-          instanceId: 0,
+          instanceId: inst + 1,
         })
         const newPlugin: examplePlugin = new plugin(pluginAPI)
         await pluginAPI.onEnabled()
         try {
           newPlugin.onEnabled()
         } catch (err) {}
-        const inst = this._pluginInstances.get(options.config.name) ?? 0
-        this._pluginInstances.set(options.config.name, inst + 1)
         this._activePlugins.set(`${connection.id}:${this._apiId}:${options.config.name}:${options.pluginId}`, {
           config: options.config,
           plugin: newPlugin, 

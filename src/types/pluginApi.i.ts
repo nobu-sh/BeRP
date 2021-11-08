@@ -28,6 +28,7 @@ export interface PluginApi {
   getWorldManager(): WorldManager
   getSocketManager(): SocketManager
   getPlugins(): Map<string, ActivePlugin>
+  getPluginByInstanceId(name: string, id: number): Promise<ActivePlugin>
   createInterface(options: InterfaceOptions): void
   autoConnect(accountEmail: string, realmId: number): Promise<void>
   autoReconnect(accountEmail: string, realmId: number): Promise<void>

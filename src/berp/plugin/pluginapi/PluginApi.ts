@@ -1,5 +1,6 @@
 import { Logger } from '../../../console'
 import {
+  ActivePlugin,
   examplePlugin,
   examplePluginConfig,
   RealmAPIJoinInfo,
@@ -64,6 +65,7 @@ export class PluginApi {
     await this._worldManager.onEnabled()
     await this._socketManager.onEnabled()
     await this._eventManager.onEnabled()
+    this.getPluginByInstanceId("s", 1)
 
     return
   }
@@ -99,6 +101,15 @@ export class PluginApi {
     }
 
     return plugins
+  }
+  public getPluginByInstanceId(name: string, id: number): Promise<ActivePlugin> {
+    return new Promise((res) => {
+      for (const [, plugin] of this._berp.getPluginManager().getActivePlugins()) {
+        if (plugin.config.name.toLocaleLowerCase() != name.toLocaleLowerCase() && plugin.ids.instance != id) continue
+        
+        return res(plugin)
+      }
+    })
   }
   public createInterface(options: {name: string, interface: string}): void {
     setTimeout(() => {
