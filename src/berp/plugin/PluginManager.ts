@@ -284,10 +284,6 @@ export class PluginManager extends EventEmitter{
           instanceId: inst + 1,
         })
         const newPlugin: examplePlugin = new plugin(pluginAPI)
-        await pluginAPI.onEnabled()
-        try {
-          newPlugin.onEnabled()
-        } catch (err) {}
         this._activePlugins.set(`${connection.id}:${this._apiId}:${options.config.name}:${options.pluginId}`, {
           config: options.config,
           plugin: newPlugin, 
@@ -300,6 +296,10 @@ export class PluginManager extends EventEmitter{
             instance: inst + 1,
           },
         })
+        await pluginAPI.onEnabled()
+        try {
+          newPlugin.onEnabled()
+        } catch (err) {}
         plugins.push({
           config: options.config,
           plugin: newPlugin,
