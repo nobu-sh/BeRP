@@ -384,6 +384,10 @@ export interface SocketEntity extends defaultRequest {
     id: string
     runtimeId: number
     nameTag: string
+    health: {
+      current: number
+      max: number
+    }
     location: BlockPos
   }
 }
@@ -432,6 +436,10 @@ export interface PlayerRequest extends defaultRequest {
   player: {
     name: string
     nameTag: string
+    health: {
+      current: number
+      max: number
+    }
     location: BlockPos
     isSneaking: boolean
     id: string
