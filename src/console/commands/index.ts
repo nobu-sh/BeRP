@@ -8,6 +8,7 @@ import { Account } from './account'
 import { Connect } from './connect'
 import { Connections } from './connections'
 import { Disconnect } from './disconnect'
+import { External } from './external'
 class ex {
   public name: string
   public description: string
@@ -26,6 +27,7 @@ const Commands: typeof ex[] = [
   Connect,
   Connections,
   Disconnect,
+  External,
 ]
 
 export { Commands }
