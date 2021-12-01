@@ -26,6 +26,7 @@ export interface PluginApi {
   getPlayerManager(): PlayerManager
   getEntityManager(): EntityManager
   getWorldManager(): WorldManager
+  getRealmManager(): RealmManager
   getSocketManager(): SocketManager
   getPlugins(): Map<string, ActivePlugin>
   getPluginByInstanceId(name: string, id: number): Promise<ActivePlugin>
@@ -323,6 +324,17 @@ export interface Entity {
 export interface WorldManager {
   sendMessage(message: string): void
   kickAll(reason: string): void
+}
+
+export interface RealmManager {
+  renameRealm(name: string): Promise<void>
+  closeRealm(): Promise<boolean>
+  openRealm(): Promise<boolean>
+  restartRealm(): Promise<boolean>
+  updatePlayerPermission(player: Player, permissionLevel: "VISITOR" | "MEMBER" | "OPERATOR"): Promise<boolean>
+  getId(): number
+  getName(): string
+  getDayTillExpired(): number
 }
 
 export interface SocketManager {

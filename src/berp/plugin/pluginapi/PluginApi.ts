@@ -13,6 +13,7 @@ import { CommandManager } from './command/CommandManager'
 import { PlayerManager } from './player/PlayerManager'
 import { EntityManager } from './entity/EntityManager'
 import { WorldManager } from './world/WorldManager'
+import { RealmManager } from './realm/RealmManager'
 import { SocketManager } from './socket/SocketManager'
 import { EventManager } from './events/EventManager'
 import fs from 'fs'
@@ -33,6 +34,7 @@ export class PluginApi {
   private _playerManager: PlayerManager
   private _entityManager: EntityManager
   private _worldManager: WorldManager
+  private _realmManager: RealmManager
   private _socketManager: SocketManager
   private _eventManager: EventManager
   private _temp: boolean
@@ -56,6 +58,7 @@ export class PluginApi {
     this._eventManager = new EventManager(this._berp, this._connection, this)
     this._commandManager = new CommandManager(this._berp, this._connection, this)
     this._worldManager = new WorldManager(this._berp, this._connection, this)
+    this._realmManager = new RealmManager(this._berp, this._connection, this)
   }
   public async onEnabled(): Promise<void> {
     if (this._temp) return
@@ -63,9 +66,9 @@ export class PluginApi {
     await this._playerManager.onEnabled()
     await this._entityManager.onEnabled()
     await this._worldManager.onEnabled()
+    await this._realmManager.onEnabled()
     await this._socketManager.onEnabled()
     await this._eventManager.onEnabled()
-    this.getPluginByInstanceId("s", 1)
 
     return
   }
@@ -76,6 +79,7 @@ export class PluginApi {
     await this._playerManager.onDisabled()
     await this._entityManager.onDisabled()
     await this._worldManager.onDisabled()
+    await this._realmManager.onDisabled()
     await this._socketManager.onDisabled()
     await this._eventManager.onDisabled()
 
@@ -91,6 +95,7 @@ export class PluginApi {
   public getPlayerManager(): PlayerManager { return this._playerManager }
   public getEntityManager(): EntityManager { return this._entityManager }
   public getWorldManager(): WorldManager { return this._worldManager }
+  public getRealmManager(): RealmManager { return this._realmManager }
   public getSocketManager(): SocketManager { return this._socketManager }
   public getEventManager(): EventManager { return this._eventManager }
   public getPlugins(): Map<string, {config: examplePluginConfig, plugin: examplePlugin, api: PluginApi, connection: ConnectionHandler, path: string}> {
@@ -118,9 +123,9 @@ export class PluginApi {
       }
     }, 1000)
   }
-  public async autoConnect(accountEmail: string, realmId: number): Promise<boolean> {
+  public async autoConnect(accountEmail: string, realmId: number, bypass = false): Promise<boolean> {
     return new Promise(async (resX) => {
-      if (!this._temp) {
+      if (!this._temp && !bypass) {
         this._logger.error("AutoConnect is only allowed in the onLoaded() method!")
         
         return resX(false)
