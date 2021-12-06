@@ -52,6 +52,8 @@ export class Player {
       return 'iOS'
     case 3:
       return 'iOS'
+    case 4:
+      return 'Kindle Fire'
     case 7:
       return 'Windows'
     case 11:
