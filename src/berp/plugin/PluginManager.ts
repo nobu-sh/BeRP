@@ -64,6 +64,8 @@ export class PluginManager extends EventEmitter{
           temp.api.onEnabled()
         } catch (err) {}
       }
+
+      return res()
     })
   }
   private async register(pluginPath: string): Promise<void> {
@@ -149,7 +151,6 @@ export class PluginManager extends EventEmitter{
           } catch (error) {
             this._logger.error(`Plugin "${config.displayName || path}". Uncaught Exception(s):\n`, error)
           }
-
         } catch (error) {
           this._logger.error(`Plugin "${config.displayName || path}". Uncaught Exception(s):\n`, error)
         }
@@ -159,6 +160,19 @@ export class PluginManager extends EventEmitter{
 
       return res()
     })
+  }
+  public async reload(): Promise<void> {
+    await this.killAllPlugins()
+    this._knownPlugins = new Map<string, {config: examplePluginConfig, pluginId: number}>()
+    this._activePlugins = new Map<string, ActivePlugin>()
+    this._pluginInstances = new Map<string, number>()
+    this._tempPlugins = new Map<string, ActivePlugin>()
+    await this._loadAll()
+    for (const [, ac] of this._berp.getNetworkManager().getAccounts()) {
+      for (const [, c] of ac.getConnections()) {
+        this.registerPlugins(c)
+      }
+    }
   }
   private async _update(path: string, config: examplePluginConfig): Promise<boolean> {
     return new Promise((res) => {

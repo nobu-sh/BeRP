@@ -10,6 +10,7 @@ import { Connections } from './connections'
 import { Disconnect } from './disconnect'
 import { External } from './external'
 import { Plugins } from './plugins'
+import { Reload } from './reload'
 class ex {
   public name: string
   public description: string
@@ -30,6 +31,7 @@ const Commands: typeof ex[] = [
   Disconnect,
   External,
   Plugins,
+  Reload,
 ]
 
 export { Commands }
