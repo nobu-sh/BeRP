@@ -275,7 +275,8 @@ interface PlayerDied {
 }
 interface ChangeSkin {
   raw:Skin,
-  base64:string
+  base64:string,
+  player:Player
 }
 interface ChatCommand {
   sender: Player

@@ -33,7 +33,8 @@ export class ChangeSkin {
       new Jimp({ data: buffer, width: skin.width, height: skin.height },async(err, image) =>{
         return await this._events.emit('ChangeSkin', {
           raw:packet.skin,
-          base64:await image.getBase64Async(Jimp.MIME_PNG)
+          base64:await image.getBase64Async(Jimp.MIME_PNG),
+          player:this._pluginApi.getPlayerManager().getPlayerByUUID(packet.uuid)
         })
       });
     })
