@@ -12,3 +12,4 @@ plugins
 scripts
 # Ignore All Protcol Version Except Latest
 *.*.*/
+.vs/*
