@@ -2,7 +2,7 @@ import { EventManager } from "../EventManager"
 import { BeRP } from "src/berp"
 import { ConnectionHandler } from "src/berp/network"
 import { PluginApi } from "../../pluginApi"
-import Jimp from "jimp/*"
+import Jimp from "jimp"
 export class ChangeSkin {
   private _events: EventManager
   private _berp: BeRP
