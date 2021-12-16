@@ -273,11 +273,13 @@ interface PlayerDied {
   killer?: Player | string
   cause: string
 }
+
 interface ChangeSkin {
-  raw:Skin,
-  base64:string,
-  player:Player
+  raw: Skin
+  base64: string
+  player: Player
 }
+
 interface ChatCommand {
   sender: Player
   command: string

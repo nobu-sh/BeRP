@@ -1,6 +1,5 @@
 import { BaseCommand } from "./base/BaseCommand"
 import { BeRP } from "../../berp"
-import chalk from "chalk"
 
 export class Reload extends BaseCommand {
   private _berp: BeRP
