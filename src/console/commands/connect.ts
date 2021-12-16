@@ -70,7 +70,7 @@ export class Connect extends BaseCommand {
                   if (r) {
                     try {
                       const id = /\(.*\)/.exec(r)[0].replace(/(\(|\))/g, "")
-                      const realm = res.servers.find(r => r.id === parseInt(id))
+                      const realm = res.servers.find(r => r.id === parseInt(id.replace(new RegExp(/\D/gm,'g'),'')))
                       if (!realm) {
                         return this._berp.getNetworkManager().getLogger()
                           .error(`Failed to select realm`)
