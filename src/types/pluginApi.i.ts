@@ -233,6 +233,7 @@ interface EventValues {
   ChatCommand: [ChatCommand]
   EntityCreate: [Entity]
   EntityDestroyed: [Entity]
+  ChangeSkin: [ChangeSkin]
 }
 
 export interface Player {
@@ -272,7 +273,11 @@ interface PlayerDied {
   killer?: Player | string
   cause: string
 }
-
+interface ChangeSkin {
+  raw:Skin,
+  base64:string,
+  player:Player
+}
 interface ChatCommand {
   sender: Player
   command: string
