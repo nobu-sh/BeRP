@@ -338,7 +338,6 @@ export interface RealmManager {
   closeRealm(): Promise<boolean>
   openRealm(): Promise<boolean>
   banUser(XUID: string): Promise<boolean>
-  kickUser(XUID: string): Promise<boolean>
   restartRealm(): Promise<boolean>
   updatePlayerPermission(player: Player, permissionLevel: "VISITOR" | "MEMBER" | "OPERATOR"): Promise<boolean>
   getId(): number
