@@ -23,7 +23,7 @@ export class PluginManager extends EventEmitter{
   private _pluginsPath = path.resolve(process.cwd(), './plugins')
   private _logger: Logger
   private _latestInterfaces = {
-    pluginApi: 'https://raw.githubusercontent.com/NobUwU/BeRP/main/src/types/pluginApi.i.ts',
+    pluginApi: 'https://raw.githubusercontent.com/ATXLtheAxolotl/BeRP/main/src/types/pluginApi.i.ts',
     packets: 'https://raw.githubusercontent.com/NobUwU/BeRP/main/src/types/packets.i.ts',
     packetTypes: 'https://raw.githubusercontent.com/NobUwU/BeRP/main/src/types/packetTypes.i.ts',
   }

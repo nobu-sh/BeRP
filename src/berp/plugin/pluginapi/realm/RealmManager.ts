@@ -24,6 +24,47 @@ export class RealmManager {
   public async onDisabled(): Promise<void> {
     return
   }
+  public async downloadRealmURL(): Promise<string | unknown> {
+    if (this._pluginApi.getConnection().realm.ownerUUID !== this._pluginApi.getConnection().getXboxProfile().extraData.XUID) return this._pluginApi.getLogger().error("The method updateRealmName() can only be used if the account being used is the realm owner.")
+
+    return new Promise(async (r) => {
+      const foundAccounts = new Map<string, AccountInfo>()
+      const accounts = await this._berp
+        .getAuthProvider()
+        .getCache()
+        .getAllAccounts()
+      for (const account of accounts) {
+        foundAccounts.set(account.username, account)
+      }
+      const account = foundAccounts.get(this._pluginApi.getConnection().getConnectionManager()
+        .getAccount().username)
+      const authRes = await this._berp.getAuthProvider().aquireTokenFromCache({
+        scopes: C.Scopes,
+        account,
+      })
+      const xsts = await this._berp.getAuthProvider().ezXSTSForRealmAPI(authRes)
+      const req = new this._berp.Request({
+        method: "GET",
+        url: C.Endpoints.RealmAPI.GET.RealmBackupLatest(this._realm.id,1),
+        headers: C.RealmAPIHeaders(createXBLToken(xsts)),
+      }, {
+        requestTimeout: 50000,
+        attemptTimeout: 300,
+        attempts: 20,
+      })
+      req.onFufilled = (data) => {
+        console.log(data)
+
+        return r(data.downloadUrl)
+      }
+      req.onFailed = (err) => {
+        this._pluginApi.getLogger().error("Failed to get realm download URL...", err)
+
+        return r(false)
+      }
+      this._berp.getSequentialBucket().addRequest(req)
+    })
+  }
   public async renameRealm(name: string): Promise<void> {
     if (this._pluginApi.getConnection().realm.ownerUUID !== this._pluginApi.getConnection().getXboxProfile().extraData.XUID) return this._pluginApi.getLogger().error("The method updateRealmName() can only be used if the account being used is the realm owner.")
     const foundAccounts = new Map<string, AccountInfo>()
