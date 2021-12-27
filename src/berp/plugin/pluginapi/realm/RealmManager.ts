@@ -6,6 +6,7 @@ import { AccountInfo } from '@azure/msal-node'
 import { createXBLToken } from '../../../../berp/utils'
 import * as C from '../../../../Constants'
 import { Player } from '../player/Player'
+import axios from 'axios'
 
 export class RealmManager {
   private _berp: BeRP
@@ -53,9 +54,11 @@ export class RealmManager {
         attempts: 20,
       })
       req.onFufilled = (data) => {
-        console.log(data)
-
-        return r(data.downloadUrl)
+        axios.get(data.downloadUrl,{
+            headers: {
+              Authorization: "Bearer "+data.token
+            }
+        }).then((res)=>{return r(res.data)})
       }
       req.onFailed = (err) => {
         this._pluginApi.getLogger().error("Failed to get realm download URL...", err)
