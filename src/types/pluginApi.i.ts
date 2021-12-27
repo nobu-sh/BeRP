@@ -334,6 +334,7 @@ export interface WorldManager {
 }
 
 export interface RealmManager {
+  downloadRealm(): Promise<string>
   renameRealm(name: string): Promise<void>
   closeRealm(): Promise<boolean>
   openRealm(): Promise<boolean>
