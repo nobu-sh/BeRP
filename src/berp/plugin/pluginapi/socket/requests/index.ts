@@ -7,6 +7,7 @@ import { EntityDestroyed } from './EntityDestroyed'
 import { PlayerMessage } from "./PlayerMessage"
 import { GetPlayers } from './GetPlayers'
 import { GetEntities } from './GetEntities'
+import { NameTagChanged } from './NameTagChanged'
 
 export const defaultRequests = [
   Message,
@@ -18,4 +19,5 @@ export const defaultRequests = [
   PlayerMessage,
   GetPlayers,
   GetEntities,
+  NameTagChanged,
 ]
