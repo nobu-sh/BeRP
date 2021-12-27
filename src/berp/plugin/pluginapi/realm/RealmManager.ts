@@ -55,10 +55,10 @@ export class RealmManager {
       })
       req.onFufilled = (data) => {
         axios.get(data.downloadUrl,{
-            headers: {
-              Authorization: "Bearer "+data.token
-            }
-        }).then((res)=>{return r(res.data)})
+          headers: {
+            Authorization: "Bearer " + data.token,
+          },
+        }).then((res)=>{ return r(res.data) })
       }
       req.onFailed = (err) => {
         this._pluginApi.getLogger().error("Failed to get realm download URL...", err)
@@ -154,6 +154,7 @@ export class RealmManager {
   }
   public async banUser(XUID: string): Promise<boolean | unknown> {
     if (this._pluginApi.getConnection().realm.ownerUUID !== this._pluginApi.getConnection().getXboxProfile().extraData.XUID) return this._pluginApi.getLogger().error("The method banUser() can only be used if the account being used is the realm owner.")
+    
     return new Promise(async (r) => {
       const foundAccounts = new Map<string, AccountInfo>()
       const accounts = await this._berp
