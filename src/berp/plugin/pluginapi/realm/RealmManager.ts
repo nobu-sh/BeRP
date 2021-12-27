@@ -108,6 +108,46 @@ export class RealmManager {
       this._berp.getSequentialBucket().addRequest(req)
     })
   }
+  public async banUser(XUID: string): Promise<boolean | unknown> {
+    if (this._pluginApi.getConnection().realm.ownerUUID !== this._pluginApi.getConnection().getXboxProfile().extraData.XUID) return this._pluginApi.getLogger().error("The method banUser() can only be used if the account being used is the realm owner.")
+    return new Promise(async (r) => {
+      const foundAccounts = new Map<string, AccountInfo>()
+      const accounts = await this._berp
+        .getAuthProvider()
+        .getCache()
+        .getAllAccounts()
+      for (const account of accounts) {
+        foundAccounts.set(account.username, account)
+      }
+      const account = foundAccounts.get(this._pluginApi.getConnection().getConnectionManager()
+        .getAccount().username)
+      const authRes = await this._berp.getAuthProvider().aquireTokenFromCache({
+        scopes: C.Scopes,
+        account,
+      })
+      const xsts = await this._berp.getAuthProvider().ezXSTSForRealmAPI(authRes)
+      const req = new this._berp.Request({
+        method: "POST",
+        url: C.Endpoints.RealmAPI.POST.RealmBlockPlayer(this._realm.id,XUID),
+        headers: C.RealmAPIHeaders(createXBLToken(xsts)),
+      }, {
+        requestTimeout: 50000,
+        attemptTimeout: 300,
+        attempts: 20,
+      })
+      req.onFufilled = () => {
+        this._pluginApi.getLogger().success("Successfully banned user.")
+
+        return r(true)
+      }
+      req.onFailed = (err) => {
+        this._pluginApi.getLogger().error("Failed to ban user...", err)
+
+        return r(false)
+      }
+      this._berp.getSequentialBucket().addRequest(req)
+    })
+  }
   public async openRealm(): Promise<boolean | unknown> {
     if (this._pluginApi.getConnection().realm.ownerUUID !== this._pluginApi.getConnection().getXboxProfile().extraData.XUID) return this._pluginApi.getLogger().error("The method openRealm() can only be used if the account being used is the realm owner.")
     
