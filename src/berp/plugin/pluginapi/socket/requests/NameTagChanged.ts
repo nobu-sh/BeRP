@@ -17,7 +17,8 @@ export class NameTagChanged {
   }
   public onEnabled(): void {
     this._socket.on("NameTagChanged", (packet) => {
-      if (packet.player === this._connection.getXboxProfile().extraData.displayName) return
+      if (!this._pluginApi.getPlayerManager().getPlayerList()
+        .has(packet.player) || packet.player === this._connection.getXboxProfile().extraData.displayName) return
       const player = this._pluginApi.getPlayerManager().getPlayerByName(packet.player)
       player.setNameTagBackDoor(packet.data.new)
     })
