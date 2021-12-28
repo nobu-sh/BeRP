@@ -25,7 +25,7 @@ export class RealmManager {
   public async onDisabled(): Promise<void> {
     return
   }
-  public async downloadRealmURL(): Promise<string | unknown> {
+  public async downloadRealm(): Promise<string | unknown> {
     if (this._pluginApi.getConnection().realm.ownerUUID !== this._pluginApi.getConnection().getXboxProfile().extraData.XUID) return this._pluginApi.getLogger().error("The method updateRealmName() can only be used if the account being used is the realm owner.")
 
     return new Promise(async (r) => {
