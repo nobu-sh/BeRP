@@ -335,9 +335,11 @@ export interface WorldManager {
 }
 
 export interface RealmManager {
+  downloadRealm(): Promise<string>
   renameRealm(name: string): Promise<void>
   closeRealm(): Promise<boolean>
   openRealm(): Promise<boolean>
+  banUser(XUID: string): Promise<boolean>
   restartRealm(): Promise<boolean>
   updatePlayerPermission(player: Player, permissionLevel: "VISITOR" | "MEMBER" | "OPERATOR"): Promise<boolean>
   getId(): number
