@@ -199,6 +199,7 @@ type LoggerColors = (
 )
 
 export interface CommandManager {
+  enabled: boolean
   executeCommand(command: string, callback?: (res: packet_command_output) => void): void
   registerConsoleCommand(options: ConsoleCommandOptions, callback: (args: string[]) => void): void
   registerCommand(options: CommandOptions, callback: (data: CommandResponse) => void): void
