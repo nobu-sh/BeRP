@@ -21,6 +21,7 @@ export class CommandManager {
   private _pluginApi: PluginApi
   private _requests = new Map<string, {execute: CallableFunction}>()
   private _commands = new Map<string, {type: "game" | "console", command: CommandOptions | ConsoleCommandOptions}>()
+  public enabled = true
   constructor(berp: BeRP, connection: ConnectionHandler, pluginApi: PluginApi) {
     this._berp = berp
     this._connection = connection
@@ -33,7 +34,7 @@ export class CommandManager {
       this._requests.get(packet.origin.uuid).execute(packet)
     })
     this._pluginApi.getEventManager().on('ChatCommand', async (data) => {
-      if (this._pluginApi.getPluginId() != 1) return
+      if (this._pluginApi.getPluginId() != 1 || !this.enabled) return
       this._berp.getCommandManager().executeCommand(data)
       this._connection.sendCommandFeedback(false)
     })
