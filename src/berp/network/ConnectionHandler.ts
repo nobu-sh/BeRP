@@ -84,7 +84,6 @@ export class ConnectionHandler extends RakManager {
   private _playerQue(pak?: packet_player_list) {
     for (const record of pak.records.records) {
       if (record.username == this.getXboxProfile().extraData.displayName) continue
-      console.log(record);
       this.playerQue.push(record)
     }
   }
