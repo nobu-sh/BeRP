@@ -10,7 +10,7 @@ BeRP works on Bedrock realms, and some external servers. External Servers (that 
 BeRP uses protocol data from another repository. For more info, visit [here](https://github.com/NobUwU/BeRP/tree/main/data/latest).
 
 ## Warning
-BeRP is currently outdated. It should run on the current protocol versions however any new packets may not be emitted and throw random errors to console. These should be non detrimental errors however.
+BeRP is currently outdated. It should run on the current protocol versions, however, any new packets may not be emitted and throw random errors to console; These should be non detrimental errors however.
 
 I currently have a full schedule and will not be able to make a version 2 until around May 2022, apologies - nobu
 
