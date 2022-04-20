@@ -57,6 +57,11 @@ export class ConnectionHandler extends RakManager {
       this._tickSync = pak.response_time
     })
     this._log.success("Initialized")
+    // TEMP ---- Bad Bad Bad... Dont care tho lol. BeRP v2 coming soon
+    // Dont know how this works, but it does...
+    setTimeout(() => {
+      this._registerPlugins()
+    }, 5000)
   }
   public getGameInfo(): packet_start_game { return this._gameInfo }
   public getLogger(): Logger { return this._log }
