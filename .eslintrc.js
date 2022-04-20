@@ -3,6 +3,21 @@ module.exports = {
   env: {
     node: true,
   },
+  plugins: ["import"],
+  settings: {
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"]
+    },
+	"import/resolver": {
+      "typescript": {
+        "alwaysTryTypes": true, // always try to resolve types under `<root>@types` directory even it doesn't contain any source code, like `@types/unist`
+
+        // Choose from one of the "project" configs below or omit to use <root>/tsconfig.json by default
+
+        // use <root>/path/to/folder/tsconfig.json
+        "project": "./",
+  },
+  }},
   parserOptions: {
     sourceType: 'module',
     parser: 'babel-eslint',
@@ -12,6 +27,8 @@ module.exports = {
   extends: [
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:import/recommended",
+	"plugin:import/typescript",
   ],
   rules: {
     'semi': ['error', 'never'],
@@ -21,6 +38,7 @@ module.exports = {
       multiline: true,
       minItems: 3, 
     }],
+	"import/no-unresolved": [2, {commonjs: true, amd: true, caseSensitive: false}],
     'array-bracket-spacing': ['error', 'never'],
     'block-spacing': ['error', 'always'],
     'brace-style': ['error', '1tbs', { allowSingleLine: true }],
