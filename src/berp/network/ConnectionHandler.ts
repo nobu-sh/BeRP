@@ -63,7 +63,6 @@ export class ConnectionHandler extends RakManager {
       this._registerPlugins()
       
             this.emit("rak_ready")
-      this._registerPlugins()
       this.removeListener('player_list', this._playerQue)
       await this.sendPacket(Packets.TickSync, {
         request_time: BigInt(Date.now()),
