@@ -32,9 +32,9 @@ export class NetworkManager {
   }
 
   public kill(): void {
-    for (const [u, cm] of this._accounts) {
-      cm.kill()
-      this._accounts.delete(u)
+    for (const [userStr, conMgr] of this._accounts) {
+      conMgr.kill()
+      this._accounts.delete(userStr)
     }
   }
 

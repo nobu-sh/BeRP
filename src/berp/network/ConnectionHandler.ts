@@ -16,7 +16,7 @@ import { BeRP } from ".."
 // TODO: Client/plugins can control connection/diconnection of rak
 
 
-export class ConnectionHandler extends RakManager {
+class ConnectionHandler extends RakManager {
   public static readonly KEEPALIVEINT = 10
   public readonly host: string
   public readonly port: number
@@ -57,10 +57,20 @@ export class ConnectionHandler extends RakManager {
       this._tickSync = pak.response_time
     })
     this._log.success("Initialized")
-    // TEMP ---- Bad Bad Bad... Dont care tho lol. BeRP v2 coming soon
-    // Dont know how this works, but it does...
-    setTimeout(() => {
+    setTimeout(async () => {
       this._registerPlugins()
+      this.emit("rak_ready")
+      this.removeListener('player_list', this._playerQue)
+      await this.sendPacket(Packets.TickSync, {
+        request_time: BigInt(Date.now()),
+        response_time: 0n,
+      })
+      this._tickSyncKeepAlive = setInterval(async () => {
+        await this.sendPacket(Packets.TickSync, {
+          request_time: this._tickSync,
+          response_time: 0n,
+        })
+      }, 50 * ConnectionHandler.KEEPALIVEINT)
     }, 5000)
   }
   public getGameInfo(): packet_start_game { return this._gameInfo }
@@ -98,28 +108,34 @@ export class ConnectionHandler extends RakManager {
     if (pak) {
       reason = pak.message
     }
-
+    this._log.warn(`_handleDisconnect() was called - "${reason}"`)
+    this._log.warn(`ConnectionHandler: _handleDisconnect() Killing plugins...`)
     await this._berp.getPluginManager().killPlugins(this)
+    this._log.warn(`ConnectionHandler: _handleDisconnect() finished killing plugins, clearing keepAlive....`)
     clearInterval(this._tickSyncKeepAlive)
+    this._log.warn(`ConnectionHandler: _handleDisconnect() Terminating connection "${this.host}:${this.port}"`)
     this.close()
-    this._log.warn(`Terminating connection handler with connection "${this.host}:${this.port}"`)
-
-    this._log.warn("Disconnection on", `${this.host}:${this.port}`, `"${reason}"`)
+    this._log.warn(`ConnectionHandler: _handleDisconnect() finished severing connection on port ${this.port}`)
+    process.exit(1)  
   }
+  
   private async _handleLogin(): Promise<void> {
     await this.sendPacket(Packets.Login, this.createLoginPayload())
   }
+  
   private async _handleHandshake(): Promise<void> {
     setTimeout(async () => {
       await this.sendPacket(Packets.ClientToServerHandshake, {})
     },0)
   }
+  
   private async _handleAcceptPacks(): Promise<void> {
     await this.sendPacket(Packets.ResourcePackClientResponse, {
       response_status: 'completed',
       resourcepackids: [],
     })
   }
+  
   private async _cachedChunks(): Promise<void> {
     await this.sendPacket(Packets.ClientCacheStatus, {
       enabled: false,
@@ -128,12 +144,15 @@ export class ConnectionHandler extends RakManager {
       chunk_radius: 1,
     })
   }
+  
   private async _handleGameStart(pak: packet_start_game): Promise<void> {
     this._gameInfo = pak
+    this._log.info(`ConnectionHandler: _handleGameStart called, got packet_start_game:\n  ${JSON.stringify(this._gameInfo)}`)
     await this.sendPacket(Packets.SetLocalPlayerAsInitialized, {
       runtime_entity_id: pak.runtime_entity_id,
     })
     this.emit("rak_ready")
+    this._log.info("ConnectionHandler: rak ready! Begining plugin registration...")
     this._registerPlugins()
     this.removeListener('player_list', this._playerQue)
     await this.sendPacket(Packets.TickSync, {
@@ -147,11 +166,17 @@ export class ConnectionHandler extends RakManager {
       })
     }, 50 * ConnectionHandler.KEEPALIVEINT)
   }
+  
   private async _registerPlugins(): Promise<void> {
     const plugins = await this._berp.getPluginManager().registerPlugins(this)
     for (const plugin of plugins) {
       this._plugins.set(plugin.config.name, plugin)
     }
   }
-  public getPlugins(): Map<string, ActivePlugin> { return this._plugins }
+  
+  public getPlugins(): Map<string, ActivePlugin> {
+    return this._plugins
+  }
 }
+    
+export { ConnectionHandler }
