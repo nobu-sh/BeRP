@@ -58,11 +58,11 @@ export class ConnectionHandler extends RakManager {
     })
     this._log.success("Initialized")
     // TEMP ---- Bad Bad Bad... Dont care tho lol. BeRP v2 coming soon
-    // The start_game packet is no longer sent rip, this is the only way now ig.
-    setTimeout(() => {
+    // The start_game packet isn't being detected by BeRP anymore, very strange...
+    setTimeout(async () => {
       this._registerPlugins()
       
-            this.emit("rak_ready")
+      this.emit("rak_ready")
       this.removeListener('player_list', this._playerQue)
       await this.sendPacket(Packets.TickSync, {
         request_time: BigInt(Date.now()),
