@@ -60,6 +60,7 @@ export class ConnectionHandler extends RakManager {
     // TEMP ---- Bad Bad Bad... Dont care tho lol. BeRP v2 coming soon
     // The start_game packet isn't being detected by BeRP anymore, very strange...
     setTimeout(async () => {
+      if(this._gameInfo) return;
       this._registerPlugins()
       
       this.emit("rak_ready")
