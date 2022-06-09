@@ -60,7 +60,8 @@ export class ConnectionHandler extends RakManager {
     })
     this._log.success("Initialized")
     // The start_game packet isn't being detected by BeRP anymore, very strange...
-    // Not with that attitude it isn't!
+    // > "The start_game packet isn't being detected"
+    //    Not with that attitude it isn't!
     setTimeout(async () => {
       this._registerPlugins()
       
