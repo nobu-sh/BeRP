@@ -1,5 +1,4 @@
 #!/bin/bash
-rm ./package-lock.json
 npm i
 npm fund
 npm run-script lint

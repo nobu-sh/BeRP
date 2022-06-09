@@ -36,6 +36,7 @@ module.exports = {
       maxBOF: 0,
       maxEOF: 0, 
     }],
+    'no-unused-vars': 'off',
     'no-spaced-func': 'error',
     'object-curly-spacing': ['error', 'always'],
     'object-curly-newline': ['error', {
