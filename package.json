@@ -1,17 +1,18 @@
 {
   "name": "berp",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "a raknet implementation solution for bedrock edition realms",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "start": "cross-env NODE_ENV=production node dist/index.js",
     "dev": "cross-env NODE_ENV=development ts-node src/index.ts",
-    "lint": "eslint src/**"
+    "lint": "eslint src/** --fix",
+    "all": "npm rebuild ; npm i --save-dev ; tsc ; eslint src/** --fix ; cross-env NODE_ENV=development ts-node src/index.ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/NobUwU/BeRP.git"
+    "url": "git+https://github.com/DJStompZone/BeRP.git"
   },
   "keywords": [
     "mcbe",
@@ -26,9 +27,9 @@
   "author": "NobUwU",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/NobUwU/BeRP/issues"
+    "url": "https://github.com/DJStompZone/BeRP/issues"
   },
-  "homepage": "https://github.com/NobUwU/BeRP#readme",
+  "homepage": "https://discord.io/stomp",
   "devDependencies": {
     "@types/js-yaml": "^4.0.2",
     "@types/jsonwebtoken": "^8.5.4",
