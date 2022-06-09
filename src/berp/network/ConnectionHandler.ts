@@ -13,10 +13,12 @@ import {
   RealmAPIWorld,
 } from "src/types/berp"
 import { BeRP } from ".."
-// TODO: Client/plugins can control connection/diconnection of rak
+
+// TODO: Client/plugins can control connection/diconnection of rak 
+// Coming [Soon™]
 
 
-class ConnectionHandler extends RakManager {
+export class ConnectionHandler extends RakManager {
   public static readonly KEEPALIVEINT = 10
   public readonly host: string
   public readonly port: number
@@ -57,8 +59,12 @@ class ConnectionHandler extends RakManager {
       this._tickSync = pak.response_time
     })
     this._log.success("Initialized")
+    // The start_game packet isn't being detected by BeRP anymore, very strange...
+    // > "The start_game packet isn't being detected"
+    //    Not with that attitude it isn't!
     setTimeout(async () => {
       this._registerPlugins()
+      
       this.emit("rak_ready")
       this.removeListener('player_list', this._playerQue)
       await this.sendPacket(Packets.TickSync, {
@@ -71,8 +77,25 @@ class ConnectionHandler extends RakManager {
           response_time: 0n,
         })
       }, 50 * ConnectionHandler.KEEPALIVEINT)
+    
+    
+      this.on(Packets.StartGame, async (pkt) => {
+        try {
+          this._log.success(`Realm: ${pkt.world_name} `, `difficulty: ${pkt.difficulty} `, `Gamerules: ${pkt.gamerules} `, `Player Position: ${pkt.player_position}`)
+          this._log.success("Got packet_start_game! Show this log to a developer!")
+          
+          return
+        } catch (error) {
+          this._log.error("Tried to serialize and log from 'packet_start_game' but encountered an error:")
+          this._log.error(error)
+          this._log.warn("Show this log to a developer!")
+          
+          return
+        }
+      })
     }, 5000)
   }
+
   public getGameInfo(): packet_start_game { return this._gameInfo }
   public getLogger(): Logger { return this._log }
   public getTick(): bigint { return this._tickSync }
@@ -108,34 +131,28 @@ class ConnectionHandler extends RakManager {
     if (pak) {
       reason = pak.message
     }
-    this._log.warn(`_handleDisconnect() was called - "${reason}"`)
-    this._log.warn(`ConnectionHandler: _handleDisconnect() Killing plugins...`)
+
     await this._berp.getPluginManager().killPlugins(this)
-    this._log.warn(`ConnectionHandler: _handleDisconnect() finished killing plugins, clearing keepAlive....`)
     clearInterval(this._tickSyncKeepAlive)
-    this._log.warn(`ConnectionHandler: _handleDisconnect() Terminating connection "${this.host}:${this.port}"`)
     this.close()
-    this._log.warn(`ConnectionHandler: _handleDisconnect() finished severing connection on port ${this.port}`)
-    process.exit(1)  
+    this._log.warn(`Terminating connection handler with connection "${this.host}:${this.port}"`)
+
+    this._log.warn("Disconnection on", `${this.host}:${this.port}`, `"${reason}"`)
   }
-  
   private async _handleLogin(): Promise<void> {
     await this.sendPacket(Packets.Login, this.createLoginPayload())
   }
-  
   private async _handleHandshake(): Promise<void> {
     setTimeout(async () => {
       await this.sendPacket(Packets.ClientToServerHandshake, {})
     },0)
   }
-  
   private async _handleAcceptPacks(): Promise<void> {
     await this.sendPacket(Packets.ResourcePackClientResponse, {
       response_status: 'completed',
       resourcepackids: [],
     })
   }
-  
   private async _cachedChunks(): Promise<void> {
     await this.sendPacket(Packets.ClientCacheStatus, {
       enabled: false,
@@ -144,15 +161,14 @@ class ConnectionHandler extends RakManager {
       chunk_radius: 1,
     })
   }
-  
   private async _handleGameStart(pak: packet_start_game): Promise<void> {
+    
+    console.log('game started... If you see this, message PMK744.')
     this._gameInfo = pak
-    this._log.info(`ConnectionHandler: _handleGameStart called, got packet_start_game:\n  ${JSON.stringify(this._gameInfo)}`)
     await this.sendPacket(Packets.SetLocalPlayerAsInitialized, {
       runtime_entity_id: pak.runtime_entity_id,
     })
     this.emit("rak_ready")
-    this._log.info("ConnectionHandler: rak ready! Begining plugin registration...")
     this._registerPlugins()
     this.removeListener('player_list', this._playerQue)
     await this.sendPacket(Packets.TickSync, {
@@ -166,17 +182,11 @@ class ConnectionHandler extends RakManager {
       })
     }, 50 * ConnectionHandler.KEEPALIVEINT)
   }
-  
   private async _registerPlugins(): Promise<void> {
     const plugins = await this._berp.getPluginManager().registerPlugins(this)
     for (const plugin of plugins) {
       this._plugins.set(plugin.config.name, plugin)
     }
   }
-  
-  public getPlugins(): Map<string, ActivePlugin> {
-    return this._plugins
-  }
+  public getPlugins(): Map<string, ActivePlugin> { return this._plugins }
 }
-    
-export { ConnectionHandler }
