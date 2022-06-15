@@ -26,7 +26,7 @@ export class RealmManager {
     return
   }
   public async downloadRealm(): Promise<string | unknown> {
-    if (this._pluginApi.getConnection().realm.ownerUUID !== this._pluginApi.getConnection().getXboxProfile().extraData.XUID) return this._pluginApi.getLogger().error("The method updateRealmName() can only be used if the account being used is the realm owner.")
+    if (this._pluginApi.getConnection().realm.ownerUUID !== this._pluginApi.getConnection().getXboxProfile().extraData.XUID) return this._pluginApi.getLogger().error("The method downloadRealm() can only be used if the account being used is the realm owner.")
 
     return new Promise(async (r) => {
       const foundAccounts = new Map<string, AccountInfo>()
@@ -54,7 +54,7 @@ export class RealmManager {
         attempts: 20,
       })
       req.onFufilled = (data) => {
-        axios.get(data.downloadUrl,{
+        axios.get(data.downloadUrl, {
           headers: {
             Authorization: "Bearer " + data.token,
           },
@@ -69,7 +69,7 @@ export class RealmManager {
     })
   }
   public async renameRealm(name: string): Promise<void> {
-    if (this._pluginApi.getConnection().realm.ownerUUID !== this._pluginApi.getConnection().getXboxProfile().extraData.XUID) return this._pluginApi.getLogger().error("The method updateRealmName() can only be used if the account being used is the realm owner.")
+    if (this._pluginApi.getConnection().realm.ownerUUID !== this._pluginApi.getConnection().getXboxProfile().extraData.XUID) return this._pluginApi.getLogger().error("The method renameRealm() can only be used if the account being used is the realm owner.")
     const foundAccounts = new Map<string, AccountInfo>()
     const accounts = await this._berp
       .getAuthProvider()
@@ -251,7 +251,7 @@ export class RealmManager {
     })
   }
   public async updatePlayerPermission(player: Player, permissionLevel: "VISITOR" | "MEMBER" | "OPERATOR"): Promise<boolean | unknown> {
-    if (this._pluginApi.getConnection().realm.ownerUUID !== this._pluginApi.getConnection().getXboxProfile().extraData.XUID) return this._pluginApi.getLogger().error("The method updatePlayer() can only be used if the account being used is the realm owner.")
+    if (this._pluginApi.getConnection().realm.ownerUUID !== this._pluginApi.getConnection().getXboxProfile().extraData.XUID) return this._pluginApi.getLogger().error("The method updatePlayerPermission() can only be used if the account being used is the realm owner.")
     
     return new Promise(async (r) => {
       const foundAccounts = new Map<string, AccountInfo>()
