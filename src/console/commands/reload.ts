@@ -14,7 +14,7 @@ export class Reload extends BaseCommand {
     this._berp = berp
   }
   public execute(): void {
-    this._berp.getLogger().info("Attemping to reload all plugins...")
+    this._berp.getLogger().info("Attempting to reload all plugins...")
     this._berp.getPluginManager().reload()
   }
 }
