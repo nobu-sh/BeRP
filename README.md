@@ -1,7 +1,18 @@
-Archived but not abandoned.
+# Description
+A Raknet framework for connecting to Minecraft Bedrock realms with plugin support.
+<br>
+<br>
+<br>
+<br>
 
-<s>BeRP had an okay run, we have deemed it as a bulky mess and it is in the works of being remade...
-Apologies for any inconvenience.
-</s>
 
-BeRP lives on
+# Install Instructions
+### Windows
+- Run `nubuild.bat`
+- If everything is working, terminate BeRP and continue
+- Add plugins to the `plugins/` directory
+- Run `windows_start.bat` 
+- Enjoy
+
+### Linux
+- Figure it out yourself, nerd
