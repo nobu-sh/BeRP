@@ -2,9 +2,9 @@ import { MCHeaders } from "./types/berp"
 import { resolve } from 'path'
 
 export const ProtoDataPath = resolve(process.cwd(), 'data')
-export const CUR_VERSION = '1.19.10'
-export const CUR_VERSION_PROTOCOL = 534
-export const BeRP_VERSION = '1.0.3'
+export const CUR_VERSION = '1.19.20'
+export const CUR_VERSION_PROTOCOL = 544
+export const BeRP_VERSION = '1.0.4'
 
 const MCRAPI = "https://pocket.realms.minecraft.net/"
 
@@ -64,7 +64,7 @@ export const Endpoints = {
   },
 }
 
-// Should Never Have To Change Unless Nobus Microsoft Account Gets Yeeted
+// Should never have to change unless the Stompzone Azure AD gets yote
 export const AzureClientID = "1e593715-c6eb-4d63-afcc-9a66831b52c9"
 
 export const Scopes = ["Xboxlive.signin", "Xboxlive.offline_access"]
