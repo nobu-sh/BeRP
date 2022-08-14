@@ -58,9 +58,23 @@ export class ConnectionHandler extends RakManager {
     })
     this._log.success("Initialized")
     // TEMP ---- Bad Bad Bad... Dont care tho lol. BeRP v2 coming soon
-    // Dont know how this works, but it does...
-    setTimeout(() => {
+    // The start_game packet isn't being detected by BeRP anymore, very strange...
+    setTimeout(async () => {
+      if(this._gameInfo) return
       this._registerPlugins()
+      
+      this.emit("rak_ready")
+      this.removeListener('player_list', this._playerQue)
+      await this.sendPacket(Packets.TickSync, {
+        request_time: BigInt(Date.now()),
+        response_time: 0n,
+      })
+      this._tickSyncKeepAlive = setInterval(async () => {
+        await this.sendPacket(Packets.TickSync, {
+          request_time: this._tickSync,
+          response_time: 0n,
+        })
+      }, 50 * ConnectionHandler.KEEPALIVEINT)
     }, 5000)
   }
   public getGameInfo(): packet_start_game { return this._gameInfo }
@@ -129,6 +143,7 @@ export class ConnectionHandler extends RakManager {
     })
   }
   private async _handleGameStart(pak: packet_start_game): Promise<void> {
+    console.log('game started... If you see this, message PMK744.')
     this._gameInfo = pak
     await this.sendPacket(Packets.SetLocalPlayerAsInitialized, {
       runtime_entity_id: pak.runtime_entity_id,
