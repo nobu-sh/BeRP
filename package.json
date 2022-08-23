@@ -1,6 +1,6 @@
 {
   "name": "berp",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "a raknet implementation solution for bedrock edition realms",
   "main": "dist/index.js",
   "scripts": {
