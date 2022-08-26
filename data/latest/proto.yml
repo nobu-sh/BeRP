@@ -85,10 +85,6 @@ packet_play_status:
       6: failed_edu_vanilla
       # Displays "Wow this server is popular! Check back later to see if space opens up. Server Full"
       7: failed_server_full
-      # Cannot join a vanilla game on editor
-      8: failed_editor_vanilla_mismatch
-      # Cannot join an editor game on vanilla
-      9: failed_vanilla_editor_mismatch
 
 
 packet_server_to_client_handshake:
@@ -191,7 +187,7 @@ packet_text:
          message: string
       if translation or popup or jukebox_popup:
          message: string
-         parameters: string[]varint
+         paramaters: string[]varint
    # The XUID of the player who sent this message.
    xuid: string
    # PlatformChatID is an identifier only set for particular platforms when chatting (presumably only for
@@ -233,16 +229,13 @@ packet_start_game:
    player_position: vec3f
    # The pitch and yaw of the player
    rotation: vec2f
-   # The seed used to generate the world.
-   seed: lu64
+   # The seed used to generate the world. Unlike in Java edition, the seed is a 32bit Integer here.
+   seed: zigzag32
    biome_type: li16
    biome_name: string
    # Dimension is the ID of the dimension that the player spawns in. It is a value from 0-2, 
    # with 0 being the overworld, 1 being the nether and 2 being the end.
-   dimension: zigzag32 =>
-      0: overworld
-      1: nether
-      2: end
+   dimension: zigzag32
    # Generator is the generator used for the world. It is a value from 0-4, with 0 being old
    # limited worlds, 1 being infinite worlds, 2 being flat worlds, 3 being nether worlds and 
    # 4 being end worlds. A value of 0 will actually make the client stop rendering chunks you 
@@ -261,9 +254,6 @@ packet_start_game:
    # to true while the player's or the world's game mode is creative, and it's recommended to simply
    # always set this to false as a server.
    achievements_disabled: bool
-   # EditorWorld is a value to dictate if the world is in editor mode, a special mode recently introduced adding
-   # "powerful tools for editing worlds, intended for experienced creators."
-   editor_world: bool
    # The time at which the day cycle was locked if the day cycle is disabled using the respective
    # game rule. The client will maIntain this time as Boolean as the day cycle is disabled.
    day_cycle_stop_time: zigzag32
@@ -309,7 +299,7 @@ packet_start_game:
    map_enabled: bool
    # The permission level of the player. It is a value from 0-3, with 0 being visitor,
    # 1 being member, 2 being operator and 3 being custom.
-   permission_level: PermissionLevel
+   permission_level: zigzag32
    # The radius around the player in which chunks are ticked. Most servers set this value
    # to a fixed number, as it does not necessarily affect anything client-side.
    server_chunk_tick_range: li32
@@ -334,10 +324,6 @@ packet_start_game:
    # A hack that Mojang put in place to preserve backwards compatibility with old villagers. 
    # The his never actually read though, so it has no functionality.
    only_spawn_v1_villagers: bool
-   # PersonaDisabled is true if persona skins are disabled for the current game session.
-   persona_disabled: bool
-   # CustomSkinsDisabled is true if custom skins are disabled for the current game session.
-   custom_skins_disabled: bool
    # The version of the game from which Vanilla features will be used.
    # The exact function of this field isn't clear.
    game_version: string
@@ -346,13 +332,6 @@ packet_start_game:
    is_new_nether: bool
    edu_resource_uri: EducationSharedResourceURI
    experimental_gameplay_override: bool
-   # ChatRestrictionLevel specifies the level of restriction on in-game chat.
-   chat_restriction_level: u8 =>
-      0: none
-      1: dropped
-      2: disabled
-   # DisablePlayerInteractions is true if the client should ignore other players when interacting with the world.
-   disable_player_interactions: bool
    # A base64 encoded world ID that is used to identify the world.
    level_id: string
    # The name of the world that the player is joining. Note that this field shows up
@@ -410,17 +389,6 @@ packet_start_game:
    server_authoritative_inventory: bool
    # The server's engine version, used for telemetry
    engine: string
-   # PropertyData contains properties that should be applied on the player. These properties are the same as the
-   # ones that are sent in the SyncActorProperty packet.
-   property_data: nbt
-   # A checksum to ensure block types between the server and client match
-   block_pallette_checksum: lu64
-   # WorldTemplateID is a UUID that identifies the template that was used to generate the world. Servers that do not
-   # use a world based off of a template can set this to an empty UUID.
-   world_template_id: uuid
-   # ClientSideGeneration is true if the client should use the features registered in the FeatureRegistry packet to
-   # generate terrain client-side to save on bandwidth.
-   client_side_generation: bool
 
 packet_add_player:
    !id: 0x0c
@@ -432,96 +400,47 @@ packet_add_player:
    # Username is the name of the player. This username is the username that will be
    # set as the initial name tag of the player.
    username: string
+   # The unique ID of the player. The unique ID is a value that remains consistent
+   #  across different sessions of the same world, but most unoffical servers simply 
+   # fill the runtime ID of the player out for this field.
+   entity_id_self: zigzag64
    # The runtime ID of the player. The runtime ID is unique for each world session,
    # and entities are generally identified in packets using this runtime ID.
-   runtime_id: varint64
+   runtime_entity_id: varint64
    # An identifier only set for particular platforms when chatting (presumably only for 
    # Nintendo Switch). It is otherwise an empty string, and is used to decide which players
    # are able to chat with each other.
    platform_chat_id: string
-   # Position is the position to spawn the player on. If the player is on a distance that the viewer cannot
-   # see it, the player will still show up if the viewer moves closer.
    position: vec3f
-   # Velocity is the initial velocity the player spawns with. This velocity will initiate client side
-   # movement of the player.
    velocity: vec3f
-   # Pitch is the vertical rotation of the player. Facing straight forward yields a pitch of 0. Pitch is
-   # measured in degrees.
    pitch: lf32
-   # Yaw is the horizontal rotation of the player. Yaw is also measured in degrees.
    yaw: lf32
-   # HeadYaw is the same as Yaw, except that it applies specifically to the head of the player. A different
-   # value for HeadYaw than Yaw means that the player will have its head turned.
    head_yaw: lf32
-   # HeldItem is the item that the player is holding. The item is shown to the viewer as soon as the player
-   # itself shows up. Needless to say that this field is rather pointless, as additional packets still must
-   # be sent for armour to show up.
    held_item: Item
-   # GameType is the game type of the player. If set to GameTypeSpectator, the player will not be shown to viewers.
-   gamemode: GameMode
-   # EntityMetadata is a map of entity metadata, which includes flags and data properties that alter in
-   # particular the way the player looks. Flags include ones such as 'on fire' and 'sprinting'.
-   # The metadata values are indexed by their property key.
    metadata: MetadataDictionary
-   # The unique ID of the player. The unique ID is a value that remains consistent
-   # across different sessions of the same world, but most unoffical servers simply 
-   # fill the runtime ID of the player out for this field.
-   unique_id: li64
-   permission_level: PermissionLevel
-   command_permission: CommandPermissionLevel
-   # AbilityLayer represents the abilities of a specific layer, such as the base layer or the spectator layer.
-   abilities: AbilityLayers[]u8
-   # EntityLinks is a list of entity links that are currently active on the player. These links alter the
-   # way the player shows up when first spawned in terms of it shown as riding an entity. Setting these
-   # links is important for new viewers to see the player is riding another entity.
+   flags: varint
+   command_permission: varint
+   action_permissions: varint
+   permission_level: varint
+   custom_stored_permissions: varint
+   user_id: li64
    links: Links
-   # DeviceID is the device ID set in one of the files found in the storage of the device of the player. It
-   # may be changed freely, so it should not be relied on for anything.
    device_id: string
-   # BuildPlatform is the build platform/device OS of the player that is about to be added, as it sent in
-   # the Login packet when joining.
-   device_os: DeviceOS
+   device_os: li32
 
 packet_add_entity:
    !id: 0x0d
    !bound: client
-   # EntityUniqueID is the unique ID of the entity. The unique ID is a value that remains consistent across
-   # different sessions of the same world, but most servers simply fill the runtime ID of the entity out for
-   unique_id: zigzag64
-   # EntityRuntimeID is the runtime ID of the entity. The runtime ID is unique for each world session, and
-   # entities are generally identified in packets using this runtime ID.
-   runtime_id: varint64
-   # EntityType is the string entity type of the entity, for example 'minecraft:skeleton'. A list of these
-   # entities may be found online.
+   entity_id_self: zigzag64
+   runtime_entity_id: varint64
    entity_type: string
-   # Position is the position to spawn the entity on. If the entity is on a distance that the player cannot
-   # see it, the entity will still show up if the player moves closer.
    position: vec3f
-   # Velocity is the initial velocity the entity spawns with. This velocity will initiate client side
-   # movement of the entity.
    velocity: vec3f
-   # Pitch is the vertical rotation of the entity. Facing straight forward yields a pitch of 0. Pitch is
-   # measured in degrees.
    pitch: lf32
-   # Yaw is the horizontal rotation of the entity. Yaw is also measured in degrees.
    yaw: lf32
-   # HeadYaw is the same as Yaw, except that it applies specifically to the head of the entity. A different value for
-   # HeadYaw than Yaw means that the entity will have its head turned.
    head_yaw: lf32
-   # BodyYaw is the same as Yaw, except that it applies specifically to the body of the entity. A different value for
-   # BodyYaw than HeadYaw means that the entity will have its body turned, although it is unclear what the difference
-   # between BodyYaw and Yaw is.
-   body_yaw: lf32
-   # Attributes is a slice of attributes that the entity has. It includes attributes such as its health,
-   # movement speed, etc.
    attributes: EntityAttributes
-   # EntityMetadata is a map of entity metadata, which includes flags and data properties that alter in
-   # particular the way the entity looks. Flags include ones such as 'on fire' and 'sprinting'.
-   # The metadata values are indexed by their property key.
    metadata: MetadataDictionary
-   # EntityLinks is a list of entity links that are currently active on the entity. These links alter the
-   # way the entity shows up when first spawned in terms of it shown as riding an entity. Setting these
-   # links is important for new viewers to see the entity is riding another entity.
    links: Links
 
 packet_remove_entity:
@@ -752,12 +671,6 @@ packet_level_event:
       2031: particle_wax_off
       2032: particle_scrape
       2033: particle_electric_spark
-      2034: particle_turtle_egg
-      2035: particle_sculk_shriek
-      2036: sculk_catalyst_bloom
-      2037: sculk_charge
-      2038: sculk_charge_pop
-      2039: sonic_explosion
 
       3001: start_rain  
       3002: start_thunder  
@@ -778,91 +691,90 @@ packet_level_event:
       3509: cauldron_clean_banner  
       3600: block_start_break  
       3601: block_stop_break  
-      4000: set_data
+      4000: set_data  
       9800: players_sleeping
-      9801: sleeping_players
       0x4000: add_particle_mask
       # 0x4000 | + particle ID
-      16385: add_particle_bubble   # 1
-      16386: add_particle_bubble_manual   # 2
-      16387: add_particle_critical   # 3
-      16388: add_particle_block_force_field   # 4
-      16389: add_particle_smoke   # 5
-      16390: add_particle_explode   # 6
-      16391: add_particle_evaporation   # 7
-      16392: add_particle_flame   # 8
-      16393: add_particle_candle_flame   # 9
-      16394: add_particle_lava   # 10
-      16395: add_particle_large_smoke   # 11
-      16396: add_particle_redstone   # 12
-      16397: add_particle_rising_red_dust   # 13
-      16398: add_particle_item_break   # 14
-      16399: add_particle_snowball_poof   # 15
-      16400: add_particle_huge_explode   # 16
-      16401: add_particle_huge_explode_seed   # 17
-      16402: add_particle_mob_flame   # 18
-      16403: add_particle_heart   # 19
-      16404: add_particle_terrain   # 20
-      16405: add_particle_town_aura   # 21
-      16406: add_particle_portal   # 22
-      16408: add_particle_water_splash   # 24
-      16409: add_particle_water_splash_manual   # 25
-      16410: add_particle_water_wake   # 26
-      16411: add_particle_drip_water   # 27
-      16412: add_particle_drip_lava   # 28
-      16413: add_particle_drip_honey   # 29
-      16414: add_particle_stalactite_drip_water   # 30
-      16415: add_particle_stalactite_drip_lava   # 31
-      16416: add_particle_falling_dust   # 32
-      16417: add_particle_mob_spell   # 33
-      16418: add_particle_mob_spell_ambient   # 34
-      16419: add_particle_mob_spell_instantaneous   # 35
-      16420: add_particle_ink   # 36
-      16421: add_particle_slime   # 37
-      16422: add_particle_rain_splash   # 38
-      16423: add_particle_villager_angry   # 39
-      16424: add_particle_villager_happy   # 40
-      16425: add_particle_enchantment_table   # 41
-      16426: add_particle_tracking_emitter   # 42
-      16427: add_particle_note   # 43
-      16428: add_particle_witch_spell   # 44
-      16429: add_particle_carrot   # 45
-      16430: add_particle_mob_appearance   # 46
-      16431: add_particle_end_rod   # 47
-      16432: add_particle_dragons_breath   # 48
-      16433: add_particle_spit   # 49
-      16434: add_particle_totem   # 50
-      16435: add_particle_food   # 51
-      16436: add_particle_fireworks_starter   # 52
-      16437: add_particle_fireworks_spark   # 53
-      16438: add_particle_fireworks_overlay   # 54
-      16439: add_particle_balloon_gas   # 55
-      16440: add_particle_colored_flame   # 56
-      16441: add_particle_sparkler   # 57
-      16442: add_particle_conduit   # 58
-      16443: add_particle_bubble_column_up   # 59
-      16444: add_particle_bubble_column_down   # 60
-      16445: add_particle_sneeze   # 61
-      16446: add_particle_shulker_bullet   # 62
-      16447: add_particle_bleach   # 63
-      16448: add_particle_dragon_destroy_block   # 64
-      16449: add_particle_mycelium_dust   # 65
-      16450: add_particle_falling_red_dust   # 66
-      16451: add_particle_campfire_smoke   # 67
-      16452: add_particle_tall_campfire_smoke   # 68
-      16453: add_particle_dragon_breath_fire   # 69
-      16454: add_particle_dragon_breath_trail   # 70
-      16455: add_particle_blue_flame   # 71
-      16456: add_particle_soul   # 72
-      16457: add_particle_obsidian_tear   # 73
-      16458: add_particle_portal_reverse   # 74
-      16459: add_particle_snowflake   # 75
-      16460: add_particle_vibration_signal   # 76
-      16461: add_particle_sculk_sensor_redstone   # 77
-      16462: add_particle_spore_blossom_shower   # 78
-      16463: add_particle_spore_blossom_ambient   # 79
-      16464: add_particle_wax   # 80
-      16465: add_particle_electric_spark   # 81
+      16385: particle_bubble   # 1
+      16386: particle_bubble_manual   # 2
+      16387: particle_critical   # 3
+      16388: particle_block_force_field   # 4
+      16389: particle_smoke   # 5
+      16390: particle_explode   # 6
+      16391: particle_evaporation   # 7
+      16392: particle_flame   # 8
+      16393: particle_candle_flame   # 9
+      16394: particle_lava   # 10
+      16395: particle_large_smoke   # 11
+      16396: particle_redstone   # 12
+      16397: particle_rising_red_dust   # 13
+      16398: particle_item_break   # 14
+      16399: particle_snowball_poof   # 15
+      16400: particle_huge_explode   # 16
+      16401: particle_huge_explode_seed   # 17
+      16402: particle_mob_flame   # 18
+      16403: particle_heart   # 19
+      16404: particle_terrain   # 20
+      16405: particle_town_aura   # 21
+      16406: particle_portal   # 22
+      16408: particle_water_splash   # 24
+      16409: particle_water_splash_manual   # 25
+      16410: particle_water_wake   # 26
+      16411: particle_drip_water   # 27
+      16412: particle_drip_lava   # 28
+      16413: particle_drip_honey   # 29
+      16414: particle_stalactite_drip_water   # 30
+      16415: particle_stalactite_drip_lava   # 31
+      16416: particle_falling_dust   # 32
+      16417: particle_mob_spell   # 33
+      16418: particle_mob_spell_ambient   # 34
+      16419: particle_mob_spell_instantaneous   # 35
+      16420: particle_ink   # 36
+      16421: particle_slime   # 37
+      16422: particle_rain_splash   # 38
+      16423: particle_villager_angry   # 39
+      16424: particle_villager_happy   # 40
+      16425: particle_enchantment_table   # 41
+      16426: particle_tracking_emitter   # 42
+      16427: particle_note   # 43
+      16428: particle_witch_spell   # 44
+      16429: particle_carrot   # 45
+      16430: particle_mob_appearance   # 46
+      16431: particle_end_rod   # 47
+      16432: particle_dragons_breath   # 48
+      16433: particle_spit   # 49
+      16434: particle_totem   # 50
+      16435: particle_food   # 51
+      16436: particle_fireworks_starter   # 52
+      16437: particle_fireworks_spark   # 53
+      16438: particle_fireworks_overlay   # 54
+      16439: particle_balloon_gas   # 55
+      16440: particle_colored_flame   # 56
+      16441: particle_sparkler   # 57
+      16442: particle_conduit   # 58
+      16443: particle_bubble_column_up   # 59
+      16444: particle_bubble_column_down   # 60
+      16445: particle_sneeze   # 61
+      16446: particle_shulker_bullet   # 62
+      16447: particle_bleach   # 63
+      16448: particle_dragon_destroy_block   # 64
+      16449: particle_mycelium_dust   # 65
+      16450: particle_falling_red_dust   # 66
+      16451: particle_campfire_smoke   # 67
+      16452: particle_tall_campfire_smoke   # 68
+      16453: particle_dragon_breath_fire   # 69
+      16454: particle_dragon_breath_trail   # 70
+      16455: particle_blue_flame   # 71
+      16456: particle_soul   # 72
+      16457: particle_obsidian_tear   # 73
+      16458: particle_portal_reverse   # 74
+      16459: particle_snowflake   # 75
+      16460: particle_vibration_signal   # 76
+      16461: particle_sculk_sensor_redstone   # 77
+      16462: particle_spore_blossom_shower   # 78
+      16463: particle_spore_blossom_ambient   # 79
+      16464: particle_wax   # 80
+      16465: particle_electric_spark   # 81
    position: vec3f
    data: zigzag32
 
@@ -930,21 +842,18 @@ packet_entity_event:
       61: death_smoke_cloud 
       62: complete_trade 
       63: remove_leash  #data 1 = cut leash
-      64: caravan
+
       65: consume_totem 
       66: player_check_treasure_hunter_achievement  #mojang...
       67: entity_spawn  #used for MinecraftEventing stuff, not needed
       68: dragon_puke  #they call this puke particles
-      69: item_entity_merge
-      70: start_swim
-      71: balloon_pop
-      72: treasure_hunt
-      73: agent_summon
-      74: charged_crossbow
-      75: fall
-      76: grow_up
-      77: vibration_detected
-      78: drink_milk
+      69: item_entity_merge 
+      70: start_swim 
+      71: balloon_pop 
+      72: treasure_hunt 
+      73: agent_summon 
+      74: charged_crossbow 
+      75: fall 
    data: zigzag32
 
 packet_mob_effect:
@@ -1042,9 +951,6 @@ packet_player_action:
    # BlockPosition is the position of the target block, if the action with the ActionType set concerned a
    # block. If that is not the case, the block position will be zero.
    position: BlockCoordinates
-   # ResultPosition is the position of the action's result. When a UseItemOn action is sent, this is the position of
-   # the block clicked, but when a block is placed, this is the position at which the block will be placed.
-   result_position: BlockCoordinates
    # BlockFace is the face of the target block that was touched. If the action with the ActionType set
    # concerned a block. If not, the face is always 0.
    face: zigzag32
@@ -1061,7 +967,7 @@ packet_set_entity_data:
    !bound: both
    runtime_entity_id: varint64
    metadata: MetadataDictionary
-   tick: varint64
+   tick: varint
 
 # SetActorMotion is sent by the server to change the client-side velocity of an entity. It is usually used
 # in combination with server-side movement calculation.
@@ -1107,12 +1013,9 @@ packet_animate:
       3: wake_up
       4: critical_hit
       5: magic_critical_hit
-      128: row_right
-      129: row_left
+      6: row_right
+      7: row_left
    runtime_entity_id: varint64
-   _: action_id ?
-      if row_right or row_left:
-         boat_rowing_time: lf32
 
 packet_respawn:
    !id: 0x2d
@@ -1227,9 +1130,9 @@ packet_crafting_data:
    # PotionContainerChangeRecipes is a list of all recipes to convert a potion from one type to another,
    # such as from a drinkable potion to a splash potion, or from a splash potion to a lingering potion.
    potion_type_recipes: PotionTypeRecipes
-   potion_container_recipes: PotionContainerChangeRecipes
    # MaterialReducers is a list of all material reducers which is used in education edition chemistry.
    material_reducers: MaterialReducer[]varint
+   potion_container_recipes: PotionContainerChangeRecipes
    # ClearRecipes indicates if all recipes currently active on the client should be cleaned. Doing this
    # means that the client will have no recipes active by itself: Any CraftingData packets previously sent
    # will also be discarded, and only the recipes in this CraftingData packet will be used.
@@ -1285,14 +1188,23 @@ packet_adventure_settings:
    flags: AdventureFlags
    # CommandPermissionLevel is a permission level that specifies the kind of commands that the player is
    # allowed to use.
-   command_permission: CommandPermissionLevelVarint
+   command_permission: varint =>
+      0: normal
+      1: operator
+      2: host
+      3: automation
+      4: admin
    # ActionPermissions is, much like Flags, a set of flags that specify actions that the player is allowed
    # to undertake, such as whether it is allowed to edit blocks, open doors etc. It is a combination of the
    # ActionPermission constants above.
    action_permissions: ActionPermissions
    # PermissionLevel is the permission level of the player as it shows up in the player list built up using
    # the PlayerList packet. It is one of the PermissionLevel constants above.
-   permission_level: PermissionLevel
+   permission_level: varint =>
+      0: visitor
+      1: member
+      2: operator
+      3: custom
    # Custom permissions
    custom_stored_permissions: varint
    # PlayerUniqueID is a unique identifier of the player. It appears it is not required to fill this field
@@ -1358,12 +1270,7 @@ packet_level_chunk:
    z: zigzag32
    # SubChunkCount is the amount of sub chunks that are part of the chunk sent. Depending on if the cache
    # is enabled, a list of blob hashes will be sent, or, if disabled, the sub chunk data.
-   # On newer versions, if this is a negative value it indicates to use the Subchunk Polling mechanism
    sub_chunk_count: varint
-   # HighestSubChunk is the highest sub-chunk at the position that is not all air. It is only set if the
-   # RequestMode is set to protocol.SubChunkRequestModeLimited.
-   highest_subchunk_count: sub_chunk_count ?
-      if -2: lu16
    # CacheEnabled specifies if the client blob cache should be enabled. This system is based on hashes of
    # blobs which are consistent and saved by the client in combination with that blob, so that the server
    # does not have to send the same chunk multiple times. If the client does not yet have a blob with the hash sent,
@@ -1527,19 +1434,12 @@ packet_clientbound_map_item_data:
          # the length of the outer slice having to be exactly Height long and the inner slices exactly Width long.
          # To access this array, use $width * y + x
          pixels: varint[]varint
-         # Origin is the center position of the map being updated.
-         origin: BlockCoordinates
 
 
 packet_map_info_request:
    !id: 0x44
    !bound: both
    map_id: zigzag64
-   # ClientPixels is a map of pixels sent from the client to notify the server about the pixels that it isn't
-   # aware of.
-   client_pixels: []lu32
-      rgba: li32
-      index: lu16
 
 # RequestChunkRadius is sent by the client to the server to update the server on the chunk view radius that
 # it has set in the settings. The server may respond with a ChunkRadiusUpdated packet with either the chunk
@@ -1604,8 +1504,6 @@ packet_boss_event:
       6: update_properties
       # S2C: Not implemented :( Intended to alter bar appearance, but these currently produce no effect on client-side whatsoever.
       7: texture
-      # C2S: Client asking the server to resend all boss data.
-      8: query
    _: type?
       if show_bar:
          # BossBarTitle is the title shown above the boss bar. It currently does not function, and instead uses
@@ -1627,7 +1525,7 @@ packet_boss_event:
          # subscribed. It currently does not function. It is only set if the EventType is BossEventShow,
          # BossEventAppearanceProperties or BossEventTexture.
          overlay: varint
-      if register_player or unregister_player or query:
+      if register_player or unregister_player:
          # PlayerUniqueID is the unique ID of the player that is registered to or unregistered from the boss
          # fight. It is set if EventType is either BossEventRegisterPlayer or BossEventUnregisterPlayer.
          player_id: zigzag64
@@ -1656,7 +1554,7 @@ packet_show_credits:
 packet_available_commands:
    !id: 0x4c
    !bound: client
-   # The length of the enums for all the command parameters in this packet
+   # The length of the enums for all the command paramaters in this packet
    values_len: varint
    # Not read from stream: instead calculated from the `values_len` field
    #
@@ -1666,7 +1564,7 @@ packet_available_commands:
    _enum_type: '["enum_size_based_on_values_len"]'
    # Here all the enum values for all of the possible commands are stored to one array palette
    enum_values: string[]$values_len
-   # Integer parameters may sometimes have a prefix, such as the XP command:
+   # Integer paramaters may sometimes have a prefix, such as the XP command:
    # /xp <amount: int> [player: target] <- here, the xp command gives experience points
    # /xp <amount: int>L [player: target] <- here, the xp command gives experience levels
    # This is the palette of suffixes
@@ -1688,34 +1586,33 @@ packet_available_commands:
       flags: lu16
       permission_level: u8
       alias: li32
-      # The list of overload parameters for this command
+      # The list of overload paramaters for this command
       overloads: []varint
-         # Each of the parameters gets an array of posible overloads
+         # Each of the paramaters gets an array of posible overloads
          _: []varint
-            # The name of the parameter shown to the user (the `amount` in `/xp <amount: int>`)
-            parameter_name: string
+            # The name of the paramater shown to the user (the `amount` in `/xp <amount: int>`)
+            paramater_name: string
             value_type: lu16 =>
                1: int
-               3: float
-               4: value
-               5: wildcard_int
-               6: operator
-               8: target
-               17: file_path
-               39: string
-               47: block_position
-               48: position
-               51: message
-               53: raw_text
-               57: json
-               70: command
+               2: float
+               3: value
+               4: wildcard_int
+               5: operator
+               6: target
+               16: file_path
+               32: string
+               40: position
+               44: message
+               46: raw_text
+               50: json
+               63: command
             # In MC, this + prior field are combined to one 32bit bitfield
             enum_type: lu16 =>
                0x10: valid
                0x20: enum
                0x100: suffixed
                0x400: soft_enum
-            # Is this parameter required?
+            # Is this paramater required?
             optional: bool
             # Additinal options for this command (thanks macroshaft...)
             options: CommandFlags
@@ -1740,11 +1637,10 @@ packet_available_commands:
 # with enums that have a big amount of options. To illustrate, it can make
 # <false|true|yes|no> <$Name: bool>.
 CommandFlags: [ "bitfield", [
-   { "name": "unused", "size": 1, "signed": false },
+   { "name": "unused", "size": 1, "signed": false }, # 6 unused upper bits
    { "name": "collapse_enum", "size": 1, "signed": false },
    { "name": "has_semantic_constraint", "size": 1, "signed": false },
    { "name": "as_chained_command", "size": 1, "signed": false },
-   { "name": "unknown2", "size": 4, "signed": false }, # 4 unused upper bits
 ]]
 
 # enum_size_based_on_values_len: native
@@ -1794,7 +1690,7 @@ packet_command_block_update:
          # times, whereas if set to true, it will activate only if the previous command block executed
          # successfully. The field is only set if Block is set to true.
          conditional: bool
-      if false:
+      default:
          minecart_entity_runtime_id: varint64
    # Command is the command currently entered in the command block. This is the command that is executed
    # when the command block is activated.
@@ -1846,7 +1742,7 @@ packet_command_output:
       # Parameters is a list of parameters that serve to supply the message sent with additional information,
       # such as the position that a player was teleported to or the effect that was applied to an entity.
       # These parameters only apply for the Minecraft built-in command output.
-      parameters: string[]varint
+      paramaters: string[]varint
    data_set: output_type ?
       if data_set: string
       default: void
@@ -2222,7 +2118,7 @@ packet_photo_transfer:
    # SourceType is the source photo type. It is one of the three photo types above.
    source_type: u8
    # OwnerEntityUniqueID is the entity unique ID of the photo's owner.
-   owner_entity_unique_id: li64
+   owner_entity_unique_id: i64
    # NewPhotoName is the new name of the photo.
    new_photo_name: string
 
@@ -2247,21 +2143,11 @@ packet_modal_form_response:
    # FormID is the form ID of the form the client has responded to. It is the same as the ID sent in the
    # ModalFormRequest, and may be used to identify which form was submitted.
    form_id: varint
-   # HasResponseData is true if the client provided response data.
-   has_response_data: bool
-   # ResponseData is a JSON encoded value representing the response of the player. For a modal form, the response is
-   # either true or false, for a menu form, the response is an integer specifying the index of the button clicked, and
-   # for a custom form, the response is an array containing a value for each element.
-   data: has_response_data ?
-      if true: string
-   # HasCancelReason is true if the client provided a reason for the form being cancelled.
-   has_cancel_reason: bool
-   # CancelReason represents the reason why the form was cancelled.
-   _: has_cancel_reason ?
-      if true:
-         cancel_reason: u8 =>
-            0: closed
-            1: busy
+   # ResponseData is a JSON encoded value representing the response of the player. If the form was
+   # cancelled, a JSON encoded 'null' is in the response. For a modal form, the response is either true or
+   # false, for a menu form, the response is an integer specifying the index of the button clicked, and for
+   # a custom form, the response is an array containing a value for each element.
+   data: string
 
 # ServerSettingsRequest is sent by the client to request the settings specific to the server. These settings
 # are shown in a separate tab client-side, and have the same structure as a custom form.
@@ -2529,10 +2415,6 @@ packet_spawn_particle_effect:
    # ParticleName is the name of the particle that should be shown. This name may point to a particle effect
    # that is built-in, or to one implemented by behaviour packs.
    particle_name: string
-   # MoLangVariables is an encoded JSON map of MoLang variables that may be applicable to the particle spawn. This can
-   # just be left empty in most cases.
-   # TODO: Investigate, probably not a ByteArray...
-   molang_variables: ByteArray
 
 # AvailableActorIdentifiers is sent by the server at the start of the game to let the client know all
 # entities that are available on the server.
@@ -2571,12 +2453,6 @@ packet_network_chunk_publisher_update:
    # Unlike the RequestChunkRadius and ChunkRadiusUpdated packets, this radius is in blocks rather than
    # chunks, so the chunk radius needs to be multiplied by 16. (Or shifted to the left by 4.)
    radius: varint
-   saved_chunks: []lu32
-      # ChunkX is the X coordinate of the chunk sent. (To translate a block's X to a chunk's X: x >> 4)
-      x: zigzag32
-      # ChunkZ is the Z coordinate of the chunk sent. (To translate a block's Z to a chunk's Z: z >> 4)
-      z: zigzag32
-
 
 # BiomeDefinitionList is sent by the server to let the client know all biomes that are available and
 # implemented on the server side. It is much like the AvailableActorIdentifiers packet, but instead
@@ -2804,20 +2680,6 @@ packet_education_settings:
       url: string
       display_name: string
 
-# Emote is sent by both the server and the client. When the client sends an emote, it sends this packet to
-# the server, after which the server will broadcast the packet to other players online.
-packet_emote:
-   !id: 0x8a
-   !bound: both
-   # EntityRuntimeID is the entity that sent the emote. When a player sends this packet, it has this field
-   # set as its own entity runtime ID.
-   entity_id: varint64
-   # EmoteID is the ID of the emote to send.
-   emote_id: string
-   # Flags is a combination of flags that change the way the Emote packet operates. When the server sends
-   # this packet to other players, EmoteFlagServerSide must be present.
-   flags: u8
-
 # MultiPlayerSettings is sent by the client to update multi-player related settings server-side and sent back
 # to online players by the server.
 # The MultiPlayerSettings packet is a Minecraft: Education Edition packet. It has no functionality for the
@@ -2935,11 +2797,6 @@ packet_player_auth_input:
       7: exit_level
       8: exit_level_living_room
       9: num_modes
-   # InteractionModel is a constant representing the interaction model the player is using.
-   interaction_model: zigzag32 =>
-   - touch
-   - crosshair
-   - classic
    # GazeDirection is the direction in which the player is gazing, when the PlayMode is PlayModeReality: In
    # other words, when the player is playing in virtual reality.
    gaze_direction: play_mode ?
@@ -3104,20 +2961,6 @@ packet_update_player_game_type:
    player_unique_id: zigzag64
 
 
-# EmoteList is sent by the client every time it joins the server and when it equips new emotes. It may be
-# used by the server to find out which emotes the client has available. If the player has no emotes equipped,
-# this packet is not sent.
-# Under certain circumstances, this packet is also sent from the server to the client, but I was unable to
-# find when this is done.
-packet_emote_list:
-   !id: 0x98
-   !bound: server
-   # PlayerRuntimeID is the runtime ID of the player that owns the emote pieces below. If sent by the
-   # client, this player runtime ID is always that of the player itself.
-   player_id: varint64
-   # EmotePieces is a list of emote pieces that the player with the runtime ID above has.
-   emote_pieces: uuid[]varint
-
 # PositionTrackingDBClientRequest is a packet sent by the client to request the position and dimension of a
 # 'tracking ID'. These IDs are tracked in a database by the server. In 1.16, this is used for lodestones.
 # The client will send this request to find the position a lodestone compass needs to point to. If found, it
@@ -3210,7 +3053,7 @@ packet_animate_entity:
    # StopCondition is a MoLang expression that specifies when the animation should be stopped.
    stop_condition: string
    # StopConditionVersion is the MoLang stop condition version.
-   stop_condition_version: li32
+   stop_condition_version: li64
    # Controller is the animation controller that is used to manage animations. These controllers decide when
    # to play which animation.
    controller: string
@@ -3319,18 +3162,9 @@ packet_sync_entity_property:
 packet_add_volume_entity:
    !id: 0xa6
    !bound: client
-   # EntityRuntimeID is the runtime ID of the entity. The runtime ID is unique for each world session, and
-   # entities are generally identified in packets using this runtime ID.
-   runtime_id: varint64
-   # EntityMetadata is a map of entity metadata, which includes flags and data properties that alter in
-   # particular the way the entity looks.
+   # The Runtime Entity ID
+   entity_id: varint64
    nbt: nbt
-   encoding_identifier: string
-   instance_name: string
-   bounds: 
-      min: BlockCoordinates
-      max: BlockCoordinates
-   dimension: zigzag32
    engine_version: string
 
 # RemoveVolumeEntity indicates a volume entity to be removed from server to client.
@@ -3377,7 +3211,7 @@ packet_edu_uri_resource_packet:
 packet_create_photo:
    !id: 0xab
    # EntityUniqueID is the unique ID of the entity.
-   entity_unique_id: li64
+   entity_unique_id: i64
    # PhotoName is the name of the photo.
    photo_name: string
    # ItemName is the name of the photo as an item.
@@ -3387,342 +3221,14 @@ packet_create_photo:
 packet_update_subchunk_blocks:
    !id: 0xac
    # SubChunkX, SubChunkY, and SubChunkZ help identify the sub chunk.
-   x: zigzag32
-   y: zigzag32
-   z: zigzag32
+   x: varint
+   y: varint
+   z: varint
    # Blocks contains each updated block change entry.
    blocks: BlockUpdate[]varint
    # Extra contains each updated block change entry for the second layer, usually for waterlogged blocks.
    extra: BlockUpdate[]varint
 
-packet_photo_info_request:
+packet_photo_info_request_packet:
    !id: 0xad
    photo_id: zigzag64
-
-SubChunkEntryWithoutCaching: []lu32
-   dx: u8
-   dy: u8
-   dz: u8
-   result: u8 =>
-      0: undefined
-      1: success
-      2: chunk_not_found
-      3: invalid_dimension
-      4: player_not_found
-      5: y_index_out_of_bounds
-      6: success_all_air
-   # Payload has the terrain data, if the chunk isn't empty and caching is disabled
-   payload: ByteArray
-   heightmap_type: u8 =>
-      0: no_data
-      1: has_data
-      2: too_high
-      3: too_low
-   heightmap: heightmap_type ?
-      if has_data: '["buffer", { "count": 256 }]'
-
-SubChunkEntryWithCaching: []lu32
-   dx: u8
-   dy: u8
-   dz: u8
-   result: u8 =>
-      0: undefined
-      1: success
-      2: chunk_not_found
-      3: invalid_dimension
-      4: player_not_found
-      5: y_index_out_of_bounds
-      6: success_all_air
-   # Payload has the terrain data, if the chunk isn't empty and caching is disabled
-   payload: result ?
-      if success_all_air: void
-      default: ByteArray
-   heightmap_type: u8 =>
-      0: no_data
-      1: has_data
-      2: too_high
-      3: too_low
-   heightmap: heightmap_type ?
-      if has_data: '["buffer", { "count": 256 }]'
-   blob_id: lu64
-
-# SubChunk sends data about multiple sub-chunks around a center point.
-packet_subchunk:
-   !id: 0xae
-   !bound: client
-   cache_enabled: bool
-   dimension: zigzag32
-   # Origin point
-   origin: vec3i
-   entries: cache_enabled ?
-      if true: SubChunkEntryWithCaching
-      if false: SubChunkEntryWithoutCaching
-
-packet_subchunk_request:
-   !id: 0xaf
-   !bound: server
-   dimension: zigzag32
-   # Origin point
-   origin: vec3i
-   requests: []lu32
-      dx: u8
-      dy: u8
-      dz: u8
-
-# ClientStartItemCooldown is sent by the client to the server to initiate a cooldown on an item. The purpose of this
-# packet isn't entirely clear.
-packet_client_start_item_cooldown:
-   !id: 0xb0
-   !bound: server
-   category: string
-   # Duration is the duration of ticks the cooldown should last.
-   duration: zigzag32
-
-# ScriptMessage is used to communicate custom messages from the client to the server, or from the server to the client.
-# While the name may suggest this packet is used for the discontinued scripting API, it is likely instead for the
-# GameTest framework.
-packet_script_message:
-   !id: 0xb1
-   !bound: server
-   # Message ID is the identifier of the message, used by either party to identify the message data sent.
-   message_id: string
-   # Data contains the data of the message.
-   data: string
-
-# CodeBuilderSource is an Education Edition packet sent by the client to the server to run an operation with a
-packet_code_builder_source:
-   !id: 0xb2
-   !bound: client
-   # Operation is used to distinguish the operation performed. It is always one of the constants listed above.
-   operation: u8 =>
-   - none
-   - get
-   - set
-   - reset
-   # Category is used to distinguish the category of the operation performed. It is always one of the constants
-   category: u8 =>
-   - none
-   - code_status
-   - instantiation
-   # Value contains extra data about the operation performed. It is always empty unless the operation is
-   value: string
-
-# TickingAreasLoadStatus is sent by the server to the client to notify the client of a ticking area's loading status.
-packet_ticking_areas_load_status:
-   !id: 0xb3
-   !bound: client
-   # Preload is true if the server is waiting for the area's preload.
-   preload: bool
-
-# DimensionData is a packet sent from the server to the client containing information about data-driven dimensions
-# that the server may have registered. This packet does not seem to be sent by default, rather only being sent when
-# any data-driven dimensions are registered.
-packet_dimension_data:
-   !id: 0xb4
-   !bound: client
-   definitions: []varint
-      id: string
-      max_height: zigzag32
-      min_height: zigzag32
-      generator: zigzag32 =>
-         0: legacy
-         1: overworld 
-         2: flat 
-         3: nether
-         4: end
-         5: void
-
-# AgentAction is an Education Edition packet sent from the server to the client to return a response to a
-# previously requested action.
-packet_agent_action:
-   !id: 0xb5
-   !bound: client
-   request_id: string
-   action_type: zigzag32 =>
-   - none
-   - attack
-   - collect
-   - destroy
-   - detect_redstone
-   - detect_obstacle
-   - drop
-   - drop_all
-   - inspect
-   - inspect_data
-   - inspect_item_count
-   - inspect_item_detail
-   - inspect_item_space
-   - interact
-   - move
-   - place_block
-   - till
-   - transfer_item_to
-   - turn
-   body: string
-
-# ChangeMobProperty is a packet sent from the server to the client to change one of the properties of a mob client-side.
-packet_change_mob_property:
-   !id: 0xb6
-   !bound: client
-   # EntityUniqueID is the unique ID of the entity whose property is being changed.
-   entity_unique_id: zigzag64
-   # Property is the name of the property being updated.
-   property: string
-   # BoolValue is set if the property value is a bool type. If the type is not a bool, this field is ignored.
-   bool_value: bool
-   # StringValue is set if the property value is a string type. If the type is not a string, this field is ignored.
-   string_value: string
-   # IntValue is set if the property value is an int type. If the type is not an int, this field is ignored.
-   int_value: zigzag32
-   # FloatValue is set if the property value is a float type. If the type is not a float, this field is ignored.
-   float_value: lf32
-
-# LessonProgress is a packet sent by the server to the client to inform the client of updated progress on a lesson.
-# This packet only functions on the Minecraft: Education Edition version of the game.
-packet_lesson_progress:
-   !id: 0xb7
-   # Action is the action the client should perform to show progress. This is one of the constants defined above.
-   action: u8
-   # Score is the score the client should use when displaying the progress.
-   score: zigzag32
-   # Identifier is the identifier of the lesson that is being progressed.
-   identifier: string
-
-# RequestAbility is a packet sent by the client to the server to request permission for a specific ability from the
-# server.
-packet_request_ability:
-   !id: 0xb8
-   !bound: server
-   # Ability is the ability that the client is requesting. This is one of the constants defined above.
-   ability: zigzag32 =>
-   - build
-   - mine
-   - doors_and_switches
-   - open_containers
-   - attack_players
-   - attack_mobs
-   - operator_commands
-   - teleport
-   - invulnerable
-   - flying
-   - may_fly
-   - instant_build
-   - lightning
-   - fly_speed
-   - walk_speed
-   - muted
-   - world_builder
-   - no_clip
-   - ability_count
-   # Value type decides which of the fields you should read/write from
-   value_type: u8 =>
-      1: bool
-      2: float
-   # If value type is bool, use this value
-   bool_value: bool
-   # If value type is float, use this value
-   float_val: lf32
-
-# RequestPermissions is a packet sent from the client to the server to request permissions that the client does not
-# currently have. It can only be sent by operators and host in vanilla Minecraft.
-packet_request_permissions:
-   !id: 0xb9
-   !bound: server
-   # EntityUniqueID is the unique ID of the player. The unique ID is unique for the entire world and is
-   # often used in packets. Most servers send an EntityUniqueID equal to the EntityRuntimeID.
-   entity_unique_id: li64
-   # PermissionLevel is the current permission level of the player. Same as constants in AdventureSettings packet.
-   permission_level: PermissionLevel
-   # RequestedPermissions contains the requested permission flags.
-   requested_permissions: RequestPermissions
-
-RequestPermissions: [ "bitflags",
-   {
-      "type": "lu16",
-      "flags": {
-         "build": 0b1,
-         "mine": 0b10,
-         "doors_and_switches": 0b100,
-         "open_containers": 0b1000,
-         "attack_players": 0b10000,
-         "attack_mobs": 0b100000,
-         "operator": 0b1000000,
-         "teleport": 0b10000000
-      }
-   }
-]
-
-# ToastRequest is a packet sent from the server to the client to display a toast to the top of the screen. These toasts
-# are the same as the ones seen when, for example, loading a new resource pack or obtaining an achievement.
-packet_toast_request:
-   !id: 0xba
-   !bound: client
-   # Title is the title of the toast.
-   title: string
-   # Message is the message that the toast may contain alongside the title.
-   message: string
-
-# UpdateAbilities is a packet sent from the server to the client to update the abilities of the player. It, along with
-# the UpdateAdventureSettings packet, are replacements of the AdventureSettings packet since v1.19.10.
-packet_update_abilities:
-   !id: 0xbb
-   !bound: client
-   # EntityUniqueID is the unique ID of the player. The unique ID is a value that remains consistent across
-   # different sessions of the same world, but most servers simply fill the runtime ID of the entity out for
-   # this field.
-   entity_unique_id: li64
-   # PlayerPermissions is the permission level of the player. It is a value from 0-3, with 0 being visitor,
-   # 1 being member, 2 being operator and 3 being custom.
-   permission_level: PermissionLevel
-   # CommandPermissions is a permission level that specifies the kind of commands that the player is
-   # allowed to use. It is one of the CommandPermissionLevel constants in the AdventureSettings packet.
-   command_permission: CommandPermissionLevel
-   # Layers contains all ability layers and their potential values. This should at least have one entry, being the
-   # base layer.
-   abilities: AbilityLayers[]u8
-
-# UpdateAdventureSettings is a packet sent from the server to the client to update the adventure settings of the player.
-# It, along with the UpdateAbilities packet, are replacements of the AdventureSettings packet since v1.19.10.
-packet_update_adventure_settings:
-   !id: 0xbc
-   !bound: client
-   # NoPvM is a boolean indicating whether the player is allowed to fight mobs or not.
-   no_pvm: bool
-   # NoMvP is a boolean indicating whether mobs are allowed to fight the player or not. It is unclear why this is sent
-   # to the client.
-   no_mvp: bool
-   # ImmutableWorld is a boolean indicating whether the player is allowed to modify the world or not.
-   immutable_world: bool
-   # ShowNameTags is a boolean indicating whether player name tags are shown or not.
-   show_name_tags: bool
-   # AutoJump is a boolean indicating whether the player is allowed to jump automatically or not.
-   auto_jump: bool
-
-# DeathInfo is a packet sent from the server to the client expected to be sent when a player dies. It contains messages
-# related to the player's death, which are shown on the death screen as of v1.19.10.
-packet_death_info:
-   !id: 0xbd
-   !bound: client
-   # Cause is the cause of the player's death, such as "suffocation" or "suicide".
-   cause: string
-   # Messages is a list of death messages to be shown on the death screen.
-   messages: string[]varint
-
-# EditorNetwork is a packet sent from the server to the client and vise-versa to communicate editor-mode related
-# information. It carries a single compound tag containing the relevant information.
-packet_editor_network:
-   !id: 0xbe
-   !bound: client
-   # Payload is a network little endian compound tag holding data relevant to the editor.
-   payload: nbt
-
-# FeatureRegistry is a packet used to notify the client about the world generation features the server is currently
-# using. This is used in combination with the client-side world generation system introduced in v1.19.20, allowing the
-# client to completely generate the chunks of the world without having to rely on the server.
-packet_feature_registry:
-   !id: 0xbf
-   !bound: client
-   # Features is a slice of all registered world generation features.
-   features: []varint
-      name: string
-      options: string
