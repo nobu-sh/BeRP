@@ -1,6 +1,6 @@
 @ECHO OFF
 ECHO (1/5) Gathering dependencies, please wait...
-CALL npm i --save-dev >nul 2>nul
+CALL npm i --include=dev >nul 2>nul
 ECHO (2/5) Rebuilding dependencies, please wait...
 CALL npm rebuild >nul 2>nul
 ECHO (3/5) Preparing to build BeRP, please wait...
@@ -32,4 +32,7 @@ goto:sponsor
 CALL npm fund
 goto:done
 :done
+ECHO Install complete, press enter or return to test BeRP. If you encounter issues, 
+ECHO you can join our [Discord](https://discord.gg/stompzone) for troubleshooting and tips. 
 PAUSE
+CALL npm run dev
