@@ -1,7 +1,8 @@
 # Description
 A Raknet framework for connecting to Minecraft Bedrock realms with plugin support.
-<br>
-<br>
+<br><br>
+[![CodeQL](https://github.com/DJStompZone/BeRP/actions/workflows/codeql.yml/badge.svg?branch=1.19)](https://github.com/DJStompZone/BeRP/actions/workflows/codeql.yml)
+
 <br>
 <br>
 
