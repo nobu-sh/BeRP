@@ -75,7 +75,10 @@ export class RakManager extends EventEmitter {
   public readonly CURVE = "secp384r1"
   public readonly ALGORITHM = "ES384"
   public readonly PUBLIC_KEY_ONLINE = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V"
-  private connected = false
+  private connected: boolean = false
+  public compressionAlgorithm: "deflate" | "snappy" | "none" = "deflate"
+  public compressionThreshold: number
+  public compressionLevel: number
   constructor(host: string, port: number, username: string, id: number) {
     super()
 
@@ -97,7 +100,7 @@ export class RakManager extends EventEmitter {
     })
     this.X509 = this.publicKeyDER.toString('base64')
     
-    this._raknet = new Raknet(host, port, 10)
+    this._raknet = new Raknet(host, port, 11)
     this._handlePackets()
   }
   public getRakLogger(): Logger { return this._logger }
@@ -125,7 +128,7 @@ export class RakManager extends EventEmitter {
           this.emit(pak.name, pak.params as any)
         }
       } catch (err) {
-        const error = "Failed to read imbound packet: " + err
+        const error = "Failed to read inbound packet: " + err
         this._logger.error(error)
       }
     })

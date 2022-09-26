@@ -19,6 +19,9 @@ export class PacketHandler {
   private encryptor: Encryption
   private _log: Logger
   private encryptionStarted = false
+  private compressor: "deflate" | "snappy" | "none" = "deflate"
+  private compressionThreshold: number = 512
+  private compressionLevel: number = 7
   constructor() {
     this.serializer = createSerializer()
     this.deserializer = createDeserializer()
@@ -82,20 +85,39 @@ export class PacketHandler {
       throw error
     }
   }
+  public compress(buffer: Buffer) {
+      switch (this.compressor) {
+        case 'deflate': return zlib.deflateRawSync(buffer, { level: this.compressionLevel })
+        case 'snappy': throw Error('Snappy compression not implemented')
+        case 'none': return buffer
+    }
+  }
+  public decompress (algorithm, buffer) {
+    try {
+      switch (algorithm) {
+        case 'deflate': return zlib.inflateRawSync(buffer, { chunkSize: 512000 })
+        case 'snappy': throw Error('Snappy compression not yet implemented')
+        case 'none': return buffer
+        default: throw Error('Unknown compression type ' + this.compressor)
+      }
+    } catch {
+      return buffer
+    }
+  }
   public encode(packet: Buffer): Buffer {
-    const def = zlib.deflateRawSync(packet, { level: 7 })
-
-    return Buffer.concat([Buffer.from([0xfe]), def])
+    const compressed = (packet.length > this.compressionThreshold) ? this.compress(packet) : packet
+    return Buffer.concat([Buffer.from([0xfe]), compressed])
   }
   private _handleReadUPak(buffer: Buffer): { name: string, params: unknown }[] {
     try {
       const buf = Buffer.from(buffer)
       if (buf[0] !== 0xfe) throw Error('Bad batch packet header ' + buf[0])
       const b = buf.slice(1)
-      const inf = zlib.inflateRawSync(b, { chunkSize: 1024 * 1024 * 2 })
+      // const inf = zlib.inflateRawSync(b, { chunkSize: 1024 * 1024 * 2 })
+      const decompressed = this.decompress('deflate', buffer)
       
       const ret: { name: string, params: unknown }[] = []
-      for (const packet of this.getPackets(inf)) {
+      for (const packet of this.getPackets(decompressed)) {
         const des: { data: { name: string, params: unknown } } = this.deserializer.parsePacketBuffer(packet) as { data: { name: string, params: unknown } }
         ret.push({
           name: des.data.name,
