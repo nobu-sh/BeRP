@@ -129,9 +129,22 @@ export enum Packets {
   /**
    * `Bound To Server`
    * ___
-   * Sent by the client when the client initially tries to join the server.
-   * 
-   * It is the first packet sent and contains a chain of tokens with data specific to the player.
+   * Sent by the client to request network settings such as compression.
+   * It is the first packet sent when the client initially tries to join the server.
+   */
+  RequestNetworkSettings = "request_network_settings",
+  /**
+   * `Bound To Client`
+   * ___
+   * Sent by the server to update a variety of network settings.
+   * These settings modify the way packets are sent over the network stack.
+   */
+  NetworkSettings = "network_settings",
+  /**
+   * `Bound To Server`
+   * ___
+   * Sent by the client after network settings are recieved to initiate login.
+   * It contains a chain of tokens with data specific to the player.
    */
   Login = "login",
   /**
@@ -1149,13 +1162,6 @@ export enum Packets {
    */
   CompletedUsingItem = "completed_using_item",
   /**
-   * `Bound To Server & Client`
-   * ___
-   * Sent by the server to update a variety of network settings. These settings modify the
-   * way packets are sent over the network stack.
-   */
-  NetworkSettings = "network_settings",
-  /**
    * `Bound To Server`
    * ___
    * Sent by the client to allow for server authoritative movement. It is used to synchronise
@@ -1488,6 +1494,7 @@ export interface ClientBoundPackets {
   "rak_pong": []
 }
 export interface ServerBoundPackets {
+  "request_network_settings": [packet_request_network_settings]
   "login": [packet_login]
   "client_to_server_handshake": [packet_client_to_server_handshake]
   "resource_pack_client_response": [packet_resource_pack_client_response]
@@ -1543,7 +1550,6 @@ export interface ServerBoundPackets {
   "multiplayer_settings": [packet_multiplayer_settings]
   "settings_command": [packet_settings_command]
   "anvil_damage": [packet_anvil_damage]
-  "network_settings": [packet_network_settings]
   "player_auth_input": [packet_player_auth_input]
   "item_stack_request": [packet_item_stack_request]
   "position_tracking_db_request": [packet_position_tracking_db_request]
@@ -2899,10 +2905,14 @@ export interface packet_completed_using_item {
 }
 /**
  * !id: 0x8f
- * !bound: both
+ * !bound: client
  */
 export interface packet_network_settings {
-  compression_threshold: u16
+  compression_threshold: lu16
+  compression_algorithm: lu16
+  client_throttle: bool
+  client_throttle_threshold: u8
+  client_throttle_scalar: lf32
 }
 /**
  * !id: 0x90
@@ -3118,4 +3128,11 @@ export interface packet_npc_dialogue {
   screen_name: string
   npc_name: string
   action_json: string
+}
+/**
+ * !id: 0xc1
+ * !bound: server
+ */
+export interface packet_request_network_settings {
+  client_protocol: i32
 }

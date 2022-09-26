@@ -31,11 +31,13 @@ export class ConnectionHandler extends RakManager {
     private _log: Logger
     private _plugins = new Map<string, ActivePlugin>()
     private _berp: BeRP
+    private _compressor: "deflate" | "snappy" | "none"
     constructor(host: string, port: number, realm: RealmAPIWorld, cm: ConnectionManager, berp: BeRP) {
         super(host, port, cm.getAccount().username, realm.id)
         this.host = host
         this.port = port
         this.realm = realm
+        this._compressor = "deflate"
         this._connectionManager = cm
         this._berp = berp
 
@@ -44,6 +46,7 @@ export class ConnectionHandler extends RakManager {
         this.setMaxListeners(Infinity)
 
         this.once('rak_connected', this._handleLogin.bind(this))
+        this.once(Packets.NetworkSettings, this._handleNetworkSettings.bind(this))
         this.once(Packets.ServerToClientHandshake, this._handleHandshake.bind(this))
         this.once(Packets.ResourcePacksInfo, async () => {
             await this._handleAcceptPacks()
@@ -60,7 +63,6 @@ export class ConnectionHandler extends RakManager {
         })
         this._log.success("Initialized")
         // The start_game packet isn't being detected by BeRP anymore, very strange...
-        // > "The start_game packet isn't being detected"
         //    Not with that attitude it isn't!
         setTimeout(async () => {
             this._registerPlugins()
@@ -82,13 +84,9 @@ export class ConnectionHandler extends RakManager {
             this.on(Packets.StartGame, async (pkt) => {
                 try {
                     this._log.success("Got packet_start_game! Show this log to a developer!")
-                    this._log.success(`Realm: ${pkt.world_name} `, `difficulty: ${pkt.difficulty} `, `Gamerules: ${pkt.gamerules} `, `Player Position: ${pkt.player_position}`)
                     return
                 } catch (error) {
-                    this._log.error("Tried to serialize and log from 'packet_start_game' but encountered an error:")
                     this._log.error(error)
-                    this._log.warn("Show this log to a developer!")
-
                     return
                 }
             })
@@ -126,8 +124,11 @@ export class ConnectionHandler extends RakManager {
     }
 
     private async _handleDisconnect(pak?: packet_disconnect): Promise<void> {
-        let reason = "Rak Connection Terminated"
+        let reason = "Rakky wacky committed a serious fuckywucky and had to get in the forever box D:"
+        this._log.warn(reason)
         if (pak) {
+            this._log.warn("Disconnect: Got a packet", pak?.message)
+            try{this._log.warn(JSON.stringify(pak))}catch(e){console.log(e)}
             reason = pak.message
         }
         await this._berp.getPluginManager().killPlugins(this)
@@ -152,6 +153,9 @@ export class ConnectionHandler extends RakManager {
             resourcepackids: [],
         })
     }
+    private async _handleNetworkSettings(): Promise<void> {
+	await this.sendPacket(Packets.RequestNetworkSettings, {client_protocol: 554})
+    }
     private async _cachedChunks(): Promise<void> {
         await this.sendPacket(Packets.ClientCacheStatus, {
             enabled: false,
@@ -162,7 +166,7 @@ export class ConnectionHandler extends RakManager {
     }
     private async _handleGameStart(pak: packet_start_game): Promise<void> {
 
-        this._log.success('Got START GAME PACKET!')
+        this._log.success('Got start game packet!')
         this._gameInfo = pak
         await this.sendPacket(Packets.SetLocalPlayerAsInitialized, {
             runtime_entity_id: pak.runtime_entity_id,
