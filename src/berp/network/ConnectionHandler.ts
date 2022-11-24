@@ -41,7 +41,7 @@ export class ConnectionHandler extends RakManager {
 
     this.setMaxListeners(Infinity)
 
-    this.once('rak_connected', this._handleLogin.bind(this))
+    this.once('connect_allowed', this._handleLogin.bind(this))
     this.once(Packets.ServerToClientHandshake, this._handleHandshake.bind(this))
     this.once(Packets.ResourcePacksInfo, async () => {
       await this._handleAcceptPacks()
@@ -51,7 +51,7 @@ export class ConnectionHandler extends RakManager {
     this.once(Packets.StartGame, this._handleGameStart.bind(this))
     this.on(Packets.PlayerList, this._playerQue.bind(this))
     this.once(Packets.Disconnect, this._handleDisconnect.bind(this))
-    this.once('rak_closed', this._handleDisconnect.bind(this))
+    this.once('close', this._handleDisconnect.bind(this))
 
     this.on(Packets.TickSync, (pak) => {
       this._tickSync = pak.response_time
@@ -59,7 +59,7 @@ export class ConnectionHandler extends RakManager {
     this._log.success("Initialized")
     // TEMP ---- Bad Bad Bad... Dont care tho lol. BeRP v2 coming soon
     // The start_game packet isn't being detected by BeRP anymore, very strange...
-    setTimeout(async () => {
+/*     setTimeout(async () => {
       if(this._gameInfo) return
       this._registerPlugins()
       
@@ -75,7 +75,7 @@ export class ConnectionHandler extends RakManager {
           response_time: 0n,
         })
       }, 50 * ConnectionHandler.KEEPALIVEINT)
-    }, 5000)
+    }, 5000) */
   }
   public getGameInfo(): packet_start_game { return this._gameInfo }
   public getLogger(): Logger { return this._log }

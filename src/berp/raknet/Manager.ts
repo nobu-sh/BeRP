@@ -97,7 +97,7 @@ export class RakManager extends EventEmitter {
     })
     this.X509 = this.publicKeyDER.toString('base64')
     
-    this._raknet = new Raknet(host, port, 10)
+    this._raknet = new Raknet(host, port, 11)
     this._handlePackets()
   }
   public getRakLogger(): Logger { return this._logger }
@@ -113,21 +113,8 @@ export class RakManager extends EventEmitter {
     this._raknet.on('pong', () => {
       this.emit('rak_pong')
     })
-    this._raknet.on('raw', async (packet) => {
-      // console.log(packet)
-      try {
-        for (const pak of await this.packetHandler.readPacket(packet)) {
-          // console.log(pak.name)
-          this.emit("all", {
-            name: pak.name,
-            params: pak.params, 
-          })
-          this.emit(pak.name, pak.params as any)
-        }
-      } catch (err) {
-        const error = "Failed to read imbound packet: " + err
-        this._logger.error(error)
-      }
+    this._raknet.on('packet', async ({ name, params}) => {
+      this.emit(name, params);
     })
   }
 
@@ -289,13 +276,7 @@ export class RakManager extends EventEmitter {
   }
   public async sendPacket<K extends keyof ServerBoundPackets>(name: K, params: ServerBoundPackets[K][0]): Promise<{ name: K, params: ServerBoundPackets[K][0] }> {
     try {
-      const newPacket = await this.packetHandler.createPacket(name, params)
-      this._raknet.writeRaw(newPacket)
-
-      return {
-        name,
-        params,
-      }
+      return this._raknet.sendPacket(name, params)
     } catch (error) {
       this._logger.error("Failed to create outbound packet:", error)
       throw error
