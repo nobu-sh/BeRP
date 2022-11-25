@@ -1,5 +1,5 @@
-# BERP
-*It just won't stay dead!*
+<h1 align="center">BERP</h1>
+<h3 align="center"><i>"It just won't stay dead!"</i></h3>
 
 
   <hr>
