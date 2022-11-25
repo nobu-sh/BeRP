@@ -2,9 +2,11 @@ import { MCHeaders } from "./types/berp"
 import { resolve } from 'path'
 
 export const ProtoDataPath = resolve(process.cwd(), 'data')
-export const CUR_VERSION = '1.19.30'
-export const CUR_VERSION_PROTOCOL = 554
-export const BeRP_VERSION = '1.0.6'
+ 
+export const CUR_VERSION = '1.19.40'
+export const CUR_VERSION_PROTOCOL = 557
+export const BeRP_VERSION = '1.0.7'
+
 
 const MCRAPI = "https://pocket.realms.minecraft.net/"
 

@@ -19,6 +19,7 @@ import { BeRP } from ".."
 
 
 export class ConnectionHandler extends RakManager {
+
     public static readonly KEEPALIVEINT = 10
     public readonly host: string
     public readonly port: number
@@ -121,6 +122,10 @@ export class ConnectionHandler extends RakManager {
             if (record.username == this.getXboxProfile().extraData.displayName) continue
             this.playerQue.push(record)
         }
+
+
+ 
+  
     }
 
     private async _handleDisconnect(pak?: packet_disconnect): Promise<void> {
