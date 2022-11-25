@@ -1,3 +1,4 @@
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   KeyPairKeyObjectResult,
@@ -75,7 +76,10 @@ export class RakManager extends EventEmitter {
   public readonly CURVE = "secp384r1"
   public readonly ALGORITHM = "ES384"
   public readonly PUBLIC_KEY_ONLINE = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V"
-  private connected = false
+  private connected: boolean = false
+  public compressionAlgorithm: "deflate" | "snappy" | "none" = "deflate"
+  public compressionThreshold: number
+  public compressionLevel: number
   constructor(host: string, port: number, username: string, id: number) {
     super()
 
@@ -113,8 +117,21 @@ export class RakManager extends EventEmitter {
     this._raknet.on('pong', () => {
       this.emit('rak_pong')
     })
-    this._raknet.on('packet', async ({ name, params}) => {
-      this.emit(name, params);
+    this._raknet.on('raw', async (packet) => {
+      // console.log(packet)
+      try {
+        for (const pak of await this.packetHandler.readPacket(packet)) {
+          // console.log(pak.name)
+          this.emit("all", {
+            name: pak.name,
+            params: pak.params, 
+          })
+          this.emit(pak.name, pak.params as any)
+        }
+      } catch (err) {
+        const error = "Failed to read inbound packet: " + err
+        this._logger.error(error)
+      }
     })
   }
 
@@ -276,7 +293,13 @@ export class RakManager extends EventEmitter {
   }
   public async sendPacket<K extends keyof ServerBoundPackets>(name: K, params: ServerBoundPackets[K][0]): Promise<{ name: K, params: ServerBoundPackets[K][0] }> {
     try {
-      return this._raknet.sendPacket(name, params)
+      const newPacket = await this.packetHandler.createPacket(name, params)
+      this._raknet.writeRaw(newPacket)
+
+      return {
+        name,
+        params,
+      }
     } catch (error) {
       this._logger.error("Failed to create outbound packet:", error)
       throw error

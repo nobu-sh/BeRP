@@ -1,7 +1,8 @@
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Client } from 'bedrock-protocol'
 import { EventEmitter } from 'events'
 import {
+  Client,
   PacketReliability,
   PacketPriority,
 } from 'raknet-native'
@@ -29,7 +30,7 @@ export interface Raknet {
     event: Exclude<S, keyof RaknetEvents>,
     ...args: any[]
   ): boolean
-  sendPacket(name: string, params: object): any
+  writeRaw(packet: Buffer, priority?: PacketPriority, reliability?: PacketReliability, orderingChannel?: number): void
 }
 
 export class Raknet extends EventEmitter {
@@ -42,7 +43,7 @@ export class Raknet extends EventEmitter {
     super()
     this.host = host
     this.port = port
-    this.protocolVersion = protocol
+    this.protocolVersion = protocol | 11
     
     this._onConnect = this._onConnect.bind(this)
     this._onPong = this._onPong.bind(this)
@@ -50,53 +51,41 @@ export class Raknet extends EventEmitter {
     this._onClose = this._onClose.bind(this)
 
 
-    this.connection = new Client({
-      host: host,
-      port: port,
-      //@ts-ignore
-      protocolVersion: protocol
-    })
+    this.connection = new Client(host, port, {protocolVersion: this.protocolVersion})
     this.connection.on('connect', this._onConnect)
     this.connection.on('pong', this._onPong)
     this.connection.on('encapsulated', this._onEncapsulated)
     this.connection.on('disconnect', this._onClose)
   }
-  
   private _onConnect() {
     this.emit('connected')
   } 
-
   private _onPong() {
     this.emit('pong')
   }
-
   private _onEncapsulated(arg: { buffer: Buffer, address: string, guid: string }) {
-    this.emit('raw', Buffer.from(arg.buffer), arg.address, arg.guid)
+    if (this.connected) {
+      this.emit('raw', Buffer.from(arg.buffer), arg.address, arg.guid)
+    }
   }
-
   private _onClose() {
     this.emit('closed')
   }
-
-  public sendPacket(name: string, params: object) {
-    return this.connection.queue(name, params)
-  }
-
   public killConnection(): void {
     this.removeAllListeners()
     if (this.connection) {
+      this.connected = false;
       this.connection.close()
     }
   }
-
+  public writeRaw(packet: Buffer, priority?: PacketPriority, reliability?: PacketReliability, orderingChannel?: number): void {
+    this.connection.send(packet, priority || PacketPriority.IMMEDIATE_PRIORITY, reliability || PacketReliability.RELIABLE_ORDERED, orderingChannel || 0)
+  }
   public connect(): void {
     if (!this.connected) {
-      this.connected = true
-      //@ts-ignore
+      this.connected = true;
       this.connection.connect()
-      this.connection.on('packet', ({ data }) => {
-        this.emit('packet', data)
-      })
     }
   }
 }
+

@@ -1,5 +1,27 @@
-<h1 align="center">BERP</h1>
-<h3 align="center"><i>"It just won't stay dead!"</i></h3>
+# BeRP
+### "It just won't stay dead!"
+
+
+# Description
+A Raknet framework for connecting to Minecraft Bedrock realms with plugin support.
+
+<br><br>
+[![CodeQL](https://github.com/DJStompZone/BeRP/actions/workflows/codeql.yml/badge.svg?branch=1.19)](https://github.com/DJStompZone/BeRP/actions/workflows/codeql.yml)
+
+<br>
+<br>
+
+
+# Install Instructions
+### Windows
+- Run `nubuild.bat`
+- If everything is working, terminate BeRP and continue
+- Add plugins to the `plugins/` directory
+- Run `windows_start.bat` 
+- Enjoy
+
+### Linux
+- Figure it out yourself, nerd <3
 
 
   <hr>
@@ -15,8 +37,4 @@
   <p align="center">
     <a href="https://discord.io/stomp"><img src="https://img.shields.io/discord/599808270655291403?color=blue&label=Discord&logo=discord&logoColor=blue&style=for-the-badge"></a>
   </p></div></p>
-
-
-
-
 

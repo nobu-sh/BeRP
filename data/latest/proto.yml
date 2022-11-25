@@ -3,6 +3,7 @@
 # The output protocol.json will be in the folder for the version
 !version: 1.19.40
 
+
 # Some ProtoDef aliases
 string: ["pstring",{"countType":"varint"}]            # String / array types
 ByteArray: ["buffer",{"countType":"varint"}]
