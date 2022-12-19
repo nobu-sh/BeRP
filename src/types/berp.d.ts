@@ -199,6 +199,7 @@ export interface JsonData {
 
 export interface Player {
   getName(): string
+  toString(): string
   getNickname(): string
   getRealmID(): number
   getUUID(): string 

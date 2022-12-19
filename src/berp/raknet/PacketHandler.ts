@@ -11,20 +11,22 @@ import {
 import zlib from 'zlib'
 const [readVarInt, writeVarInt, sizeOfVarInt] = types.varint
 import { Encryption } from './Encryption'
+import { Logger } from '../../console'
 
 export class PacketHandler {
   private serializer: Serializer
   private deserializer: Parser
   private encryptor: Encryption
+  private _log: Logger
   private encryptionStarted = false
   constructor() {
     this.serializer = createSerializer()
     this.deserializer = createDeserializer()
+    this._log = new Logger(`Packet Handler`, 'magentaBright')
   }
   public getSerializer(): Serializer { return this.serializer }
   public getDeserializer(): Parser { return this.deserializer }
   public getEncryptor(): Encryption { return this.encryptor }
-
   public startEncryption(iv: Buffer, secretKeyBytes: Buffer): void {
     this.encryptor = new Encryption(iv, secretKeyBytes)
     this.encryptionStarted = true
@@ -48,9 +50,15 @@ export class PacketHandler {
     try {
       if (buffer[0] === 0xfe) {
         if (this.encryptionStarted) {
-          return await this._handleReadEPak(buffer)
+          const epkt =  await this._handleReadEPak(buffer)
+          // this._log.info(epkt)
+          // Uncomment for encrypted packet dumping
+          return epkt
         } else {
-          return Promise.resolve(this._handleReadUPak(buffer))
+          const pkt = Promise.resolve(this._handleReadUPak(buffer))
+          // this._log.info(pkt)
+          // Uncomment for unencrypted packet dumping
+          return pkt
         }
       }
     } catch (error) {

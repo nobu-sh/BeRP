@@ -13,7 +13,9 @@ import {
   RealmAPIWorld,
 } from "src/types/berp"
 import { BeRP } from ".."
-// TODO: Client/plugins can control connection/diconnection of rak
+
+// TODO: Client/plugins can control connection/diconnection of rak 
+// Coming [Soon™]
 
 
 export class ConnectionHandler extends RakManager {
@@ -41,7 +43,7 @@ export class ConnectionHandler extends RakManager {
 
     this.setMaxListeners(Infinity)
 
-    this.once('rak_connected', this._handleLogin.bind(this))
+    this.once('connect_allowed', this._handleLogin.bind(this))
     this.once(Packets.ServerToClientHandshake, this._handleHandshake.bind(this))
     this.once(Packets.ResourcePacksInfo, async () => {
       await this._handleAcceptPacks()
@@ -51,16 +53,16 @@ export class ConnectionHandler extends RakManager {
     this.once(Packets.StartGame, this._handleGameStart.bind(this))
     this.on(Packets.PlayerList, this._playerQue.bind(this))
     this.once(Packets.Disconnect, this._handleDisconnect.bind(this))
-    this.once('rak_closed', this._handleDisconnect.bind(this))
+    this.once('close', this._handleDisconnect.bind(this))
 
     this.on(Packets.TickSync, (pak) => {
       this._tickSync = pak.response_time
     })
     this._log.success("Initialized")
-    // TEMP ---- Bad Bad Bad... Dont care tho lol. BeRP v2 coming soon
-    // The start_game packet isn't being detected by BeRP anymore, very strange...
-    setTimeout(async () => {
+      setTimeout(async () => {
       if(this._gameInfo) return
+
+
       this._registerPlugins()
       
       this.emit("rak_ready")
@@ -75,8 +77,30 @@ export class ConnectionHandler extends RakManager {
           response_time: 0n,
         })
       }, 50 * ConnectionHandler.KEEPALIVEINT)
+
+
+
+    
+    
+      this.on(Packets.StartGame, async (pkt) => {
+        try {
+          this._log.success("Got packet_start_game :)")
+          this._log.success(`Realm: ${pkt.world_name} `, `difficulty: ${pkt.difficulty} `, `Gamerules: ${pkt.gamerules} `, `Player Position: ${pkt.player_position}`)
+          
+          
+          return
+        } catch (error) {
+          this._log.error("Tried to serialize and log from 'packet_start_game' but encountered an error:")
+          this._log.error(error)
+          this._log.warn("Show this log to a developer!")
+          
+          return
+        }
+      })
     }, 5000)
+
   }
+
   public getGameInfo(): packet_start_game { return this._gameInfo }
   public getLogger(): Logger { return this._log }
   public getTick(): bigint { return this._tickSync }
@@ -143,6 +167,7 @@ export class ConnectionHandler extends RakManager {
     })
   }
   private async _handleGameStart(pak: packet_start_game): Promise<void> {
+    
     console.log('game started... If you see this, message PMK744.')
     this._gameInfo = pak
     await this.sendPacket(Packets.SetLocalPlayerAsInitialized, {
