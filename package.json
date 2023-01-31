@@ -49,7 +49,7 @@
     "jimp": "^0.16.1",
     "@types/uuid": "^8.3.1",
     "@xboxreplay/xboxlive-auth": "^3.3.3",
-    "axios": "^0.21.1",
+    "axios": "^1.3.0",
     "chalk": "^4.1.1",
     "cli-select": "^1.1.2",
     "enquirer": "github:NobUwU/enquirer#typings",
