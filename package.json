@@ -58,7 +58,7 @@
     "enquirer": "github:NobUwU/enquirer#typings",
     "jimp": "^0.16.1",
     "js-yaml": "^4.1.0",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "moment": "^2.29.1",
     "prismarine-nbt": "^1.5.0",
     "protodef": "^1.14.0",
