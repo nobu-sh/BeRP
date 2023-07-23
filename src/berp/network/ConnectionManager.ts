@@ -49,23 +49,35 @@ export class ConnectionManager {
   }
 
   public kill(): void {
+    this._logger.info("ConnectionManager recieved call to kill()")
     if (this._accountAuthRefresh) {
+	  this._logger.info("Clearing auth refresh interval")
       clearInterval(this._accountAuthRefresh)
     }
+	this._logger.info("kill() - Done, calling closeAll()")
     this.closeAll()
   }
 
   public closeAll(): void {
+    this._logger.info("ConnectionManager recieved call to closeAll(), looking for active connections...")
     if (this._connections.size) {
+	  this._logger.info(`closeAll() found ${this._connections.size} connection(s), closing...`)
       for (const [, connection] of this._connections) {
         connection.close()
       }
     }
+	this._logger.info("closeAll() - Done")
   }
+  
+  
+  
+  
   public closeSingle(id: number): void {
     const connection = this._connections.get(id)
     if (connection) {
+	  this._logger.info(`ConnectionManager recieved call to closeSingle(${id})`)
       connection.close()
+	  this._logger.success(`Connection ${id} closed`)
     }
   }
 
@@ -84,6 +96,7 @@ export class ConnectionManager {
         })
 
         newConnection.connect()
+		this._logger.success(`ConnectionManager: Connected to ${host}:${port}, realm ID ${realm.id}`)
       } catch (error) {
         rj(error)
       }

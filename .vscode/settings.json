@@ -1,3 +1,10 @@
 {
-  "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "terminal.integrated.shellIntegration.enabled": true,
+  "#terminal.integrated.automationProfile.windows#": "${env:windir}\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+  "discord.removeRemoteRepository": true,
+  "discord.detailsDebugging": "Debugging {file_name}",
+  "discord.largeImage": "Editing a {lang} file",
+  "discord.lowerDetailsDebugging": "Debugging: {file_name} in {workspace}",
+  "discord.lowerDetailsEditing": "Editing: {file_name} - Line {current_line}/{total_lines}"
 }

@@ -39,6 +39,7 @@ export class Player {
     this._pluginApi.getPlayerManager().addPlayer(this)
   }
   public getName(): string { return this._name }
+  public toString(): string { return this._name }
   public getNameTag(): string { return this._nameTag }
   public getRealmID(): number { return this._realmID }
   public getUUID(): string { return this._uuid }

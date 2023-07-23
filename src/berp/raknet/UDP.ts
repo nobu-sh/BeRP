@@ -1,3 +1,4 @@
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { EventEmitter } from 'events'
 import {
@@ -42,7 +43,7 @@ export class Raknet extends EventEmitter {
     super()
     this.host = host
     this.port = port
-    this.protocolVersion = protocol
+    this.protocolVersion = protocol | 11
     
     this._onConnect = this._onConnect.bind(this)
     this._onPong = this._onPong.bind(this)
@@ -50,7 +51,7 @@ export class Raknet extends EventEmitter {
     this._onClose = this._onClose.bind(this)
 
 
-    this.connection = new Client(host, port, { protocolVersion: protocol })
+    this.connection = new Client(host, port, {protocolVersion: this.protocolVersion})
     this.connection.on('connect', this._onConnect)
     this.connection.on('pong', this._onPong)
     this.connection.on('encapsulated', this._onEncapsulated)
@@ -63,7 +64,9 @@ export class Raknet extends EventEmitter {
     this.emit('pong')
   }
   private _onEncapsulated(arg: { buffer: Buffer, address: string, guid: string }) {
-    this.emit('raw', Buffer.from(arg.buffer), arg.address, arg.guid)
+    if (this.connected) {
+      this.emit('raw', Buffer.from(arg.buffer), arg.address, arg.guid)
+    }
   }
   private _onClose() {
     this.emit('closed')
@@ -71,6 +74,7 @@ export class Raknet extends EventEmitter {
   public killConnection(): void {
     this.removeAllListeners()
     if (this.connection) {
+      this.connected = false;
       this.connection.close()
     }
   }
@@ -79,8 +83,9 @@ export class Raknet extends EventEmitter {
   }
   public connect(): void {
     if (!this.connected) {
-      this.connected = true
+      this.connected = true;
       this.connection.connect()
     }
   }
 }
+

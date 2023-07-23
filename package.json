@@ -1,17 +1,18 @@
 {
   "name": "berp",
-  "version": "1.0.0",
+  "version": "1.0.6",
   "description": "a raknet implementation solution for bedrock edition realms",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "start": "cross-env NODE_ENV=production node dist/index.js",
     "dev": "cross-env NODE_ENV=development ts-node src/index.ts",
-    "lint": "eslint src/**"
+    "lint": "eslint src/** --fix",
+    "all": "npm rebuild ; npm i --save-dev ; tsc ; eslint src/** --fix ; cross-env NODE_ENV=development ts-node src/index.ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/NobUwU/BeRP.git"
+    "url": "git+https://github.com/DJStompZone/BeRP.git"
   },
   "keywords": [
     "mcbe",
@@ -26,9 +27,9 @@
   "author": "NobUwU",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/NobUwU/BeRP/issues"
+    "url": "https://github.com/DJStompZone/BeRP/issues"
   },
-  "homepage": "https://github.com/NobUwU/BeRP#readme",
+  "homepage": "https://discord.io/stomp",
   "devDependencies": {
     "@types/js-yaml": "^4.0.2",
     "@types/jsonwebtoken": "^8.5.4",
@@ -36,25 +37,28 @@
     "@types/readable-stream": "^2.3.11",
     "@types/uuid-1345": "^0.99.22",
     "@typescript-eslint/eslint-plugin": "^4.28.3",
-    "@typescript-eslint/parser": "^4.28.3",
+    "@typescript-eslint/parser": "^4.33.0",
     "babel-eslint": "^10.1.0",
     "cross-env": "^7.0.3",
     "eslint": "^7.30.0",
+    "eslint-import-resolver-typescript": "^2.7.1",
+    "eslint-plugin-import": "^2.26.0",
     "nodemon": "^2.0.12",
     "ts-node": "^10.3.0",
     "typescript": "^4.3.5"
   },
   "dependencies": {
     "@azure/msal-node": "^1.2.0",
-    "jimp": "^0.16.1",
     "@types/uuid": "^8.3.1",
     "@xboxreplay/xboxlive-auth": "^3.3.3",
     "axios": "^0.21.1",
+    "bedrock-protocol": "^3.21.0",
     "chalk": "^4.1.1",
     "cli-select": "^1.1.2",
     "enquirer": "github:NobUwU/enquirer#typings",
+    "jimp": "^0.16.1",
     "js-yaml": "^4.1.0",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "moment": "^2.29.1",
     "prismarine-nbt": "^1.5.0",
     "protodef": "^1.14.0",

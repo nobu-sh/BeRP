@@ -2,9 +2,11 @@ import { MCHeaders } from "./types/berp"
 import { resolve } from 'path'
 
 export const ProtoDataPath = resolve(process.cwd(), 'data')
-export const CUR_VERSION = '1.19.20'
-export const CUR_VERSION_PROTOCOL = 544
-export const BeRP_VERSION = '1.0.0'
+ 
+export const CUR_VERSION = '1.19.40'
+export const CUR_VERSION_PROTOCOL = 557
+export const BeRP_VERSION = '1.0.7'
+
 
 const MCRAPI = "https://pocket.realms.minecraft.net/"
 
@@ -64,8 +66,8 @@ export const Endpoints = {
   },
 }
 
-// Should Never Have To Change Unless Nobus Microsoft Account Gets Yeeted
-export const AzureClientID = "d4e8e17a-f8ae-47b8-a392-8b76fcdb10d2"
+// Should never have to change unless the Stompzone Azure AD gets yote
+export const AzureClientID = "1e593715-c6eb-4d63-afcc-9a66831b52c9"
 
 export const Scopes = ["Xboxlive.signin", "Xboxlive.offline_access"]
 
@@ -83,7 +85,7 @@ export const RealmAPIHeaders = (token: string): MCHeaders => {
     "authorization": token,
     "Connection": "Keep-Alive",
     "Host": "pocket.realms.minecraft.net",
-    "User-Agent": "BeRP [Bedrock Edition Realm Protocol](https://github.com/nobuwu/berp)",
+    "User-Agent": "BeRP [Bedrock Edition Realm Protocol](https://github.com/DJStompZone/berp)",
   }
 }
 export const MinecraftAuthHeaders = (token: string): MCHeaders => {
@@ -98,6 +100,6 @@ export const MinecraftAuthHeaders = (token: string): MCHeaders => {
     "authorization": token,
     "Connection": "Keep-Alive",
     "Host": "multiplayer.minecraft.net",
-    "User-Agent": "BeRP [Bedrock Edition Realm Protocol](https://github.com/nobuwu/berp)",
+    "User-Agent": "BeRP [Bedrock Edition Realm Protocol](https://github.com/DJStompZone/berp)",
   }
 }
