@@ -134,7 +134,7 @@ export class Player {
     this._pluginApi.getCommandManager().executeCommand(`scoreboard players ${operation} "${this.getExecutionName()}" ${objective} ${value}`)
   }
   public kick(reason: string): void {
-    this._pluginApi.getCommandManager().executeCommand(`kick "${this.getExecutionName()}" ${reason}`)
+    this._pluginApi.getCommandManager().executeCommand(`kick "${this.getXuid()}" ${reason}`)
   }
   public async getItemCount(item: string): Promise<number> {
     return new Promise((r) => {
